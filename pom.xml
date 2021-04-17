@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>eu.europa.ec.dgc</groupId>
+    <artifactId>dgc-lib</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>dgc-lib</name>
+    <description>Library with common used methods and classes for European Digital Green Certificate Services.
+    </description>
+    <organization>
+        <name>T-Systems International GmbH</name>
+    </organization>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <!-- charset -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- dependencies -->
+        <owasp.version>6.1.1</owasp.version>
+        <spring.boot.version>2.4.4</spring.boot.version>
+        <bcpkix.version>1.68</bcpkix.version>
+        <lombok.version>1.18.20</lombok.version>
+        <junit.version>5.7.1</junit.version>
+
+        <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
+        <plugin.sonar.version>3.6.1.1688</plugin.sonar.version>
+        <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
+
+        <!-- license -->
+        <license.projectName>EU Digital Green Certificate Gateway Service / dgc-lib</license.projectName>
+        <license.inceptionYear>2021</license.inceptionYear>
+        <license.licenseName>apache_v2</license.licenseName>
+        <!-- github -->
+        <github.organization>eu-digital-green-certificates</github.organization>
+        <github.project>dgc-lib</github.project>
+
+        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
+    </properties>
+
+    <url>https://github.com/eu-digital-green-certificates/dgc-lib</url>
+    <ciManagement>
+        <url>https://github.com/eu-digital-green-certificates/dgc-lib/actions?query=workflow%3Aci</url>
+    </ciManagement>
+    <issueManagement>
+        <url>https://github.com/eu-digital-green-certificates/dgc-lib/issues</url>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/eu-digital-green-certificates/dgc-lib</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/${github.organization}/${github.project}</url>
+        </repository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+            <version>${lombok.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${bcpkix.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <version>${spring.boot.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${plugin.checkstyle.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.surefire.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.0.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${owasp.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                    <suppressionFile>./owasp/suppressions.xml</suppressionFile>
+                    <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>codestyle/checkstyle.xml</configLocation>
+                    <excludes>target/**/*</excludes>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <violationSeverity>warning</violationSeverity>
+                    <failOnViolation>true</failOnViolation>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <includes>**/*.java</includes>
+                    <copyrightOwners>${project.organization.name} and all other contributors</copyrightOwners>
+                    <processStartTag>---license-start</processStartTag>
+                    <processEndTag>---license-end</processEndTag>
+                    <sectionDelimiter>---</sectionDelimiter>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                    <trimHeaderLine>true</trimHeaderLine>
+                    <emptyLineAfterHeader>true</emptyLineAfterHeader>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
