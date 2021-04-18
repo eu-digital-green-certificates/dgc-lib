@@ -25,9 +25,11 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,6 +67,30 @@ public class CertificateUtils {
             log.error("Could not calculate thumbprint of certificate.");
             return null;
         }
+    }
+
+    /**
+     * Converts a X509Certificate into a X509CertificateHolder.
+     *
+     * @param inputCertificate the certificate to convert
+     * @return converted certificate
+     * @throws CertificateEncodingException if converting has failed.
+     */
+    public X509CertificateHolder convertCertificate(X509Certificate inputCertificate)
+        throws CertificateEncodingException, IOException {
+        return new X509CertificateHolder(inputCertificate.getEncoded());
+    }
+
+    /**
+     * Converts a X509CertificateHolder into a X509Certificate.
+     *
+     * @param inputCertificate the certificate to convert
+     * @return converted certificate
+     * @throws CertificateException if converting has failed.
+     */
+    public X509Certificate convertCertificate(X509CertificateHolder inputCertificate)
+        throws CertificateException {
+        return new JcaX509CertificateConverter().getCertificate(inputCertificate);
     }
 
     private String calculateHash(byte[] data) throws NoSuchAlgorithmException {

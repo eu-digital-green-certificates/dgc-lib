@@ -36,6 +36,9 @@ import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
 
+/**
+ * Utility to parse a CMS signed message containing a DER encoded X509 Certificate.
+ */
 @Slf4j
 public class SignedCertificateMessageParser {
 
