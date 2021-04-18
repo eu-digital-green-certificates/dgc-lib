@@ -39,6 +39,9 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 
+/**
+ * Utility to build a CMS signed message containing a DER encoded X509 certificate.
+ */
 @Slf4j
 @NoArgsConstructor
 public class SignedCertificateMessageBuilder {
