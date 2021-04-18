@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="#development">Development</a> •
+  <a href="#Usage">Usage</a> •
   <a href="#documentation">Documentation</a> •
   <a href="#support-and-feedback">Support</a> •
   <a href="#how-to-contribute">Contribute</a> •
@@ -17,60 +18,190 @@
   <a href="#licensing">Licensing</a>
 </p>
 
-- [ ] TODO
-
 ## Status
 
 ![ci](https://github.com/eu-digital-green-certificates/dgc-lib/actions/workflows/ci-master.yml/badge.svg)
 
+## Usage
+
+Include as Maven Dependency in pom.xml
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>eu.europa.ec.dgc</groupId>
+        <artifactId>dgc-lib</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    ...
+</dependencies>
+```
+
+**Attention:**
+Despite the dgc-lib will be build by GitHub it is not possible to publicly provide access to this artifact.
+As long as this package will not be put into a public registry you have to build it by your own. 
+
 ## Development
-
-### Prerequisites
-
-- [ ] TODO
 
 ### Build
 
-Whether you cloned or downloaded the 'zipped' sources you will either find the sources in the chosen checkout-directory or get a zip file with the source code, which you can expand to a folder of your choice.
+Whether you cloned or downloaded the 'zipped' sources you will either find the sources in the chosen checkout-directory
+or get a zip file with the source code, which you can expand to a folder of your choice.
 
-In either case open a terminal pointing to the directory you put the sources in. The local build process is described afterwards depending on the way you choose.
+In either case open a terminal pointing to the directory you put the sources in. The local build process is described
+afterwards depending on the way you choose.
 
-#### XYZ (Maven, ...) based build
+#### Maven based build
 
-- [ ] TODO
+Building this project is done with maven.
 
-#### API documentation  
+```shell
+mvnw install
+```
 
-- [ ] TODO
+Will download all required dependencies, build the project and stores the artifact in your local repository.
 
-## Documentation  
+## Documentation
 
-- [ ] TODO
+The following chapter describes the features of dgc-lib and how to use them.
+
+### Signing
+
+#### Create Signed Certificate CMS Message
+
+To upload a certificate as trusted issuer it needs to be send as a signed CMS message. The CMS message needs to be
+signed by your previously sent signing certificate.
+
+In order to create such a signed message you need you signing certificate and the corresponding private key. You also
+need the certificate you want to envelope into the signed message. Both certificates should be in BouncyCastle's
+X509CertificateHolder format
+
+To create the signed message the following call is required:
+
+```java
+String signedMessaged = new SignedCertificateMessageBuilder()
+    .withSigningCertificate(signingCert,signingCertPrivateKey)
+    .withPayloadCertificate(inputCert.getEncoded())
+    .buildAsString();
+```
+
+This call returns a base64 encoded string with the signed message.
+
+If one of your certificates is in X509Certificate format you can simply convert them using the convert methods from
+Utils package.
+
+#### Parse Signed Certificate CMS Message
+
+When a certificate is received it needs to be "unpacked". To do so the SignedCertificateMessageParser can be utilized.
+
+Simply instantiate ```SignedCertificateMessageParser``` with the base64 encoded String.
+
+```java
+SignedCertificateMessageParser parser = new SignedCertificateMessageParser(inputString);
+```
+
+The parser will immediately parse the message. The result can be obtained from
+
+```java
+parser.getParserState()
+```
+
+If the state is ```SUCCESS``` the syntax of the message was correct and the certificate could be parsed.
+
+Also the parser checks if the signature of the CMS message was created by the embedded signer certificate. To obtain the
+result of this check just read the property
+
+```java
+parser.isSignatureVerified()
+```
+
+The signer certificate and the containing certificate can be accessed by
+
+```java
+parser.getSigningCertificate()
+parser.getPayloadCertificate()
+```
+
+### Utils
+
+### Certificate Utils
+
+The Certificate Utils class provides a few methods related to certificate handling. The class can be injected through
+Spring's Dependency Injection.
+
+#### Convert Certificate
+
+The convert Certificate can be used to convert a X509Certificate into BouncyCastle's X509CertificateHolder format and
+vice versa.
+
+```java
+import eu.europa.ec.dgc.utils.CertificateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+class Convert {
+
+    @Autowired
+    CertificateUtils certificateUtils;
+
+    public static void main() {
+        X509Certificate x509Certificate = cert; /* your X509Certificate */
+        X509CertificateHolder x509CertificateHolder = certificateUtils.convertCertificate(x509Certificate);
+    }
+}
+```
+
+#### Calculate Certificate SHA-256 Hash
+
+This method can be used to calculate the SHA-256 hash of X509Certificate (or BouncyCastle's X509CertificateHolder)
+The result is a String encoded Hex String containing the certificates hash (64 character)
+
+```java
+import eu.europa.ec.dgc.utils.CertificateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+class Hash {
+
+    @Autowired
+    CertificateUtils certificateUtils;
+
+    public static void main() {
+        System.out.println(
+            certificateUtils.getCertThumbprint(x509Certificate)
+        );
+    }
+}
+```
 
 ## Support and feedback
 
 The following channels are available for discussions, feedback, and support requests:
 
-| Type                     | Channel                                                |
-| ------------------------ | ------------------------------------------------------ |
+| Type                      | Channel                                                |
+| ------------------------- | ------------------------------------------------------ |
 | **DGC Gateway issues**    | <a href="https://github.com/eu-digital-green-certificates/dgc-gateway/issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-gateway?style=flat"></a>  |
-| **DGC Lib issues**    | <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>  |
-| **Other requests**    | <a href="mailto:opensource@telekom.de" title="Email DGC Team"><img src="https://img.shields.io/badge/email-EFGS%20team-green?logo=mail.ru&style=flat-square&logoColor=white"></a>   |
+| **DGC Lib issues**        | <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>  |
+| **Other requests**        | <a href="mailto:opensource@telekom.de" title="Email DGC Team"><img src="https://img.shields.io/badge/email-DGC%20team-green?logo=mail.ru&style=flat-square&logoColor=white"></a>   |
 
-## How to contribute  
+## How to contribute
 
-Contribution and feedback is encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](./CONTRIBUTING.md). By participating in this project, you agree to abide by its [Code of Conduct](./CODE_OF_CONDUCT.md) at all times.
+Contribution and feedback is encouraged and always welcome. For more information about how to contribute, the project
+structure, as well as additional contribution information, see our [Contribution Guidelines](./CONTRIBUTING.md). By
+participating in this project, you agree to abide by its [Code of Conduct](./CODE_OF_CONDUCT.md) at all times.
 
-## Contributors  
+## Contributors
 
-Our commitment to open source means that we are enabling -in fact encouraging- all interested parties to contribute and become part of its developer community.
+Our commitment to open source means that we are enabling -in fact encouraging- all interested parties to contribute and
+become part of its developer community.
 
 ## Licensing
 
 Copyright (C) 2021 T-Systems International GmbH and all other contributors
 
-Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with the License.
+Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with
+the License.
 
 You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the [LICENSE](./LICENSE) for the specific language governing permissions and limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "
+AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the [LICENSE](./LICENSE) for
+the specific language governing permissions and limitations under the License.
