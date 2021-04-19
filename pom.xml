@@ -40,8 +40,6 @@
         <!-- github -->
         <github.organization>eu-digital-green-certificates</github.organization>
         <github.project>dgc-lib</github.project>
-
-        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
     </properties>
 
     <url>https://github.com/eu-digital-green-certificates/dgc-lib</url>
@@ -134,19 +132,6 @@
                         <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                            <goal>build-info</goal>
                         </goals>
                     </execution>
                 </executions>
