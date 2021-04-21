@@ -77,6 +77,14 @@ public class SignedCertificateMessageParser {
     private boolean signatureVerified = false;
 
     /**
+     * <p>Base64 encoded signature of the cms message.</p>
+     *
+     * <p>This string contains only the signature which signs the message.</p>
+     */
+    @Getter
+    private String signature;
+
+    /**
      * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
@@ -154,6 +162,7 @@ public class SignedCertificateMessageParser {
             signatureVerified = signerInformation.verify(
                 new JcaSimpleSignerInfoVerifierBuilder().build(signingCertificate)
             );
+            signature = Base64.getEncoder().encodeToString(signerInformation.getSignature());
         } catch (CMSException | OperatorCreationException | CertificateException e) {
             log.error("Failed to validate Signature");
         }
