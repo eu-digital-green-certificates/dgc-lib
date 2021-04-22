@@ -39,8 +39,32 @@ import org.springframework.stereotype.Service;
 @Service
 public class CertificateUtils {
 
+    private static final byte KID_BYTE_COUNT = 8;
+
     /**
-     * Calculates the SHA-256 thumbprint of X509CertificateHolder.
+     * Calculates in DGC context used KID of {@link X509Certificate}.
+     * (KID consists of the first 8 bytes of SHA-256 Certificate HASH)
+     *
+     * @param x509Certificate the certificate the kid should be calculated for.
+     * @return 16 char long hex encoded string.
+     */
+    public String getCertKid(X509Certificate x509Certificate) {
+        return getCertThumbprint(x509Certificate).substring(0, KID_BYTE_COUNT * 2);
+    }
+
+    /**
+     * Calculates in DGC context used KID of {@link X509CertificateHolder}.
+     * (KID consists of the first 8 bytes of SHA-256 Certificate HASH)
+     *
+     * @param x509CertificateHolder the certificate the kid should be calculated for.
+     * @return 16 char long hex encoded string.
+     */
+    public String getCertKid(X509CertificateHolder x509CertificateHolder) {
+        return getCertThumbprint(x509CertificateHolder).substring(0, KID_BYTE_COUNT * 2);
+    }
+
+    /**
+     * Calculates the SHA-256 thumbprint of {@link X509Certificate}.
      *
      * @param x509Certificate the certificate the thumbprint should be calculated for.
      * @return 32-byte SHA-256 hash as hex encoded string
@@ -55,7 +79,7 @@ public class CertificateUtils {
     }
 
     /**
-     * Calculates the SHA-256 thumbprint of X509CertificateHolder.
+     * Calculates the SHA-256 thumbprint of {@link X509CertificateHolder}.
      *
      * @param x509CertificateHolder the certificate the thumbprint should be calculated for.
      * @return 32-byte SHA-256 hash as hex encoded string
@@ -70,7 +94,7 @@ public class CertificateUtils {
     }
 
     /**
-     * Converts a X509Certificate into a X509CertificateHolder.
+     * Converts a X509Certificate into a {@link X509Certificate}.
      *
      * @param inputCertificate the certificate to convert
      * @return converted certificate
@@ -82,7 +106,7 @@ public class CertificateUtils {
     }
 
     /**
-     * Converts a X509CertificateHolder into a X509Certificate.
+     * Converts a X509CertificateHolder into a {@link X509CertificateHolder}.
      *
      * @param inputCertificate the certificate to convert
      * @return converted certificate
