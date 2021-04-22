@@ -27,6 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -46,10 +48,19 @@ public class CertificateUtils {
      * (KID consists of the first 8 bytes of SHA-256 Certificate HASH)
      *
      * @param x509Certificate the certificate the kid should be calculated for.
-     * @return 16 char long hex encoded string.
+     * @return base64 encoded KID.
      */
     public String getCertKid(X509Certificate x509Certificate) {
-        return getCertThumbprint(x509Certificate).substring(0, KID_BYTE_COUNT * 2);
+        try {
+            byte[] hashBytes = calculateHashBytes(x509Certificate.getEncoded());
+            byte[] kidBytes = Arrays.copyOfRange(hashBytes, 0, KID_BYTE_COUNT - 1);
+
+            return Base64.getEncoder().encodeToString(kidBytes);
+
+        } catch (CertificateEncodingException | NoSuchAlgorithmException e) {
+            log.error("Could not calculate kid of certificate.");
+            return null;
+        }
     }
 
     /**
@@ -57,10 +68,19 @@ public class CertificateUtils {
      * (KID consists of the first 8 bytes of SHA-256 Certificate HASH)
      *
      * @param x509CertificateHolder the certificate the kid should be calculated for.
-     * @return 16 char long hex encoded string.
+     * @return base64 encoded KID.
      */
     public String getCertKid(X509CertificateHolder x509CertificateHolder) {
-        return getCertThumbprint(x509CertificateHolder).substring(0, KID_BYTE_COUNT * 2);
+        try {
+            byte[] hashBytes = calculateHashBytes(x509CertificateHolder.getEncoded());
+            byte[] kidBytes = Arrays.copyOfRange(hashBytes, 0, KID_BYTE_COUNT - 1);
+
+            return Base64.getEncoder().encodeToString(kidBytes);
+
+        } catch (NoSuchAlgorithmException | IOException e) {
+            log.error("Could not calculate kid of certificate.");
+            return null;
+        }
     }
 
     /**
@@ -126,5 +146,9 @@ public class CertificateUtils {
         }
 
         return hexString;
+    }
+
+    private byte[] calculateHashBytes(byte[] data) throws NoSuchAlgorithmException {
+        return MessageDigest.getInstance("SHA-256").digest(data);
     }
 }
