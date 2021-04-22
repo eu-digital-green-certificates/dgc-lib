@@ -80,8 +80,8 @@ To create the signed message the following call is required:
 
 ```java
 String signedMessaged = new SignedCertificateMessageBuilder()
-    .withSigningCertificate(signingCert,signingCertPrivateKey)
-    .withPayloadCertificate(inputCert.getEncoded())
+    .withSigningCertificate(signingCert, signingCertPrivateKey)
+    .withPayloadCertificate(inputCert)
     .buildAsString();
 ```
 
@@ -89,6 +89,18 @@ This call returns a base64 encoded string with the signed message.
 
 If one of your certificates is in X509Certificate format you can simply convert them using the convert methods from
 Utils package.
+
+##### Detached Message
+
+It is also possible to create a detached signature.
+Just pass the boolean value ```true``` to the ```build()``` or ```buildAsString()``` method.
+
+```java
+String detachedSignature = new SignedCertificateMessageBuilder()
+    .withSigningCertificate(signingCert, signingCertPrivateKey)
+    .withPayloadCertificate(inputCert)
+    .buildAsString(true);
+```
 
 #### Parse Signed Certificate CMS Message
 
@@ -99,6 +111,15 @@ Simply instantiate ```SignedCertificateMessageParser``` with the base64 encoded 
 ```java
 SignedCertificateMessageParser parser = new SignedCertificateMessageParser(inputString);
 ```
+
+The constructor accepts different formats as incoming message. Also detached signatures are accepted.
+
+```java
+SignedCertificateMessageParser parser = new SignedCertificateMessageParser(payloadByteArray, signatureString);
+```
+
+All combinations of String and byte[] as parameter for signature and payload are possible.
+Please be aware that the payload will be always base64 encoded (even if it is passed as byte[]). 
 
 The parser will immediately parse the message. The result can be obtained from
 
@@ -120,6 +141,12 @@ The signer certificate and the containing certificate can be accessed by
 ```java
 parser.getSigningCertificate()
 parser.getPayloadCertificate()
+```
+
+Also a detached signature can be gained from parsed message
+
+```java
+parser.getSignature()
 ```
 
 ### Utils
