@@ -199,6 +199,28 @@ class Hash {
 }
 ```
 
+#### Calculate Certificate KID
+
+This method can be used to calculate the KID of X509Certificate (or BouncyCastle's X509CertificateHolder)
+The format of this KID is used in Digital Green Certificate Context.
+
+```java
+import eu.europa.ec.dgc.utils.CertificateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+class KidTest {
+
+    @Autowired
+    CertificateUtils certificateUtils;
+
+    public static void main() {
+        System.out.println(
+            certificateUtils.getCertKid(x509Certificate)
+        );
+    }
+}
+```
+
 ## Support and feedback
 
 The following channels are available for discussions, feedback, and support requests:
