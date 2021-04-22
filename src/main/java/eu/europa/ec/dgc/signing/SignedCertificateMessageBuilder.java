@@ -79,9 +79,10 @@ public class SignedCertificateMessageBuilder {
      * <p>Builds the CMS signed certificate message.</p>
      * <p>payloadCertificate and SigningCertificate needs to be set previously.</p>
      *
+     * @param detached flag whether only the signature should be returned (detached signature)
      * @return Bytes of signed CMS message.
      */
-    public byte[] build() {
+    public byte[] build(boolean detached) {
         if (payloadCertificate == null || signingCertificate == null || signingCertificatePrivateKey == null) {
             throw new RuntimeException("Message Builder is not ready");
         }
@@ -106,7 +107,7 @@ public class SignedCertificateMessageBuilder {
             signedDataGenerator.addCertificate(signingCertificate);
 
             CMSSignedData signedData = signedDataGenerator.generate(
-                new CMSProcessableByteArray(payloadCertificate.getEncoded()), true);
+                new CMSProcessableByteArray(payloadCertificate.getEncoded()), !detached);
 
             messageBytes = signedData.getEncoded();
         } catch (OperatorCreationException | CMSException | IOException e) {
@@ -120,9 +121,30 @@ public class SignedCertificateMessageBuilder {
      * <p>Builds the CMS signed certificate message.</p>
      * <p>payloadCertificate and SigningCertificate needs to be set previously.</p>
      *
+     * @return Bytes of signed CMS message.
+     */
+    public byte[] build() {
+        return build(false);
+    }
+
+    /**
+     * <p>Builds the CMS signed certificate message.</p>
+     * <p>payloadCertificate and SigningCertificate needs to be set previously.</p>
+     *
+     * @param detached flag whether only the signature should be returned (detached signature)
+     * @return Base64 encoded String of CMS message.
+     */
+    public String buildAsString(boolean detached) {
+        return Base64.getEncoder().encodeToString(build(detached));
+    }
+
+    /**
+     * <p>Builds the CMS signed certificate message.</p>
+     * <p>payloadCertificate and SigningCertificate needs to be set previously.</p>
+     *
      * @return Base64 encoded String of signed CMS message.
      */
     public String buildAsString() {
-        return Base64.getEncoder().encodeToString(build());
+        return Base64.getEncoder().encodeToString(build(false));
     }
 }
