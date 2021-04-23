@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
@@ -43,6 +44,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 public class SignedCertificateMessageParser {
 
     private final byte[] raw;
+    private final byte[] rawPayload;
 
     /**
      * The extracted payload certificate.
@@ -77,6 +79,14 @@ public class SignedCertificateMessageParser {
     private boolean signatureVerified = false;
 
     /**
+     * <p>Base64 encoded signature of the cms message.</p>
+     *
+     * <p>This string contains only the signature which signs the message.</p>
+     */
+    @Getter
+    private String signature;
+
+    /**
      * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
@@ -84,6 +94,20 @@ public class SignedCertificateMessageParser {
      */
     public SignedCertificateMessageParser(@NonNull byte[] cmsMessage) {
         raw = cmsMessage;
+        rawPayload = null;
+        afterPropertiesSet();
+    }
+
+    /**
+     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * The result of parsing process will be immediately available.
+     *
+     * @param cmsSignature base64 encoded detached CMS signature bytes.
+     * @param cmsPayload base64 encoded CMS message payload.
+     */
+    public SignedCertificateMessageParser(@NonNull byte[] cmsSignature, @NonNull byte[] cmsPayload) {
+        raw = cmsSignature;
+        rawPayload = cmsPayload;
         afterPropertiesSet();
     }
 
@@ -95,14 +119,60 @@ public class SignedCertificateMessageParser {
      */
     public SignedCertificateMessageParser(@NonNull String cmsMessage) {
         raw = cmsMessage.getBytes(StandardCharsets.UTF_8);
+        rawPayload = null;
+        afterPropertiesSet();
+    }
+
+    /**
+     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * The result of parsing process will be immediately available.
+     *
+     * @param cmsSignature base64 encoded detached CMS signature string.
+     * @param cmsPayload base64 encoded CMS message payload string.
+     */
+    public SignedCertificateMessageParser(@NonNull String cmsSignature, @NonNull String cmsPayload) {
+        raw = cmsSignature.getBytes(StandardCharsets.UTF_8);
+        rawPayload = cmsPayload.getBytes(StandardCharsets.UTF_8);
+        afterPropertiesSet();
+    }
+
+    /**
+     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * The result of parsing process will be immediately available.
+     *
+     * @param cmsSignature base64 encoded detached CMS signature bytes.
+     * @param cmsPayload base64 encoded CMS message payload string.
+     */
+    public SignedCertificateMessageParser(@NonNull byte[] cmsSignature, @NonNull String cmsPayload) {
+        raw = cmsSignature;
+        rawPayload = cmsPayload.getBytes(StandardCharsets.UTF_8);
+        afterPropertiesSet();
+    }
+
+    /**
+     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * The result of parsing process will be immediately available.
+     *
+     * @param cmsSignature base64 encoded detached CMS signature string.
+     * @param cmsPayload base64 encoded CMS message payload bytes.
+     */
+    public SignedCertificateMessageParser(@NonNull String cmsSignature, @NonNull byte[] cmsPayload) {
+        raw = cmsSignature.getBytes(StandardCharsets.UTF_8);
+        rawPayload = cmsPayload;
         afterPropertiesSet();
     }
 
     private void afterPropertiesSet() {
         // Parse Base64
         byte[] cmsBytes;
+        byte[] cmsPayloadBytes = null;
         try {
             cmsBytes = Base64.getDecoder().decode(raw);
+
+            if (rawPayload != null) {
+                cmsPayloadBytes = Base64.getDecoder().decode(rawPayload);
+            }
+
         } catch (IllegalArgumentException e) {
             parserState = ParserState.FAILURE_INVALID_BASE64;
             return;
@@ -111,7 +181,12 @@ public class SignedCertificateMessageParser {
         // Parse CMS Message;
         CMSSignedData cmsSignedData;
         try {
-            cmsSignedData = new CMSSignedData(cmsBytes);
+            if (rawPayload == null) {
+                cmsSignedData = new CMSSignedData(cmsBytes);
+            } else {
+                CMSProcessableByteArray cmsProcessablePayload = new CMSProcessableByteArray(cmsPayloadBytes);
+                cmsSignedData = new CMSSignedData(cmsProcessablePayload, cmsBytes);
+            }
         } catch (CMSException e) {
             parserState = ParserState.FAILURE_INVALID_CMS;
             return;
@@ -154,6 +229,7 @@ public class SignedCertificateMessageParser {
             signatureVerified = signerInformation.verify(
                 new JcaSimpleSignerInfoVerifierBuilder().build(signingCertificate)
             );
+            signature = Base64.getEncoder().encodeToString(signerInformation.getSignature());
         } catch (CMSException | OperatorCreationException | CertificateException e) {
             log.error("Failed to validate Signature");
         }

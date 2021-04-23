@@ -27,6 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -39,8 +41,50 @@ import org.springframework.stereotype.Service;
 @Service
 public class CertificateUtils {
 
+    private static final byte KID_BYTE_COUNT = 8;
+
     /**
-     * Calculates the SHA-256 thumbprint of X509CertificateHolder.
+     * Calculates in DGC context used KID of {@link X509Certificate}.
+     * (KID consists of the first 8 bytes of SHA-256 Certificate HASH)
+     *
+     * @param x509Certificate the certificate the kid should be calculated for.
+     * @return base64 encoded KID.
+     */
+    public String getCertKid(X509Certificate x509Certificate) {
+        try {
+            byte[] hashBytes = calculateHashBytes(x509Certificate.getEncoded());
+            byte[] kidBytes = Arrays.copyOfRange(hashBytes, 0, KID_BYTE_COUNT - 1);
+
+            return Base64.getEncoder().encodeToString(kidBytes);
+
+        } catch (CertificateEncodingException | NoSuchAlgorithmException e) {
+            log.error("Could not calculate kid of certificate.");
+            return null;
+        }
+    }
+
+    /**
+     * Calculates in DGC context used KID of {@link X509CertificateHolder}.
+     * (KID consists of the first 8 bytes of SHA-256 Certificate HASH)
+     *
+     * @param x509CertificateHolder the certificate the kid should be calculated for.
+     * @return base64 encoded KID.
+     */
+    public String getCertKid(X509CertificateHolder x509CertificateHolder) {
+        try {
+            byte[] hashBytes = calculateHashBytes(x509CertificateHolder.getEncoded());
+            byte[] kidBytes = Arrays.copyOfRange(hashBytes, 0, KID_BYTE_COUNT - 1);
+
+            return Base64.getEncoder().encodeToString(kidBytes);
+
+        } catch (NoSuchAlgorithmException | IOException e) {
+            log.error("Could not calculate kid of certificate.");
+            return null;
+        }
+    }
+
+    /**
+     * Calculates the SHA-256 thumbprint of {@link X509Certificate}.
      *
      * @param x509Certificate the certificate the thumbprint should be calculated for.
      * @return 32-byte SHA-256 hash as hex encoded string
@@ -55,7 +99,7 @@ public class CertificateUtils {
     }
 
     /**
-     * Calculates the SHA-256 thumbprint of X509CertificateHolder.
+     * Calculates the SHA-256 thumbprint of {@link X509CertificateHolder}.
      *
      * @param x509CertificateHolder the certificate the thumbprint should be calculated for.
      * @return 32-byte SHA-256 hash as hex encoded string
@@ -70,7 +114,7 @@ public class CertificateUtils {
     }
 
     /**
-     * Converts a X509Certificate into a X509CertificateHolder.
+     * Converts a X509Certificate into a {@link X509Certificate}.
      *
      * @param inputCertificate the certificate to convert
      * @return converted certificate
@@ -82,7 +126,7 @@ public class CertificateUtils {
     }
 
     /**
-     * Converts a X509CertificateHolder into a X509Certificate.
+     * Converts a X509CertificateHolder into a {@link X509CertificateHolder}.
      *
      * @param inputCertificate the certificate to convert
      * @return converted certificate
@@ -102,5 +146,9 @@ public class CertificateUtils {
         }
 
         return hexString;
+    }
+
+    private byte[] calculateHashBytes(byte[] data) throws NoSuchAlgorithmException {
+        return MessageDigest.getInstance("SHA-256").digest(data);
     }
 }
