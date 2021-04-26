@@ -17,3 +17,5 @@ jobs:
           distribution: 'adopt'
       - name: Build package
         run: mvn install
+      - name: Test package
+        run: mvn test
