@@ -53,7 +53,7 @@ public class CertificateUtils {
     public String getCertKid(X509Certificate x509Certificate) {
         try {
             byte[] hashBytes = calculateHashBytes(x509Certificate.getEncoded());
-            byte[] kidBytes = Arrays.copyOfRange(hashBytes, 0, KID_BYTE_COUNT - 1);
+            byte[] kidBytes = Arrays.copyOfRange(hashBytes, 0, KID_BYTE_COUNT);
 
             return Base64.getEncoder().encodeToString(kidBytes);
 
