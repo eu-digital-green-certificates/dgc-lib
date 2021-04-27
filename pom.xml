@@ -40,6 +40,10 @@
         <!-- github -->
         <github.organization>eu-digital-green-certificates</github.organization>
         <github.project>dgc-lib</github.project>
+        <!-- sonar -->
+        <sonar.projectKey>eu-digital-green-certificates_dgc-lib</sonar.projectKey>
+        <sonar.organization>eu-digital-green-certificates</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <url>https://github.com/eu-digital-green-certificates/dgc-lib</url>
