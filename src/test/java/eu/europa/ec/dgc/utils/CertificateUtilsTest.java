@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CertficateUtilsTest {
+public class CertificateUtilsTest {
 
     @Test
     public void testDefineConstructor() {
-        assertNotEquals(new CertificateUtils(), null);
+        assertNotNull(new CertificateUtils());
     }
 }
 

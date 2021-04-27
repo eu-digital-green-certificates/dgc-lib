@@ -8,7 +8,7 @@ public class SignedCertificateMessageParserTest {
 
     @Test
     public void testDefineConstructor() {
-        assertNotEquals(new SignedCertificateMessageParser("Hello World".getBytes()), null);
+        assertNotNull(new SignedCertificateMessageParser("Hello World".getBytes()));
     }
 }
 
