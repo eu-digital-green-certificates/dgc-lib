@@ -3,6 +3,7 @@
 </h1>
 
 <p align="center">
+    <a href="https://github.com/eu-digital-green-certificates/dgc-lib/actions/workflows/ci-master.yml" title="ci-master.yml"><img src="https://github.com/eu-digital-green-certificates/dgc-lib/actions/workflows/ci-master.yml/badge.svg"></a>
     <a href="/../../commits/" title="Last Commit"><img src="https://img.shields.io/github/last-commit/eu-digital-green-certificates/dgc-lib?style=flat"></a>
     <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>
     <a href="./LICENSE" title="License"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg?style=flat"></a>
@@ -18,9 +19,11 @@
   <a href="#licensing">Licensing</a>
 </p>
 
-## Status
+## About
 
-![ci](https://github.com/eu-digital-green-certificates/dgc-lib/actions/workflows/ci-master.yml/badge.svg)
+This repository contains the source code of the Digital Green Certificates Library.
+
+The DGC Lib contains shared functionality such as encoding, decoding and connecting to the [DGCG](https://github.com/eu-digital-green-certificates/dgc-gateway).
 
 ## Usage
 
