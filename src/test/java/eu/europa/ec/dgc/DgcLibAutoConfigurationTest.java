@@ -20,10 +20,13 @@
 
 package eu.europa.ec.dgc;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
 
-@Configuration
-@ComponentScan("eu.europa.ec.dgc")
-public class DgcLibAutoConfiguration {
+public class DgcLibAutoConfigurationTest {
+
+  @Test
+  public void testDefineConstructor() {
+    assertNotNull(new DgcLibAutoConfiguration());
+  }
 }
