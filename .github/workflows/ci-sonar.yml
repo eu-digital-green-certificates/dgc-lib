@@ -1,10 +1,15 @@
-name: ci-main
+name: ci-sonar
 on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 jobs:
-  build:
+  sonar:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/setup-java@v2
@@ -19,28 +24,16 @@ jobs:
           path: |
             ~/.m2/repository
           key: ${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-      - name: version
-        run: >-
-          APP_SHA=$(git rev-parse --short ${GITHUB_SHA});
-          APP_REV=$(git rev-list --tags --max-count=1);
-          APP_TAG=$(git describe --tags ${APP_REV} 2> /dev/null || echo 0.0.0);
-          APP_VERSION=${APP_TAG}-${APP_SHA};
-          echo "APP_SHA=${APP_SHA}" >> ${GITHUB_ENV};
-          echo "APP_TAG=${APP_TAG}" >> ${GITHUB_ENV};
-          echo "APP_VERSION=${APP_VERSION}" >> ${GITHUB_ENV};
       - name: mvn
         run: >-
-          mvn versions:set
-          --batch-mode
-          --file ./pom.xml
-          --settings ./settings.xml
-          --define newVersion="${APP_VERSION}";
-          mvn clean deploy
+          mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           --batch-mode
           --file ./pom.xml
           --settings ./settings.xml
           --define app.packages.username="${APP_PACKAGES_USERNAME}"
           --define app.packages.password="${APP_PACKAGES_PASSWORD}";
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APP_PACKAGES_USERNAME: ${{ github.actor }}
           APP_PACKAGES_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
