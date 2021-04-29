@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-    <a href="https://github.com/eu-digital-green-certificates/dgc-lib/actions/workflows/ci-sonar-check.yml" title="ci-sonar-check.yml"><img src="https://github.com/eu-digital-green-certificates/dgc-lib/actions/workflows/ci-sonar-check.yml/badge.svg"></a>
+    <a href="https://sonarcloud.io/dashboard?id=eu-digital-green-certificates_dgc-lib" title="Quality Gate Status"><img src="https://sonarcloud.io/api/project_badges/measure?project=eu-digital-green-certificates_dgc-lib&metric=alert_status"></a>
     <a href="/../../commits/" title="Last Commit"><img src="https://img.shields.io/github/last-commit/eu-digital-green-certificates/dgc-lib?style=flat"></a>
     <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>
     <a href="./LICENSE" title="License"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg?style=flat"></a>
