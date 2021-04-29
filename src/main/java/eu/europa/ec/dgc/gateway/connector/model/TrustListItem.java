@@ -18,14 +18,20 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.model;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import java.time.ZonedDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
-@Configuration
-@ComponentScan("eu.europa.ec.dgc")
-@EnableConfigurationProperties
-public class DgcLibAutoConfiguration {
+@Getter
+@Setter
+public class TrustListItem {
+
+    private String kid;
+
+    private ZonedDateTime timestamp;
+
+    private String rawData;
+
 }

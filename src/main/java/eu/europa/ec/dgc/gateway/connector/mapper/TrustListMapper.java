@@ -18,14 +18,17 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.mapper;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import java.util.List;
+import org.mapstruct.Mapper;
 
-@Configuration
-@ComponentScan("eu.europa.ec.dgc")
-@EnableConfigurationProperties
-public class DgcLibAutoConfiguration {
+@Mapper(componentModel = "spring")
+public interface TrustListMapper {
+
+    TrustListItem map(TrustListItemDto trustListItemDto);
+
+    List<TrustListItem> map(List<TrustListItemDto> trustListItemDtos);
 }
