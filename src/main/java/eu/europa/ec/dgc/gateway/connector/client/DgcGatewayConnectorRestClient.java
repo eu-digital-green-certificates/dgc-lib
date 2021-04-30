@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,5 +58,14 @@ public interface DgcGatewayConnectorRestClient {
      */
     @PostMapping(value = "/signerInformation", consumes = "application/cms")
     ResponseEntity<Void> uploadSignerInformation(@RequestBody String cmsSignedCertificate);
+
+    /**
+     * Deletes a Signer Certificate from digital green certificate gateway.
+     *
+     * @param cmsSignedCertificate CMS Signed Certificate Message.
+     * @return ResponseEntity with delete result.
+     */
+    @DeleteMapping(value = "/signerInformation", consumes = "application/cms")
+    ResponseEntity<Void> deleteSignerInformation(@RequestBody String cmsSignedCertificate);
 
 }

@@ -44,6 +44,30 @@ public class DgcGatewayConnectorKeystore {
     private final DgcGatewayConnectorConfigProperties dgcConfigProperties;
 
     /**
+     * Creates a KeyStore instance with key for DGC Certificate Upload (Upload Certificate).
+     *
+     * @return KeyStore Instance
+     * @throws KeyStoreException        if no implementation for the specified type found
+     * @throws IOException              if there is an I/O or format problem with the keystore data
+     * @throws CertificateException     if any of the certificates in the keystore could not be loaded
+     * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
+     */
+    @Bean
+    @Qualifier("upload")
+    @ConditionalOnProperty("dgc.gateway.connector.upload-key-store.path")
+    public KeyStore uploadKeyStore() throws KeyStoreException, IOException,
+        CertificateException, NoSuchAlgorithmException {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+
+        loadKeyStore(
+            keyStore,
+            dgcConfigProperties.getUploadKeyStore().getPath(),
+            dgcConfigProperties.getUploadKeyStore().getPassword());
+
+        return keyStore;
+    }
+
+    /**
      * Creates a KeyStore instance with keys for DGC TrustAnchor.
      *
      * @return KeyStore Instance
@@ -54,6 +78,7 @@ public class DgcGatewayConnectorKeystore {
      */
     @Bean
     @Qualifier("trustAnchor")
+    @ConditionalOnProperty("dgc.gateway.connector.trust-anchor.path")
     public KeyStore trustAnchorKeyStore() throws KeyStoreException, IOException,
         CertificateException, NoSuchAlgorithmException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
@@ -76,8 +101,10 @@ public class DgcGatewayConnectorKeystore {
                 fileStream.close();
             } else {
                 keyStore.load(null);
-                log.info("Could not find Keystore {}", path);
+                log.info("Could not load Keystore {}", path);
             }
+        } catch (IOException e) {
+            log.info("Could not load Keystore {}", path);
         }
     }
 }

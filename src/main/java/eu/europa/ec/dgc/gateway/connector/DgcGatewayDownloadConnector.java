@@ -26,8 +26,8 @@ import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
-import eu.europa.ec.dgc.signing.SignedCertificateMessageBuilder;
 import eu.europa.ec.dgc.utils.CertificateUtils;
+import feign.FeignException;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -48,6 +48,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,20 +56,21 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
+@Lazy
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 @RequiredArgsConstructor
 @EnableScheduling
 @Slf4j
-public class DgcGatewayConnector {
+public class DgcGatewayDownloadConnector {
 
     private final DgcGatewayConnectorUtils connectorUtils;
+
+    private final CertificateUtils certificateUtils;
 
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
 
     private final DgcGatewayConnectorConfigProperties properties;
-
-    private final CertificateUtils certificateUtils;
 
     private final TrustListMapper trustListMapper;
 
@@ -93,10 +95,16 @@ public class DgcGatewayConnector {
             log.error("Could not find TrustAnchor Certificate in Keystore");
             throw new KeyStoreException("Could not find TrustAnchor Certificate in Keystore");
         }
-
         trustAnchor = certificateUtils.convertCertificate(trustAnchorCert);
     }
 
+    /**
+     * Gets the list of downloaded and validated trusted signer certificates.
+     * This call will return a cached list if caching is enabled.
+     * If cache is outdated a refreshed list will be returned.
+     *
+     * @return List of {@link TrustListItem}
+     */
     public List<TrustListItem> getTrustedCertificates() {
         updateIfRequired();
         return Collections.unmodifiableList(trustedCertificates);
@@ -115,11 +123,16 @@ public class DgcGatewayConnector {
     }
 
     private void fetchTrustedCscaAndVerifyByTrustAnchor() {
-        ResponseEntity<List<TrustListItemDto>> downloadedCsca =
-            dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.CSCA);
+        ResponseEntity<List<TrustListItemDto>> downloadedCsca;
+        try {
+            downloadedCsca = dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.CSCA);
+        } catch (FeignException e) {
+            log.error("Failed to Download CSCA from DGC Gateway. Status Code: {}", e.status());
+            return;
+        }
 
         if (downloadedCsca.getStatusCode() != HttpStatus.OK || downloadedCsca.getBody() == null) {
-            log.error("Failed to Download CSCA from DGC Gateway");
+            log.error("Failed to Download CSCA from DGC Gateway, Status Code: {}", downloadedCsca.getStatusCodeValue());
             return;
         }
 
@@ -133,8 +146,15 @@ public class DgcGatewayConnector {
     private void fetchTrustListAndVerifyByCsca() {
         log.info("Fetching TrustList from DGCG");
 
-        ResponseEntity<List<TrustListItemDto>> responseEntity =
-            dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.DSC);
+        ResponseEntity<List<TrustListItemDto>> responseEntity;
+        try {
+            responseEntity = dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.DSC);
+        } catch (FeignException e) {
+            log.error("Download of TrustListItems failed. DGCG responded with status code: {}",
+                e.status());
+            return;
+        }
+
         List<TrustListItemDto> downloadedDcs = responseEntity.getBody();
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedDcs == null) {

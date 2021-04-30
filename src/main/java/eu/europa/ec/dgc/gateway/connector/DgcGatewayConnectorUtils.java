@@ -61,7 +61,7 @@ class DgcGatewayConnectorUtils {
         try {
             return dcs.isSignatureValid(verifier);
         } catch (CertException e) {
-            log.error("Could not verify that certificate was issued by ca. Certificate: {}, CA: {}",
+            log.debug("Could not verify that certificate was issued by ca. Certificate: {}, CA: {}",
                 dcs.getSubject().toString(), ca.getSubject().toString());
             return false;
         }
