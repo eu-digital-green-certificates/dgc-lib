@@ -1,15 +1,16 @@
-name: Dependency Check (OWASP)
+name: ci-sonar
 on:
-  schedule:
-    - cron: '13 04 * * 0' # Each Sunday at 04:13 UTC
   push:
     branches:
       - main
-  workflow_dispatch:
-
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 jobs:
-  check:
-    runs-on: ubuntu-latest
+  sonar:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/setup-java@v2
         with:
@@ -25,12 +26,14 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
       - name: mvn
         run: >-
-          mvn dependency-check:check
+          mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           --batch-mode
           --file ./pom.xml
           --settings ./settings.xml
           --define app.packages.username="${APP_PACKAGES_USERNAME}"
           --define app.packages.password="${APP_PACKAGES_PASSWORD}";
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APP_PACKAGES_USERNAME: ${{ github.actor }}
           APP_PACKAGES_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
