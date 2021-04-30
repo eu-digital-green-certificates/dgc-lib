@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.gateway.connector.config;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -66,7 +67,7 @@ public class DgcGatewayConnectorConfigProperties {
     /**
      * Http-Proxy Configuration.
      */
-    private Proxy proxy;
+    private Proxy proxy = new Proxy(false, null, -1);
 
     @Getter
     @Setter
@@ -97,6 +98,7 @@ public class DgcGatewayConnectorConfigProperties {
 
     @Getter
     @Setter
+    @AllArgsConstructor
     public static class Proxy {
 
         /**
