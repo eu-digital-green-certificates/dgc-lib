@@ -44,7 +44,7 @@ import org.springframework.http.ResponseEntity;
 
 @SpringBootTest
 @Slf4j
-public class UploadConnectorTest {
+class UploadConnectorTest {
 
     @MockBean
     DgcGatewayConnectorRestClient restClientMock;

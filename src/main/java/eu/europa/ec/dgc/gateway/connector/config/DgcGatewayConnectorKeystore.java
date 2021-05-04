@@ -98,7 +98,6 @@ public class DgcGatewayConnectorKeystore {
 
             if (fileStream.available() > 0) {
                 keyStore.load(fileStream, password);
-                fileStream.close();
             } else {
                 keyStore.load(null);
                 log.info("Could not load Keystore {}", path);

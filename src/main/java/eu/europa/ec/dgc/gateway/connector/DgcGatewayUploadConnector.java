@@ -69,7 +69,7 @@ public class DgcGatewayUploadConnector {
     @Qualifier("upload")
     private final KeyStore uploadKeyStore;
 
-    private X509CertificateHolder uploadCertificate;
+    private X509CertificateHolder uploadCertificateHolder;
 
     private PrivateKey uploadCertificatePrivateKey;
 
@@ -95,7 +95,7 @@ public class DgcGatewayUploadConnector {
             throw new KeyStoreException("Could not find UploadCertificate in Keystore");
         }
 
-        this.uploadCertificate = certificateUtils.convertCertificate(uploadCertificate);
+        uploadCertificateHolder = certificateUtils.convertCertificate(uploadCertificate);
     }
 
     /**
@@ -122,7 +122,7 @@ public class DgcGatewayUploadConnector {
 
         String payload = new SignedCertificateMessageBuilder()
             .withPayloadCertificate(certificate)
-            .withSigningCertificate(uploadCertificate, uploadCertificatePrivateKey)
+            .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey)
             .buildAsString();
 
         try {
@@ -170,7 +170,7 @@ public class DgcGatewayUploadConnector {
 
         String payload = new SignedCertificateMessageBuilder()
             .withPayloadCertificate(certificate)
-            .withSigningCertificate(uploadCertificate, uploadCertificatePrivateKey)
+            .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey)
             .buildAsString();
 
         try {
