@@ -30,6 +30,7 @@ import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.RuntimeOperatorException;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,7 @@ class DgcGatewayConnectorUtils {
 
         try {
             return dcs.isSignatureValid(verifier);
-        } catch (CertException e) {
+        } catch (CertException | RuntimeOperatorException e) {
             log.debug("Could not verify that certificate was issued by ca. Certificate: {}, CA: {}",
                 dcs.getSubject().toString(), ca.getSubject().toString());
             return false;

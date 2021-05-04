@@ -20,12 +20,10 @@
 
 package eu.europa.ec.dgc.utils;
 
-import eu.europa.ec.dgc.signing.CertificateTestUtils;
-import eu.europa.ec.dgc.signing.SignedCertificateMessageBuilder;
+import eu.europa.ec.dgc.testdata.CertificateTestUtils;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Base64;
@@ -35,10 +33,6 @@ import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Service;
 
 public class CertificateUtilsTest {
 

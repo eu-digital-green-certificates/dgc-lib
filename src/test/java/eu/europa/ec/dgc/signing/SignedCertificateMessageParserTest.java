@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.signing;
 
+import eu.europa.ec.dgc.testdata.CertificateTestUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;

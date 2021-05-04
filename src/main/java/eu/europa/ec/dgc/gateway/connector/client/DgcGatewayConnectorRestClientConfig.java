@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ResourceUtils;
 
-@ConditionalOnProperty("dgc.gateway.connector.enabled")
+@ConditionalOnProperty("dgc.gateway.connector.tls-key-store.path")
 @Configuration
 @RequiredArgsConstructor
 @EnableFeignClients

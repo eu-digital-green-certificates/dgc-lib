@@ -26,6 +26,7 @@ import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -84,7 +86,8 @@ public class DgcGatewayDownloadConnector {
 
     private List<TrustListItem> trustedCertificates = new ArrayList<>();
 
-    private List<X509CertificateHolder> trustedCsca = new ArrayList<>();
+    private List<X509CertificateHolder> trustedCscaCertificates = new ArrayList<>();
+    private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
     @PostConstruct
     void init() throws KeyStoreException, CertificateEncodingException, IOException {
@@ -112,38 +115,46 @@ public class DgcGatewayDownloadConnector {
 
     private synchronized void updateIfRequired() {
         if (lastUpdated == null
-            || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) > properties.getMaxCacheAge()) {
+            || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
             log.info("Maximum age of cache reached. Fetching new TrustList from DGCG.");
 
-            fetchTrustedCscaAndVerifyByTrustAnchor();
-            fetchTrustListAndVerifyByCsca();
+            trustedCscaCertificates = fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
+            log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
+
+            trustedUploadCertificates = fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
+            log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
+
+            fetchTrustListAndVerifyByCscaAndUpload();
+            log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
         } else {
             log.debug("Cache needs no refresh.");
         }
     }
 
-    private void fetchTrustedCscaAndVerifyByTrustAnchor() {
-        ResponseEntity<List<TrustListItemDto>> downloadedCsca;
+    private List<X509CertificateHolder> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type) {
+        ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
         try {
-            downloadedCsca = dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.CSCA);
+            downloadedCertificates = dgcGatewayConnectorRestClient.getTrustedCertificates(type);
         } catch (FeignException e) {
-            log.error("Failed to Download CSCA from DGC Gateway. Status Code: {}", e.status());
-            return;
+            log.error("Failed to Download certificates from DGC Gateway. Type: {}, status code: {}", type, e.status());
+            return Collections.emptyList();
         }
 
-        if (downloadedCsca.getStatusCode() != HttpStatus.OK || downloadedCsca.getBody() == null) {
-            log.error("Failed to Download CSCA from DGC Gateway, Status Code: {}", downloadedCsca.getStatusCodeValue());
-            return;
+        if (downloadedCertificates.getStatusCode() != HttpStatus.OK || downloadedCertificates.getBody() == null) {
+            log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
+                type, downloadedCertificates.getStatusCodeValue());
+            return Collections.emptyList();
         }
 
-        trustedCsca = downloadedCsca.getBody().stream()
+        return downloadedCertificates.getBody().stream()
+            .filter(this::checkThumbprintIntegrity)
             .filter(c -> connectorUtils.checkTrustAnchorSignature(c, trustAnchor))
             .map(connectorUtils::getCertificateFromTrustListItem)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
-    private void fetchTrustListAndVerifyByCsca() {
+    private void fetchTrustListAndVerifyByCscaAndUpload() {
         log.info("Fetching TrustList from DGCG");
 
         ResponseEntity<List<TrustListItemDto>> responseEntity;
@@ -166,7 +177,8 @@ public class DgcGatewayDownloadConnector {
         }
 
         trustedCertificates = downloadedDcs.stream()
-            .filter(dcs -> trustedCsca.stream().anyMatch(ca -> connectorUtils.trustListItemSignedByCa(dcs, ca)))
+            .filter(this::checkCscaCertificate)
+            .filter(this::checkUploadCertificate)
             .map(trustListMapper::map)
             .collect(Collectors.toList());
 
@@ -174,4 +186,31 @@ public class DgcGatewayDownloadConnector {
         log.info("Put {} trusted certificates into TrustList", trustedCertificates.size());
     }
 
+    private boolean checkThumbprintIntegrity(TrustListItemDto trustListItem) {
+        byte[] certificateRawData = Base64.getDecoder().decode(trustListItem.getRawData());
+        try {
+            return trustListItem.getThumbprint().equals(
+                certificateUtils.getCertThumbprint(new X509CertificateHolder(certificateRawData)));
+
+        } catch (IOException e) {
+            log.error("Could not parse certificate raw data");
+            return false;
+        }
+    }
+
+    private boolean checkCscaCertificate(TrustListItemDto trustListItem) {
+        return trustedCscaCertificates
+            .stream()
+            .anyMatch(ca -> connectorUtils.trustListItemSignedByCa(trustListItem, ca));
+    }
+
+    private boolean checkUploadCertificate(TrustListItemDto trustListItem) {
+        SignedCertificateMessageParser parser =
+            new SignedCertificateMessageParser(trustListItem.getSignature(), trustListItem.getRawData());
+        X509CertificateHolder uploadCertificate = parser.getSigningCertificate();
+
+        return trustedUploadCertificates
+            .stream()
+            .anyMatch(uploadCertificate::equals);
+    }
 }

@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.signing;
 
+import eu.europa.ec.dgc.testdata.CertificateTestUtils;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
