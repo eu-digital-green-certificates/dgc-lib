@@ -8,49 +8,18 @@ dgc:
         host:
         port: -1
       max-cache-age: 0
-#      tls-trust-store:
-#        password:
-#        path:
+      #      tls-trust-store:
+      #        password:
+      #        path:
       tls-key-store:
         alias: 1
-#        password:
-#        path:
+      #        password:
+      #        path:
       trust-anchor:
         alias: ta_tst
-#        password:
-#        path:
+      #        password:
+      #        path:
       upload-key-store:
         alias: upload
 #        password:
 #        path:
-
-
-
-
-  ```yml
-dgc:
-  gateway:
-    connector:
-      enabled: true
-      endpoint: https://dgcg.example.org
-      proxy:
-        enabled: false
-        host:
-        port: -1
-      max-cache-age: 300
-      tls-trust-store:
-        password: dgcg-p4ssw0rd
-        path: classpath:tls-truststore.jks
-      tls-key-store:
-        alias: mtls_private_cert
-        password: dgcg-p4ssw0rd
-        path: /var/lib/ssl/mtls.jks
-      trust-anchor:
-        alias: ta_tst
-        password: dgcg-p4ssw0rd
-        path: /var/lib/ssl/ta.jks
-      upload-key-store:
-        alias: upload
-        password: dgcg-p4ssw0rd
-        path: classpath:upload.p12
-  ```
