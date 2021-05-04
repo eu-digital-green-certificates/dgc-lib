@@ -28,6 +28,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import lombok.Getter;
@@ -49,13 +50,24 @@ public class DgcTestKeyStore {
     @Getter
     private final PrivateKey trustAnchorPrivateKey;
 
+    @Getter
+    private final X509Certificate upload;
+
+    @Getter
+    private final PrivateKey uploadPrivateKey;
+
     public DgcTestKeyStore(DgcGatewayConnectorConfigProperties configProperties) throws Exception {
         this.configProperties = configProperties;
 
         KeyPair keyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         trustAnchorPrivateKey = keyPair.getPrivate();
 
-        trustAnchor = CertificateTestUtils.generateCertificate(keyPair, "DE", "DGCG Test TrustAnchor");
+        trustAnchor = CertificateTestUtils.generateCertificate(keyPair, "EU", "DGCG Test TrustAnchor");
+
+        KeyPair uploadKeyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
+        uploadPrivateKey = uploadKeyPair.getPrivate();
+
+        upload = CertificateTestUtils.generateCertificate(uploadKeyPair, "EU", "DGCG Test Upload Cert");
 
     }
 
@@ -78,6 +90,32 @@ public class DgcTestKeyStore {
 
         doAnswer((x) -> trustAnchor)
             .when(keyStoreSpiMock).engineGetCertificate(configProperties.getTrustAnchor().getAlias());
+
+        return keyStoreMock;
+    }
+
+    /**
+     * Creates a KeyStore instance with keys for DGC.
+     *
+     * @return KeyStore Instance
+     * @throws IOException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     */
+    @Bean
+    @Primary
+    @Qualifier("upload")
+    public KeyStore uploadKeyStore() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
+        KeyStoreSpi keyStoreSpiMock = mock(KeyStoreSpi.class);
+        KeyStore keyStoreMock = new KeyStore(keyStoreSpiMock, null, "test") {
+        };
+        keyStoreMock.load(null);
+
+        doAnswer((x) -> upload)
+            .when(keyStoreSpiMock).engineGetCertificate(configProperties.getUploadKeyStore().getAlias());
+
+        doAnswer((x) -> uploadPrivateKey)
+            .when(keyStoreSpiMock).engineGetKey(configProperties.getUploadKeyStore().getAlias(), configProperties.getUploadKeyStore().getPassword());
 
         return keyStoreMock;
     }
