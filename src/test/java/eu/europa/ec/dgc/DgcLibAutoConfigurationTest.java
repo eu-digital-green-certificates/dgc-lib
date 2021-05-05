@@ -23,10 +23,10 @@ package eu.europa.ec.dgc;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
-public class DgcLibAutoConfigurationTest {
+class DgcLibAutoConfigurationTest {
 
   @Test
-  public void testDefineConstructor() {
+  void testDefineConstructor() {
     assertNotNull(new DgcLibAutoConfiguration());
   }
 }

@@ -47,19 +47,19 @@ public class CertificateUtilsTest {
     X509Certificate certificate;
 
     @BeforeEach
-    public void setupTestData() throws Exception {
+    void setupTestData() throws Exception {
         certificateUtils = new CertificateUtils();
         keyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         certificate = CertificateTestUtils.generateCertificate(keyPair, "DE", "PayloadCertificate");
     }
 
     @Test
-    public void testDefineConstructor() {
+    void testDefineConstructor() {
         assertNotNull(new CertificateUtils());
     }
 
     @Test
-    public void testGetCertKid() throws Exception {
+    void testGetCertKid() throws Exception {
         byte[] expectedKid = Arrays.copyOfRange(MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded()), 0, 8);
 
         String calculatedKid = certificateUtils.getCertKid(certificate);
@@ -69,7 +69,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testGetCertKidHolder() throws Exception {
+    void testGetCertKidHolder() throws Exception {
         byte[] expectedKid = Arrays.copyOfRange(MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded()), 0, 8);
 
         X509CertificateHolder holder = new X509CertificateHolder(certificate.getEncoded());
@@ -81,7 +81,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testGetCertHash() throws Exception {
+    void testGetCertHash() throws Exception {
         byte[] expectedThumbprint = MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded());
         byte[] thumbprint = Hex.decode(certificateUtils.getCertThumbprint(certificate));
 
@@ -89,7 +89,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testGetCertHashHolder() throws Exception {
+    void testGetCertHashHolder() throws Exception {
         X509CertificateHolder holder = new X509CertificateHolder(certificate.getEncoded());
 
         byte[] expectedThumbprint = MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded());
@@ -99,7 +99,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testConverter() throws Exception {
+    void testConverter() throws Exception {
         X509CertificateHolder converted = certificateUtils.convertCertificate(certificate);
 
         Assertions.assertArrayEquals(certificate.getEncoded(), converted.getEncoded());
