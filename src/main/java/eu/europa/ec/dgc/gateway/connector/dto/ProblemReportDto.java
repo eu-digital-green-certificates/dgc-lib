@@ -22,9 +22,11 @@ package eu.europa.ec.dgc.gateway.connector.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProblemReportDto {
 
     private String code;

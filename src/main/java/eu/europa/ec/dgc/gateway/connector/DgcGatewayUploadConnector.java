@@ -189,7 +189,7 @@ public class DgcGatewayUploadConnector {
                 throw new DgcCertificateUploadException(DgcCertificateUploadException.Reason.INVALID_AUTHORIZATION);
 
             } else if (e.status() == HttpStatus.NOT_FOUND.value()) {
-                log.info("Certificate already exists on DGCG");
+                log.info("Certificate already deleted on DGCG");
             }
         }
     }

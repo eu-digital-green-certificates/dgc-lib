@@ -32,6 +32,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import lombok.Getter;
+import lombok.Setter;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,16 +46,20 @@ public class DgcTestKeyStore {
     private final DgcGatewayConnectorConfigProperties configProperties;
 
     @Getter
-    private final X509Certificate trustAnchor;
+    @Setter
+    private X509Certificate trustAnchor;
 
     @Getter
-    private final PrivateKey trustAnchorPrivateKey;
+    @Setter
+    private PrivateKey trustAnchorPrivateKey;
 
     @Getter
-    private final X509Certificate upload;
+    @Setter
+    private X509Certificate upload;
 
     @Getter
-    private final PrivateKey uploadPrivateKey;
+    @Setter
+    private PrivateKey uploadPrivateKey;
 
     public DgcTestKeyStore(DgcGatewayConnectorConfigProperties configProperties) throws Exception {
         this.configProperties = configProperties;

@@ -21,6 +21,7 @@
 package eu.europa.ec.dgc.signing;
 
 import eu.europa.ec.dgc.testdata.CertificateTestUtils;
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
@@ -28,6 +29,7 @@ import java.util.Base64;
 import java.util.Collection;
 import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
@@ -36,8 +38,10 @@ import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class SignedCertificateMessageBuilderTest {
+class SignedCertificateMessageBuilderTest {
 
     KeyPair payloadKeyPair, signingKeyPair;
     X509Certificate payloadCertificate, signingCertificate;
@@ -45,7 +49,7 @@ public class SignedCertificateMessageBuilderTest {
     SignedCertificateMessageBuilder builder;
 
     @BeforeEach
-    public void setupTestData() throws Exception {
+    void setupTestData() throws Exception {
         payloadKeyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         payloadCertificate = CertificateTestUtils.generateCertificate(payloadKeyPair, "DE", "PayloadCertificate");
 
@@ -58,12 +62,28 @@ public class SignedCertificateMessageBuilderTest {
     }
 
     @Test
-    public void testDefineConstructor() {
+    void testDefineConstructor() {
         assertNotNull(new SignedCertificateMessageBuilder());
+    }
+    
+    @Test
+    void testUnreadyBuilder() {
+        builder = new SignedCertificateMessageBuilder();
+        Assertions.assertThrows(RuntimeException.class, builder::buildAsString);
     }
 
     @Test
-    public void testSignedMessage() throws Exception {
+    void testCatchExceptionDuringBuild() throws IOException {
+        X509CertificateHolder certMock = mock(X509CertificateHolder.class);
+        when(certMock.getEncoded()).thenThrow(new IOException());
+
+        builder.withPayloadCertificate(certMock);
+
+        Assertions.assertThrows(RuntimeException.class, builder::build);
+    }
+
+    @Test
+    void testSignedMessage() throws Exception {
         CMSSignedData cmsSignedData = new CMSSignedData(builder.build());
         
         Assertions.assertEquals(CMSObjectIdentifiers.data, cmsSignedData.getSignedContent().getContentType());
@@ -85,7 +105,7 @@ public class SignedCertificateMessageBuilderTest {
     }
 
     @Test
-    public void testSignedMessageDetached() throws Exception {
+    void testSignedMessageDetached() throws Exception {
         CMSSignedData cmsSignedData = new CMSSignedData(builder.build(true));
 
         Assertions.assertNull(cmsSignedData.getSignedContent());
@@ -105,7 +125,7 @@ public class SignedCertificateMessageBuilderTest {
     }
 
     @Test
-    public void testSignedMessageBase64() throws Exception {
+    void testSignedMessageBase64() throws Exception {
         CMSSignedData cmsSignedData = new CMSSignedData(Base64.getDecoder().decode(builder.buildAsString()));
 
         Assertions.assertEquals(CMSObjectIdentifiers.data, cmsSignedData.getSignedContent().getContentType());
@@ -127,7 +147,7 @@ public class SignedCertificateMessageBuilderTest {
     }
 
     @Test
-    public void testSignedMessageDetachedBase64() throws Exception {
+    void testSignedMessageDetachedBase64() throws Exception {
         CMSSignedData cmsSignedData = new CMSSignedData(Base64.getDecoder().decode(builder.buildAsString(true)));
 
         Assertions.assertNull(cmsSignedData.getSignedContent());
