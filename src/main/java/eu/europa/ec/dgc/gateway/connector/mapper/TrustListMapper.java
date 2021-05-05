@@ -18,15 +18,17 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import java.util.List;
+import org.mapstruct.Mapper;
 
-class DgcLibAutoConfigurationTest {
+@Mapper(componentModel = "spring")
+public interface TrustListMapper {
 
-  @Test
-  void testDefineConstructor() {
-    assertNotNull(new DgcLibAutoConfiguration());
-  }
+    TrustListItem map(TrustListItemDto trustListItemDto);
+
+    List<TrustListItem> map(List<TrustListItemDto> trustListItemDtos);
 }

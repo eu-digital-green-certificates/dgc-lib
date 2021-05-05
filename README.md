@@ -23,13 +23,15 @@
 
 This repository contains the source code of the Digital Green Certificates Library.
 
-The DGC Lib contains shared functionality such as encoding, decoding and connecting to the [DGCG](https://github.com/eu-digital-green-certificates/dgc-gateway).
+The DGC Lib contains shared functionality such as encoding, decoding and connecting to
+the [DGCG](https://github.com/eu-digital-green-certificates/dgc-gateway).
 
 ## Usage
 
 Include as Maven Dependency in pom.xml
 
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>eu.europa.ec.dgc</groupId>
@@ -41,8 +43,8 @@ Include as Maven Dependency in pom.xml
 ```
 
 **Attention:**
-Despite the dgc-lib will be build by GitHub it is not possible to publicly provide access to this artifact.
-As long as this package will not be put into a public registry you have to build it by your own. 
+Despite the dgc-lib will be build by GitHub it is not possible to publicly provide access to this artifact. As long as
+this package will not be put into a public registry you have to build it by your own.
 
 ## Development
 
@@ -68,6 +70,88 @@ Will download all required dependencies, build the project and stores the artifa
 
 The following chapter describes the features of dgc-lib and how to use them.
 
+### DGCG Connector
+
+The dgc-lib provides a Spring-Boot ready connector for communicating with DGC Gateway. The connector has two core
+functions:
+
+#### Trusted Certificate Download
+
+To download certificates from DGCG you just have to inject the ```DgcGatewayDownloadConnector``` and call the method
+```getTrustedCertificates```. This method will check if a cached version of the downloaded certificates already exists.
+The maximum age of the cache can be configured via properties. If the cache is too old or does not exist the connector
+will call the API of DGC Gateway for Trusted Certificates.
+
+The connector will do the following checks on downloaded certificates:
+
+* TrustAnchor check of downloaded CSCA
+* TrustAnchor check of downloaded Upload Certificates
+* Check that DSC is issued by a trusted CSCA
+* Check that DSC is signed by a trusted Upload Certificate
+
+The validated list will be returned. In order to connect to DGC Gateway and do all the validating stuff the following
+configuration is required:
+
+```yml
+dgc:
+  gateway:
+    connector:
+      enabled: true
+      endpoint: https://dgcg.example.org
+      proxy:
+        enabled: false
+        host:
+        port: -1
+      max-cache-age: 300
+      tls-trust-store:
+        password: dgcg-p4ssw0rd
+        path: classpath:tls-truststore.jks
+      tls-key-store:
+        alias: mtls_private_cert
+        password: dgcg-p4ssw0rd
+        path: /var/lib/ssl/mtls.jks
+      trust-anchor:
+        alias: ta_tst
+        password: dgcg-p4ssw0rd
+        path: /var/lib/ssl/ta.jks
+```
+
+#### Trusted Certificate Upload
+
+It is also possible to upload new trusted certificates to provide them to other member states. Therefore the
+```DgcGatewayUploadConnector``` needs to be injected. Certificates can then be send to the gateway by calling the
+```uploadTrustedCertificate``` with the certificate to upload as parameter. The signing with upload certificate is
+handled by the connector.
+
+The following properties needs to be set in order to upload trusted certificates.
+
+ ```yml
+dgc:
+  gateway:
+    connector:
+      enabled: true
+      endpoint: https://dgcg.example.org
+      proxy:
+        enabled: false
+        host:
+        port: -1
+      max-cache-age: 300
+      tls-trust-store:
+        password: dgcg-p4ssw0rd
+        path: classpath:tls-truststore.jks
+      tls-key-store:
+        alias: mtls_private_cert
+        password: dgcg-p4ssw0rd
+        path: /var/lib/ssl/mtls.jks
+      upload-key-store:
+        alias: upload
+        password: dgcg-p4ssw0rd
+        path: classpath:upload.p12
+```
+
+Certificates can also be deleted from gateway. The method call is equal to uploading new certificates. Just use 
+```deleteTrustedCertificate``` instead of ```uploadTrustedCertificate```.
+
 ### Signing
 
 #### Create Signed Certificate CMS Message
@@ -82,8 +166,8 @@ X509CertificateHolder format
 To create the signed message the following call is required:
 
 ```java
-String signedMessaged = new SignedCertificateMessageBuilder()
-    .withSigningCertificate(signingCert, signingCertPrivateKey)
+String signedMessaged=new SignedCertificateMessageBuilder()
+    .withSigningCertificate(signingCert,signingCertPrivateKey)
     .withPayloadCertificate(inputCert)
     .buildAsString();
 ```
@@ -95,12 +179,12 @@ Utils package.
 
 ##### Detached Message
 
-It is also possible to create a detached signature.
-Just pass the boolean value ```true``` to the ```build()``` or ```buildAsString()``` method.
+It is also possible to create a detached signature. Just pass the boolean value ```true``` to the ```build()```
+or ```buildAsString()``` method.
 
 ```java
-String detachedSignature = new SignedCertificateMessageBuilder()
-    .withSigningCertificate(signingCert, signingCertPrivateKey)
+String detachedSignature=new SignedCertificateMessageBuilder()
+    .withSigningCertificate(signingCert,signingCertPrivateKey)
     .withPayloadCertificate(inputCert)
     .buildAsString(true);
 ```
@@ -112,17 +196,17 @@ When a certificate is received it needs to be "unpacked". To do so the SignedCer
 Simply instantiate ```SignedCertificateMessageParser``` with the base64 encoded String.
 
 ```java
-SignedCertificateMessageParser parser = new SignedCertificateMessageParser(inputString);
+SignedCertificateMessageParser parser=new SignedCertificateMessageParser(inputString);
 ```
 
 The constructor accepts different formats as incoming message. Also detached signatures are accepted.
 
 ```java
-SignedCertificateMessageParser parser = new SignedCertificateMessageParser(payloadByteArray, signatureString);
+SignedCertificateMessageParser parser=new SignedCertificateMessageParser(payloadByteArray,signatureString);
 ```
 
-All combinations of String and byte[] as parameter for signature and payload are possible.
-Please be aware that the payload will be always base64 encoded (even if it is passed as byte[]). 
+All combinations of String and byte[] as parameter for signature and payload are possible. Please be aware that the
+payload will be always base64 encoded (even if it is passed as byte[]).
 
 The parser will immediately parse the message. The result can be obtained from
 
@@ -143,7 +227,7 @@ The signer certificate and the containing certificate can be accessed by
 
 ```java
 parser.getSigningCertificate()
-parser.getPayloadCertificate()
+    parser.getPayloadCertificate()
 ```
 
 Also a detached signature can be gained from parsed message
@@ -230,9 +314,12 @@ The following channels are available for discussions, feedback, and support requ
 
 | Type                      | Channel                                                |
 | ------------------------- | ------------------------------------------------------ |
-| **DGC Gateway issues**    | <a href="https://github.com/eu-digital-green-certificates/dgc-gateway/issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-gateway?style=flat"></a>  |
-| **DGC Lib issues**        | <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>  |
-| **Other requests**        | <a href="mailto:opensource@telekom.de" title="Email DGC Team"><img src="https://img.shields.io/badge/email-DGC%20team-green?logo=mail.ru&style=flat-square&logoColor=white"></a>   |
+| **DGC Gateway
+issues**    | <a href="https://github.com/eu-digital-green-certificates/dgc-gateway/issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-gateway?style=flat"></a>  |
+| **DGC Lib
+issues**        | <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>  |
+| **Other
+requests**        | <a href="mailto:opensource@telekom.de" title="Email DGC Team"><img src="https://img.shields.io/badge/email-DGC%20team-green?logo=mail.ru&style=flat-square&logoColor=white"></a>   |
 
 ## How to contribute
 

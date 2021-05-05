@@ -18,15 +18,16 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-class DgcLibAutoConfigurationTest {
+@SpringBootApplication(scanBasePackages = "eu.europa.ec.dgc.gateway.connector")
+public class SpringBootTestApplication {
 
-  @Test
-  void testDefineConstructor() {
-    assertNotNull(new DgcLibAutoConfiguration());
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootTestApplication.class, args);
+    }
+
 }

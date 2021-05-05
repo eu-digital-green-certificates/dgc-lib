@@ -18,15 +18,20 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.model;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import java.time.ZonedDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
-class DgcLibAutoConfigurationTest {
+@Getter
+@Setter
+public class TrustListItem {
 
-  @Test
-  void testDefineConstructor() {
-    assertNotNull(new DgcLibAutoConfiguration());
-  }
+    private String kid;
+
+    private ZonedDateTime timestamp;
+
+    private String rawData;
+
 }

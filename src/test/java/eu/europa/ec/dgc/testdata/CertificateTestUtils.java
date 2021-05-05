@@ -18,7 +18,7 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc.signing;
+package eu.europa.ec.dgc.testdata;
 
 import java.math.BigInteger;
 import java.security.KeyPair;

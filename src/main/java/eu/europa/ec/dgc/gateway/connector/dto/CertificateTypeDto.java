@@ -18,15 +18,11 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.dto;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
-
-class DgcLibAutoConfigurationTest {
-
-  @Test
-  void testDefineConstructor() {
-    assertNotNull(new DgcLibAutoConfiguration());
-  }
+public enum CertificateTypeDto {
+    AUTHENTICATION,
+    UPLOAD,
+    CSCA,
+    DSC
 }

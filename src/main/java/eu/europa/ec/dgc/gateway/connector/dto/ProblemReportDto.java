@@ -18,15 +18,23 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.dto;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-class DgcLibAutoConfigurationTest {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProblemReportDto {
 
-  @Test
-  void testDefineConstructor() {
-    assertNotNull(new DgcLibAutoConfiguration());
-  }
+    private String code;
+
+    private String problem;
+
+    private String sendValue;
+
+    private String details;
+
 }

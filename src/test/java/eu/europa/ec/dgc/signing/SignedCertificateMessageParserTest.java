@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.signing;
 
+import eu.europa.ec.dgc.testdata.CertificateTestUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
@@ -46,7 +47,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class SignedCertificateMessageParserTest {
+class SignedCertificateMessageParserTest {
 
     KeyPair payloadKeyPair, signingKeyPair;
     X509Certificate payloadCertificate, signingCertificate;
@@ -54,12 +55,12 @@ public class SignedCertificateMessageParserTest {
     SignedCertificateMessageBuilder builder;
 
     @Test
-    public void testDefineConstructor() {
+    void testDefineConstructor() {
         assertNotNull(new SignedCertificateMessageParser("Hello World".getBytes()));
     }
 
     @BeforeEach
-    public void setupTestData() throws Exception {
+    void setupTestData() throws Exception {
         payloadKeyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         payloadCertificate = CertificateTestUtils.generateCertificate(payloadKeyPair, "DE", "PayloadCertificate");
 
@@ -72,17 +73,18 @@ public class SignedCertificateMessageParserTest {
     }
 
     @Test
-    public void parserShouldParseByteArray() throws IOException, CertificateEncodingException {
+    void parserShouldParseByteArray() throws IOException, CertificateEncodingException {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(Base64.getEncoder().encode(builder.build()));
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertNotNull(parser.getSignature());
     }
 
     @Test
-    public void parserShouldParseByteArrayWithDetachedPayload() throws IOException, CertificateEncodingException {
+    void parserShouldParseByteArrayWithDetachedPayload() throws IOException, CertificateEncodingException {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
             Base64.getEncoder().encode(builder.build(true)),
             Base64.getEncoder().encode(payloadCertificate.getEncoded()));
@@ -91,20 +93,35 @@ public class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertNotNull(parser.getSignature());
     }
 
     @Test
-    public void parserShouldParseString() throws IOException, CertificateEncodingException {
+    void parserShouldParseByteArrayWithDetachedPayloadAsString() throws IOException, CertificateEncodingException {
+        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
+            Base64.getEncoder().encode(builder.build(true)),
+            Base64.getEncoder().encodeToString(payloadCertificate.getEncoded()));
+
+        Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
+        Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
+        Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
+        Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertNotNull(parser.getSignature());
+    }
+
+    @Test
+    void parserShouldParseString() throws IOException, CertificateEncodingException {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(builder.buildAsString());
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertNotNull(parser.getSignature());
     }
 
     @Test
-    public void parserShouldParseStringWithDetachedPayload() throws IOException, CertificateEncodingException {
+    void parserShouldParseStringWithDetachedPayload() throws IOException, CertificateEncodingException {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
             builder.buildAsString(true),
             Base64.getEncoder().encode(payloadCertificate.getEncoded()));
@@ -113,10 +130,11 @@ public class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertNotNull(parser.getSignature());
     }
 
     @Test
-    public void parserShouldDetectBrokenBase64() {
+    void parserShouldDetectBrokenBase64() {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser("randomBadBase64String");
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.FAILURE_INVALID_BASE64, parser.getParserState());
@@ -124,7 +142,7 @@ public class SignedCertificateMessageParserTest {
     }
 
     @Test
-    public void parserShouldDetectBrokenCms() {
+    void parserShouldDetectBrokenCms() {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(Base64.getEncoder().encode("randomString".getBytes(StandardCharsets.UTF_8)));
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.FAILURE_INVALID_CMS, parser.getParserState());
@@ -132,7 +150,7 @@ public class SignedCertificateMessageParserTest {
     }
 
     @Test
-    public void parserShouldDetectInvalidCmsContentType() throws Exception {
+    void parserShouldDetectInvalidCmsContentType() throws Exception {
         DigestCalculatorProvider digestCalculatorProvider = new JcaDigestCalculatorProviderBuilder().build();
 
         X509CertificateHolder signingCertificateHolder = new X509CertificateHolder(signingCertificate.getEncoded());
@@ -165,7 +183,7 @@ public class SignedCertificateMessageParserTest {
     }
 
     @Test
-    public void parserShouldDetectInvalidCmsContent() throws Exception {
+    void parserShouldDetectInvalidCmsContent() throws Exception {
         DigestCalculatorProvider digestCalculatorProvider = new JcaDigestCalculatorProviderBuilder().build();
 
         X509CertificateHolder signingCertificateHolder = new X509CertificateHolder(signingCertificate.getEncoded());
@@ -196,7 +214,7 @@ public class SignedCertificateMessageParserTest {
     }
 
     @Test
-    public void parserShouldDetectInvalidCertificateAmount() throws Exception {
+    void parserShouldDetectInvalidCertificateAmount() throws Exception {
         DigestCalculatorProvider digestCalculatorProvider = new JcaDigestCalculatorProviderBuilder().build();
 
         X509CertificateHolder signingCertificateHolder = new X509CertificateHolder(signingCertificate.getEncoded());
@@ -227,7 +245,7 @@ public class SignedCertificateMessageParserTest {
     }
 
     @Test
-    public void parserShouldDetectInvalidSignerInfoAmount() throws Exception {
+    void parserShouldDetectInvalidSignerInfoAmount() throws Exception {
         DigestCalculatorProvider digestCalculatorProvider = new JcaDigestCalculatorProviderBuilder().build();
 
         X509CertificateHolder signingCertificateHolder = new X509CertificateHolder(signingCertificate.getEncoded());

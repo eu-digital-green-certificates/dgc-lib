@@ -20,8 +20,9 @@
 
 package eu.europa.ec.dgc.utils;
 
-import eu.europa.ec.dgc.signing.CertificateTestUtils;
-import eu.europa.ec.dgc.signing.SignedCertificateMessageBuilder;
+import eu.europa.ec.dgc.testdata.CertificateTestUtils;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -35,10 +36,8 @@ import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Service;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CertificateUtilsTest {
 
@@ -48,19 +47,19 @@ public class CertificateUtilsTest {
     X509Certificate certificate;
 
     @BeforeEach
-    public void setupTestData() throws Exception {
+    void setupTestData() throws Exception {
         certificateUtils = new CertificateUtils();
         keyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         certificate = CertificateTestUtils.generateCertificate(keyPair, "DE", "PayloadCertificate");
     }
 
     @Test
-    public void testDefineConstructor() {
+    void testDefineConstructor() {
         assertNotNull(new CertificateUtils());
     }
 
     @Test
-    public void testGetCertKid() throws Exception {
+    void testGetCertKid() throws Exception {
         byte[] expectedKid = Arrays.copyOfRange(MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded()), 0, 8);
 
         String calculatedKid = certificateUtils.getCertKid(certificate);
@@ -70,7 +69,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testGetCertKidHolder() throws Exception {
+    void testGetCertKidHolder() throws Exception {
         byte[] expectedKid = Arrays.copyOfRange(MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded()), 0, 8);
 
         X509CertificateHolder holder = new X509CertificateHolder(certificate.getEncoded());
@@ -82,7 +81,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testGetCertHash() throws Exception {
+    void testGetCertHash() throws Exception {
         byte[] expectedThumbprint = MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded());
         byte[] thumbprint = Hex.decode(certificateUtils.getCertThumbprint(certificate));
 
@@ -90,7 +89,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testGetCertHashHolder() throws Exception {
+    void testGetCertHashHolder() throws Exception {
         X509CertificateHolder holder = new X509CertificateHolder(certificate.getEncoded());
 
         byte[] expectedThumbprint = MessageDigest.getInstance("SHA-256").digest(certificate.getEncoded());
@@ -100,7 +99,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testConverter() throws Exception {
+    void testConverter() throws Exception {
         X509CertificateHolder converted = certificateUtils.convertCertificate(certificate);
 
         Assertions.assertArrayEquals(certificate.getEncoded(), converted.getEncoded());
@@ -108,6 +107,42 @@ public class CertificateUtilsTest {
         X509Certificate reconverted = certificateUtils.convertCertificate(converted);
 
         Assertions.assertArrayEquals(converted.getEncoded(), reconverted.getEncoded());
+    }
+
+    @Test
+    void kidShouldReturnNullIfCertIsBroken() throws CertificateEncodingException, IOException {
+        X509Certificate certificateMock = mock(X509Certificate.class);
+        when(certificateMock.getEncoded()).thenThrow(new CertificateEncodingException());
+
+        Assertions.assertNull(certificateUtils.getCertKid(certificateMock));
+
+        X509CertificateHolder certificateHolderMock = mock(X509CertificateHolder.class);
+        when(certificateHolderMock.getEncoded()).thenThrow(new IOException());
+
+        Assertions.assertNull(certificateUtils.getCertKid(certificateHolderMock));
+    }
+
+    @Test
+    void certThumbprintShouldReturnNullIfCertIsBroken() throws CertificateEncodingException, IOException {
+        X509Certificate certificateMock = mock(X509Certificate.class);
+        when(certificateMock.getEncoded()).thenThrow(new CertificateEncodingException());
+
+        Assertions.assertNull(certificateUtils.getCertThumbprint(certificateMock));
+
+        X509CertificateHolder certificateHolderMock = mock(X509CertificateHolder.class);
+        when(certificateHolderMock.getEncoded()).thenThrow(new IOException());
+
+        Assertions.assertNull(certificateUtils.getCertThumbprint(certificateHolderMock));
+    }
+
+    @Test
+    void certThumbprintShouldReturnLeadingZero() throws CertificateEncodingException {
+        X509Certificate certificateMock = mock(X509Certificate.class);
+
+        // Hash of this String is 0ff414937084de132c1ea9c97eb8f8cf4859ac691d32e0892ebd2edeb35bb848
+        when(certificateMock.getEncoded()).thenReturn("fde3383jssk11ß9928018382mxm,sl".getBytes(StandardCharsets.UTF_8));
+
+        Assertions.assertTrue(certificateUtils.getCertThumbprint(certificateMock).startsWith("0"));
     }
 }
 
