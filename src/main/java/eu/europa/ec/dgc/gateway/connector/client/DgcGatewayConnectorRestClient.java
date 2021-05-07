@@ -56,7 +56,7 @@ public interface DgcGatewayConnectorRestClient {
      * @param cmsSignedCertificate CMS Signed Certificate Message.
      * @return ResponseEntity with upload result.
      */
-    @PostMapping(value = "/signerInformation", consumes = "application/cms")
+    @PostMapping(value = "/signerCertificate", consumes = "application/cms")
     ResponseEntity<Void> uploadSignerInformation(@RequestBody String cmsSignedCertificate);
 
     /**
@@ -65,7 +65,7 @@ public interface DgcGatewayConnectorRestClient {
      * @param cmsSignedCertificate CMS Signed Certificate Message.
      * @return ResponseEntity with delete result.
      */
-    @DeleteMapping(value = "/signerInformation", consumes = "application/cms")
+    @DeleteMapping(value = "/signerCertificate", consumes = "application/cms")
     ResponseEntity<Void> deleteSignerInformation(@RequestBody String cmsSignedCertificate);
 
 }
