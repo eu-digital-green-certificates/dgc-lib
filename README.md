@@ -116,6 +116,20 @@ dgc:
         path: /var/lib/ssl/ta.jks
 ```
 
+##### Disable Upload Certificate Check
+
+Because of an error in DGC Gateway the uploader certificate check can fail. Therefore property to disable the uploader
+certificate check was introduced:
+
+```yml
+dgc:
+  gateway:
+    connector:
+      disable-upload-certificate-check: false
+```
+
+This is just a workaround. This "feature" will be removed in future releases.
+
 #### Trusted Certificate Upload
 
 It is also possible to upload new trusted certificates to provide them to other member states. Therefore the
@@ -149,7 +163,7 @@ dgc:
         path: classpath:upload.p12
 ```
 
-Certificates can also be deleted from gateway. The method call is equal to uploading new certificates. Just use 
+Certificates can also be deleted from gateway. The method call is equal to uploading new certificates. Just use
 ```deleteTrustedCertificate``` instead of ```uploadTrustedCertificate```.
 
 ### Signing
