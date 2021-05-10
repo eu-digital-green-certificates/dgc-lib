@@ -33,6 +33,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -103,7 +104,7 @@ public class SignedCertificateMessageParser {
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature bytes.
-     * @param cmsPayload base64 encoded CMS message payload.
+     * @param cmsPayload   base64 encoded CMS message payload.
      */
     public SignedCertificateMessageParser(@NonNull byte[] cmsSignature, @NonNull byte[] cmsPayload) {
         raw = cmsSignature;
@@ -128,7 +129,7 @@ public class SignedCertificateMessageParser {
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature string.
-     * @param cmsPayload base64 encoded CMS message payload string.
+     * @param cmsPayload   base64 encoded CMS message payload string.
      */
     public SignedCertificateMessageParser(@NonNull String cmsSignature, @NonNull String cmsPayload) {
         raw = cmsSignature.getBytes(StandardCharsets.UTF_8);
@@ -141,7 +142,7 @@ public class SignedCertificateMessageParser {
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature bytes.
-     * @param cmsPayload base64 encoded CMS message payload string.
+     * @param cmsPayload   base64 encoded CMS message payload string.
      */
     public SignedCertificateMessageParser(@NonNull byte[] cmsSignature, @NonNull String cmsPayload) {
         raw = cmsSignature;
@@ -154,7 +155,7 @@ public class SignedCertificateMessageParser {
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature string.
-     * @param cmsPayload base64 encoded CMS message payload bytes.
+     * @param cmsPayload   base64 encoded CMS message payload bytes.
      */
     public SignedCertificateMessageParser(@NonNull String cmsSignature, @NonNull byte[] cmsPayload) {
         raw = cmsSignature.getBytes(StandardCharsets.UTF_8);
@@ -218,6 +219,14 @@ public class SignedCertificateMessageParser {
         }
         signingCertificate = certificateHolderCollection.iterator().next();
 
+        // Try to extract detached CMS Signature
+        try {
+            signature = Base64.getEncoder().encodeToString(repackToDetachedCms(cmsSignedData).getEncoded());
+        } catch (IOException | CMSException e) {
+            signature = null;
+            log.error("Failed to repack CMS to get detached signature.");
+        }
+
         // Get signer information and verify signature
         if (cmsSignedData.getSignerInfos().size() != 1) {
             log.error("Signed Message contains more than 1 signer information");
@@ -229,12 +238,28 @@ public class SignedCertificateMessageParser {
             signatureVerified = signerInformation.verify(
                 new JcaSimpleSignerInfoVerifierBuilder().build(signingCertificate)
             );
-            signature = Base64.getEncoder().encodeToString(signerInformation.getSignature());
         } catch (CMSException | OperatorCreationException | CertificateException e) {
             log.error("Failed to validate Signature");
         }
 
         parserState = ParserState.SUCCESS;
+    }
+
+    /**
+     * Recreates a CMS without encapsulated Data.
+     *
+     * @param input input CMS Message
+     * @return CMS message without encapsulated data.
+     * @throws CMSException if repacking fails.
+     */
+    private CMSSignedData repackToDetachedCms(CMSSignedData input) throws CMSException {
+        CMSSignedDataGenerator cmsGenerator = new CMSSignedDataGenerator();
+        cmsGenerator.addCertificates(input.getCertificates());
+        cmsGenerator.addSigners(input.getSignerInfos());
+        cmsGenerator.addAttributeCertificates(input.getAttributeCertificates());
+        cmsGenerator.addCRLs(input.getCRLs());
+
+        return cmsGenerator.generate(input.getSignedContent(), false);
     }
 
     public enum ParserState {
