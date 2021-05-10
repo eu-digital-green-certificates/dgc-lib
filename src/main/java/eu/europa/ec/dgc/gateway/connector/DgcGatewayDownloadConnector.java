@@ -205,6 +205,11 @@ public class DgcGatewayDownloadConnector {
     }
 
     private boolean checkUploadCertificate(TrustListItemDto trustListItem) {
+        if (properties.isDisableUploadCertificateCheck()) {
+            log.debug("Upload Certificate Check is disabled. Skipping Check.");
+            return true;
+        }
+
         SignedCertificateMessageParser parser =
             new SignedCertificateMessageParser(trustListItem.getSignature(), trustListItem.getRawData());
         X509CertificateHolder uploadCertificate = parser.getSigningCertificate();

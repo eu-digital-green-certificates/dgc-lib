@@ -35,6 +35,11 @@ public class DgcGatewayConnectorConfigProperties {
     private boolean enabled = false;
 
     /**
+     * Disables the ckeck of Uploader Certificate for downloaded DSC.
+     */
+    private boolean disableUploadCertificateCheck = false;
+
+    /**
      * Endpoint of DGCG Service (without any path segments, e.g. https://example-dgcg.ec.europa.eu)
      */
     String endpoint;
