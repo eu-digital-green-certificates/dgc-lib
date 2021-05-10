@@ -74,50 +74,56 @@ class SignedCertificateMessageParserTest {
 
     @Test
     void parserShouldParseByteArray() throws IOException, CertificateEncodingException {
-        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(Base64.getEncoder().encode(builder.build()));
+        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
+            Base64.getEncoder().encode(builder.build()));
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        Assertions.assertNotNull(parser.getSignature());
+        checkSignatureFromParser(parser.getSignature());
     }
 
     @Test
     void parserShouldParseByteArrayWithDetachedPayload() throws IOException, CertificateEncodingException {
+        byte[] cms = Base64.getEncoder().encode(builder.build(true));
+
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
-            Base64.getEncoder().encode(builder.build(true)),
+            cms,
             Base64.getEncoder().encode(payloadCertificate.getEncoded()));
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        Assertions.assertNotNull(parser.getSignature());
+        Assertions.assertEquals(new String(cms), parser.getSignature());
     }
 
     @Test
     void parserShouldParseByteArrayWithDetachedPayloadAsString() throws IOException, CertificateEncodingException {
+        byte[] cms = Base64.getEncoder().encode(builder.build(true));
+
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
-            Base64.getEncoder().encode(builder.build(true)),
+            cms,
             Base64.getEncoder().encodeToString(payloadCertificate.getEncoded()));
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        Assertions.assertNotNull(parser.getSignature());
+        checkSignatureFromParser(parser.getSignature());
     }
 
     @Test
     void parserShouldParseString() throws IOException, CertificateEncodingException {
-        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(builder.buildAsString());
+        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
+            builder.buildAsString());
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        Assertions.assertNotNull(parser.getSignature());
+        checkSignatureFromParser(parser.getSignature());
     }
 
     @Test
@@ -130,7 +136,7 @@ class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayloadCertificate().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        Assertions.assertNotNull(parser.getSignature());
+        checkSignatureFromParser(parser.getSignature());
     }
 
     @Test
@@ -273,6 +279,17 @@ class SignedCertificateMessageParserTest {
 
         Assertions.assertEquals(SignedCertificateMessageParser.ParserState.FAILURE_CMS_SIGNER_INFO, parser.getParserState());
         Assertions.assertFalse(parser.isSignatureVerified());
+    }
+
+    private void checkSignatureFromParser(String signature) throws CertificateEncodingException, IOException {
+        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
+            signature, Base64.getEncoder().encodeToString(payloadCertificate.getEncoded()));
+
+        Assertions.assertEquals(SignedCertificateMessageParser.ParserState.SUCCESS, parser.getParserState());
+        Assertions.assertEquals(new X509CertificateHolder(payloadCertificate.getEncoded()), parser.getPayloadCertificate());
+        Assertions.assertEquals(new X509CertificateHolder(signingCertificate.getEncoded()), parser.getSigningCertificate());
+        Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertEquals(signature, parser.getSignature());
     }
 }
 
