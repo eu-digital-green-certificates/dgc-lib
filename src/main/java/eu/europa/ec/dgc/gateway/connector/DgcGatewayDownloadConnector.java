@@ -214,6 +214,10 @@ public class DgcGatewayDownloadConnector {
             new SignedCertificateMessageParser(trustListItem.getSignature(), trustListItem.getRawData());
         X509CertificateHolder uploadCertificate = parser.getSigningCertificate();
 
+        if (uploadCertificate == null) {
+            return false;
+        }
+
         return trustedUploadCertificates
             .stream()
             .anyMatch(uploadCertificate::equals);
