@@ -42,9 +42,18 @@ Include as Maven Dependency in pom.xml
 </dependencies>
 ```
 
+### Authenticating to GitHub Packages
+
 **Attention:**
-Despite the dgc-lib will be build by GitHub it is not possible to publicly provide access to this artifact. As long as
-this package will not be put into a public registry you have to build it by your own.
+GitHub does not allow anonymous access to it's package registry. You need to authenticate in order to use the dgc-lib artefact provided by us. 
+Therefore y ou need to authenticate to [GitHub Packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry)
+The following steps need to be performed
+
+- Create [PAT](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with scopes:
+  - `read:packages` for downloading packages
+- Copy/Augment `~/.m2/settings.xml` with the contents of `settings.xml` present in this repository (or in the DGC repository you are trying to build)
+  - Replace `${app.packages.username}` with your github username
+  - Replace `${app.packages.password}` with the generated PAT
 
 ## Development
 
