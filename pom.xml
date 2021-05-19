@@ -24,13 +24,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
         <owasp.version>6.1.1</owasp.version>
-        <spring.boot.version>2.4.4</spring.boot.version>
+        <spring.boot.version>2.4.5</spring.boot.version>
         <spring.cloud.version>3.0.2</spring.cloud.version>
-        <feign.version>10.10.1</feign.version>
+        <feign.version>11.2</feign.version>
         <bcpkix.version>1.68</bcpkix.version>
         <lombok.version>1.18.20</lombok.version>
         <junit.version>5.7.1</junit.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <commonsio.version>2.8.0</commonsio.version>
 
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.6.1.1688</plugin.sonar.version>
@@ -123,6 +124,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commonsio.version}</version>
         </dependency>
     </dependencies>
 
