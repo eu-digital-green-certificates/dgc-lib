@@ -32,6 +32,7 @@ import feign.FeignException;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
@@ -47,6 +48,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -91,6 +93,8 @@ public class DgcGatewayDownloadConnector {
 
     @PostConstruct
     void init() throws KeyStoreException, CertificateEncodingException, IOException {
+        Security.addProvider(new BouncyCastleProvider());
+
         String trustAnchorAlias = properties.getTrustAnchor().getAlias();
         X509Certificate trustAnchorCert = (X509Certificate) trustAnchorKeyStore.getCertificate(trustAnchorAlias);
 
@@ -199,9 +203,15 @@ public class DgcGatewayDownloadConnector {
     }
 
     private boolean checkCscaCertificate(TrustListItemDto trustListItem) {
-        return trustedCscaCertificates
+        boolean result = trustedCscaCertificates
             .stream()
             .anyMatch(ca -> connectorUtils.trustListItemSignedByCa(trustListItem, ca));
+
+        if (!result) {
+            log.info("Could not find valid CSCA for DSC {}", trustListItem.getKid());
+        }
+
+        return result;
     }
 
     private boolean checkUploadCertificate(TrustListItemDto trustListItem) {
