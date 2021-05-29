@@ -22,6 +22,7 @@ package eu.europa.ec.dgc.signing;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.util.Base64;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
 import org.bouncycastle.operator.DigestCalculatorProvider;
@@ -83,6 +85,8 @@ public class SignedCertificateMessageBuilder {
      * @return Bytes of signed CMS message.
      */
     public byte[] build(boolean detached) {
+        Security.addProvider(new BouncyCastleProvider());
+
         if (payloadCertificate == null || signingCertificate == null || signingCertificatePrivateKey == null) {
             throw new RuntimeException("Message Builder is not ready");
         }

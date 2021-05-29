@@ -22,6 +22,7 @@ package eu.europa.ec.dgc.signing;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 
 /**
@@ -164,6 +166,8 @@ public class SignedCertificateMessageParser {
     }
 
     private void afterPropertiesSet() {
+        Security.addProvider(new BouncyCastleProvider());
+
         // Parse Base64
         byte[] cmsBytes;
         byte[] cmsPayloadBytes = null;
