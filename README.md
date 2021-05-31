@@ -1,5 +1,5 @@
 <h1 align="center">
-    EU Digital Green Certificates Lib
+    EU Digital COVID Certificate Lib
 </h1>
 
 <p align="center">
@@ -21,7 +21,7 @@
 
 ## About
 
-This repository contains the source code of the Digital Green Certificates Library.
+This repository contains the source code of the EU Digital COVID Certificate Library.
 
 The DGC Lib contains shared functionality such as encoding, decoding and connecting to
 the [DGCG](https://github.com/eu-digital-green-certificates/dgc-gateway).
