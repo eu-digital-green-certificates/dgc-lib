@@ -125,12 +125,11 @@ public class DgcGenerator {
      *
      * @param cose signed edgc data
      * @return qr code data
-     * @throws IOException exception
      */
     public String coseToQrCode(byte[] cose) {
         ByteArrayInputStream bis = new ByteArrayInputStream(cose);
         DeflaterInputStream compessedInput = new DeflaterInputStream(bis, new Deflater(9));
-        byte[] coseCompressed = new byte[0];
+        byte[] coseCompressed;
         try {
             coseCompressed = compessedInput.readAllBytes();
         } catch (IOException e) {

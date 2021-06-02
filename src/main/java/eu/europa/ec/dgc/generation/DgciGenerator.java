@@ -3,7 +3,6 @@ package eu.europa.ec.dgc.generation;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.UUID;
-import org.springframework.stereotype.Service;
 
 public class DgciGenerator {
 

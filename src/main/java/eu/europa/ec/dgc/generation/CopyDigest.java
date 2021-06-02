@@ -71,6 +71,7 @@ public class CopyDigest implements Digest {
     /**
      * Resets the Message Digest.
      */
+    @Override
     public void reset() {
         if (wasReset) {
             sha256Digest.reset();

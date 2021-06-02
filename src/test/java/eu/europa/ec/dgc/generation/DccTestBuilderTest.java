@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class DccTestBuilderTest {
 
     @Test
-    void requiredFieldsFormat() throws Exception {
+    void requiredFieldsFormat() {
         DccTestBuilder dccTestBuilder = new DccTestBuilder();
         dccTestBuilder.fn("Tester");
         dccTestBuilder.fnt("TESTER");
@@ -16,15 +16,13 @@ class DccTestBuilderTest {
     }
 
     @Test
-    void patternMatch() throws Exception {
+    void patternMatch() {
         DccTestBuilder dccTestBuilder = new DccTestBuilder();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            dccTestBuilder.fnt("tester");
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> dccTestBuilder.fnt("tester"));
     }
 
     @Test
-    void genTestJson() throws Exception {
+    void genTestJson() {
         DccTestBuilder dccTestBuilder = new DccTestBuilder();
         dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob("1973-01-01");
         dccTestBuilder.detected(false)

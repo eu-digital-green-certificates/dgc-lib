@@ -3,7 +3,7 @@ package eu.europa.ec.dgc.generation;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,5 +46,6 @@ class DgcSignerTest {
         String edgcQR = dgcGenerator.coseToQrCode(coseSigned);
 
         System.out.println(edgcQR);
+        Assertions.assertNotNull(edgcQR);
     }
 }

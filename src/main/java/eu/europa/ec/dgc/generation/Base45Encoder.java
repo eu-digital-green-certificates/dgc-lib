@@ -6,6 +6,9 @@ package eu.europa.ec.dgc.generation;
 public class Base45Encoder {
     private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 
+    private Base45Encoder() {
+    }
+
     /**
      * Encode a byte array to Base45 String.
      *

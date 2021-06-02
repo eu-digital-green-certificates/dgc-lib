@@ -28,7 +28,6 @@ import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

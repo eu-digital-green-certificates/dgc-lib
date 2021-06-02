@@ -1,5 +1,6 @@
 package eu.europa.ec.dgc.generation;
 
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -11,12 +12,14 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
  * build final dcc qr code from encode dcc data and signature.
  */
 @Service
+@Slf4j
 public class DgcCryptedFinalizer {
 
     /**
@@ -33,19 +36,16 @@ public class DgcCryptedFinalizer {
         byte[] dgcData = new byte[0];
         try {
             dgcData = decryptDccData(encodedDccData, dek, privateKey);
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException
-            | IllegalBlockSizeException | BadPaddingException | InvalidKeySpecException
-            | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+
+            log.error("Failed to finalize DCC: {}", e.getMessage());
         }
         byte[] dgcCose = dgcGenerator.dgcSetCoseSignature(dgcData, signature);
         return dgcGenerator.coseToQrCode(dgcCose);
     }
 
     private byte[] decryptDccData(byte[] encodedDccData, byte[] dek, PrivateKey privateKey)
-        throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
-        IllegalBlockSizeException, BadPaddingException,
-        InvalidKeySpecException, InvalidAlgorithmParameterException {
+        throws java.security.GeneralSecurityException {
         // decrypt RSA key
         Cipher keyCipher = Cipher.getInstance(DgcCryptedPublisher.KEY_CIPHER);
         keyCipher.init(Cipher.DECRYPT_MODE, privateKey);
