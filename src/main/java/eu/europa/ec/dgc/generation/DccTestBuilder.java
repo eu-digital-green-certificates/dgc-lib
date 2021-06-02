@@ -17,6 +17,7 @@ public class DccTestBuilder extends DccBuilderBase<DccTestBuilder> {
     private ObjectNode testObject;
 
     private enum RequiredFields { tt, sc, tr, tc }
+
     private EnumSet<RequiredFields> requiredNotSet = EnumSet.allOf(RequiredFields.class);
 
     /**

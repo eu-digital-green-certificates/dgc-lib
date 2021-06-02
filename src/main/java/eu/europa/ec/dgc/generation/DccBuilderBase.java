@@ -9,19 +9,28 @@ import java.util.EnumSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * abstract builder for all certificate types.
+ * @param <T> the concrete builder
+ */
 public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
+
     protected JsonNodeFactory jsonNodeFactory;
     protected ObjectNode dccObject;
     protected ObjectNode nameObject;
 
-    protected static final Pattern countryPattern = Pattern.compile("[A-Z]{1,10}");
+    private static final Pattern countryPattern = Pattern.compile("[A-Z]{1,10}");
     private static final Pattern standardNamePattern = Pattern.compile("^[A-Z<]*$");
+
     protected DateTimeFormatter dateFormat;
 
     private enum RequiredFieldsBase { dob, fnt, co, is, ci }
+
     private EnumSet<RequiredFieldsBase> requiredNotSet = EnumSet.allOf(RequiredFieldsBase.class);
 
-
+    /**
+     * constructor.
+     */
     public DccBuilderBase() {
         dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 

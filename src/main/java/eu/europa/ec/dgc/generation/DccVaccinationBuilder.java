@@ -6,9 +6,11 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 
 public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder> {
+
     private ObjectNode vaccinationObject;
 
     private enum RequiredFields { vp, mp, ma, dn, sd, dt }
+
     private EnumSet<RequiredFields> requiredNotSet = EnumSet.allOf(RequiredFields.class);
 
     /**
@@ -85,7 +87,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
      * @return builder
      */
     public DccVaccinationBuilder doseNumber(int dn) {
-        if (dn<1 || dn>9) {
+        if (dn < 1 || dn > 9) {
             throw new IllegalArgumentException("invalid range of dn (1-9)");
         }
         vaccinationObject.set("dn", jsonNodeFactory.numberNode(dn));
@@ -94,12 +96,12 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
     }
 
     /**
-     * total series of doses
+     * total series of doses.
      * @param sd total series of doses
      * @return builder
      */
     public DccVaccinationBuilder totalSeriesOfDoses(int sd) {
-        if (sd<1 || sd>9) {
+        if (sd < 1 || sd > 9) {
             throw new IllegalArgumentException("invalid range of dn (1-9)");
         }
         vaccinationObject.set("sd", jsonNodeFactory.numberNode(sd));
@@ -108,7 +110,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
     }
 
     /**
-     * date time of vaccination
+     * date time of vaccination.
      * @param dateTime sc
      * @return builder
      */

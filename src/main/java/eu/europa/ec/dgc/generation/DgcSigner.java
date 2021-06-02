@@ -52,15 +52,13 @@ public class DgcSigner {
 
     /**
      * sign hash and build partial cose dcc containing key in unprotected header and signature.
-     *
      * This variant can be user together with @link {@link DgcGenerator#dgcSetCosePartial}.
-     * @param hashBytes
-     * @param privateKey
-     * @param keyId
+     * @param hashBytes hash to sign
+     * @param privateKey private key
+     * @param keyId keyId bytes
      * @return cose container but only with signature and unprotected header with keyId
      */
     public byte[] signPartialDcc(byte[] hashBytes, PrivateKey privateKey, byte[] keyId) {
-        byte[] signature = signHash(hashBytes, privateKey);
         CBORObject protectedHeader = CBORObject.NewMap();
         byte[] protectedHeaderBytes = protectedHeader.EncodeToBytes();
 
@@ -71,6 +69,8 @@ public class DgcSigner {
         coseObject.Add(unprotectedHeader);
         byte[] contentDummy = new byte[0];
         coseObject.Add(CBORObject.FromObject(contentDummy));
+
+        byte[] signature = signHash(hashBytes, privateKey);
         coseObject.Add(CBORObject.FromObject(signature));
         return CBORObject.FromObjectAndTag(coseObject, 18).EncodeToBytes();
     }
