@@ -24,7 +24,7 @@ public class DgcCryptedPublisher {
     private final DgcGenerator dgcGenerator = new DgcGenerator();
 
     /**
-     * create dgc data.
+     * Create dgc data.
      *
      * @param dgcInitData    init params
      * @param dgcPayloadJson dcc payload
@@ -34,7 +34,8 @@ public class DgcCryptedPublisher {
     public DgcData createDgc(DgcInitData dgcInitData, String dgcPayloadJson, PublicKey publicKey) {
         byte[] edgcCbor = dgcGenerator.genDgcCbor(dgcPayloadJson, dgcInitData.getIssuerCode(),
             dgcInitData.getIssuedAt(), dgcInitData.getExpriation());
-        byte[] edgcCoseUnsigned = dgcGenerator.genCoseUnsigned(edgcCbor, dgcInitData.getKeyId(), dgcInitData.getAlgId());
+        byte[] edgcCoseUnsigned =
+            dgcGenerator.genCoseUnsigned(edgcCbor, dgcInitData.getKeyId(), dgcInitData.getAlgId());
         byte[] edgcHash = dgcGenerator.computeCoseSignHash(edgcCoseUnsigned);
 
         DgcData dgcData = new DgcData();

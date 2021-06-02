@@ -1,7 +1,7 @@
 package eu.europa.ec.dgc.generation;
 
 /**
- * Base45 Encoder
+ * Base45 Encoder.
  */
 public class Base45Encoder {
     private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
