@@ -1,5 +1,6 @@
 package eu.europa.ec.dgc.generation;
 
+import com.upokecenter.cbor.CBORObject;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -47,6 +48,31 @@ public class DgcSigner {
             throw new IllegalArgumentException("error during signing ", e);
         }
         return signature;
+    }
+
+    /**
+     * sign hash and build partial cose dcc containing key in unprotected header and signature.
+     *
+     * This variant can be user together with @link {@link DgcGenerator#dgcSetCosePartial}.
+     * @param hashBytes
+     * @param privateKey
+     * @param keyId
+     * @return cose container but only with signature and unprotected header with keyId
+     */
+    public byte[] signPartialDcc(byte[] hashBytes, PrivateKey privateKey, byte[] keyId) {
+        byte[] signature = signHash(hashBytes, privateKey);
+        CBORObject protectedHeader = CBORObject.NewMap();
+        byte[] protectedHeaderBytes = protectedHeader.EncodeToBytes();
+
+        CBORObject coseObject = CBORObject.NewArray();
+        coseObject.Add(protectedHeaderBytes);
+        CBORObject unprotectedHeader = CBORObject.NewMap();
+        unprotectedHeader.Add(CBORObject.FromObject(4),CBORObject.FromObject(keyId));
+        coseObject.Add(unprotectedHeader);
+        byte[] contentDummy = new byte[0];
+        coseObject.Add(CBORObject.FromObject(contentDummy));
+        coseObject.Add(CBORObject.FromObject(signature));
+        return CBORObject.FromObjectAndTag(coseObject, 18).EncodeToBytes();
     }
 
     /**

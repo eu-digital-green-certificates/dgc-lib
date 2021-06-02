@@ -1,6 +1,8 @@
 package eu.europa.ec.dgc.generation;
 
+import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Assertions;
@@ -8,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class DgcSignerTest {
-
     KeyHelper keyHelper;
 
     @BeforeEach
@@ -16,16 +17,27 @@ class DgcSignerTest {
         keyHelper = new KeyHelper();
     }
 
+    public static String genSampleJson() {
+        DccTestBuilder dccTestBuilder = new DccTestBuilder();
+        dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob("1973-01-01");
+        dccTestBuilder.detected(false)
+                .dgci("URN:UVCI:01:OS:B5921A35D6A0D696421B3E2462178297I")
+                .country("DE")
+                .testTypeRapid(true)
+                .testingCentre("Hochdahl")
+                .certificateIssuer("Dr Who")
+                .sampleCollection(LocalDateTime.now());
+        return dccTestBuilder.toJsonString();
+    }
+
     @Test
-    void genEDGC() {
+    void genEdgc() throws IOException {
 
         DgcGenerator dgcGenerator = new DgcGenerator();
         DgcSigner dgcSigner = new DgcSigner();
 
-        String edgcJson = "{\"ver\":\"1.0.0\",\"nam\":{\"fn\":\"Garcia\",\"fnt\":\"GARCIA\"," +
-            "\"gn\":\"Francisco\",\"gnt\":\"FRANCISCO\"},\"dob\":\"1991-01-01\",\"v\":[{\"tg\":\"840539006\"," +
-            "\"vp\":\"1119305005\",\"mp\":\"EU/1/20/1507\",\"ma\":\"ORG-100001699\",\"dn\":1,\"sd\":2,\"dt\":" +
-            "\"2021-05-14\",\"co\":\"CY\",\"is\":\"Neha\",\"ci\":\"dgci:V1:CY:HIP4OKCIS8CXKQMJSSTOJXAMP:03\"}]}";
+        String edgcJson = genSampleJson();
+
         String countryCode = "DE";
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime expiration = now.plus(Duration.of(365, ChronoUnit.DAYS));
@@ -40,12 +52,11 @@ class DgcSignerTest {
         byte[] coseBytes = dgcGenerator.genCoseUnsigned(dgcCbor, keyId, algId);
         byte[] hash = dgcGenerator.computeCoseSignHash(coseBytes);
 
-        byte[] signature = dgcSigner.signHash(hash, keyHelper.getPrivateKey());
+        byte[] signature = dgcSigner.signHash(hash,keyHelper.getPrivateKey());
 
-        byte[] coseSigned = dgcGenerator.dgcSetCoseSignature(coseBytes, signature);
+        byte[] coseSigned = dgcGenerator.dgcSetCoseSignature(coseBytes,signature);
         String edgcQR = dgcGenerator.coseToQrCode(coseSigned);
 
         System.out.println(edgcQR);
-        Assertions.assertNotNull(edgcQR);
     }
 }

@@ -13,36 +13,19 @@ import java.util.regex.Pattern;
 /**
  * Builder for DCC Test Json.
  */
-public class DccTestBuilder {
+public class DccTestBuilder extends DccBuilderBase<DccTestBuilder> {
+    private ObjectNode testObject;
 
-    private final JsonNodeFactory jsonNodeFactory;
-    private final ObjectNode dccObject;
-    private final ObjectNode nameObject;
-    private final ObjectNode testObject;
-
-    private enum RequiredFields {
-        dob, fnt, tt, sc, tr, tc, co, is, ci
-    }
-
-    private final EnumSet<RequiredFields> requiredNotSet = EnumSet.allOf(RequiredFields.class);
-
-    private static final Pattern standardNamePattern = Pattern.compile("^[A-Z<]*$");
-    private static final Pattern countryPattern = Pattern.compile("[A-Z]{1,10}");
-
-    private final DateTimeFormatter dateFormat;
+    private enum RequiredFields { tt, sc, tr, tc }
+    private EnumSet<RequiredFields> requiredNotSet = EnumSet.allOf(RequiredFields.class);
 
     /**
      * the constructor.
      */
     public DccTestBuilder() {
-        dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+        super();
 
-        jsonNodeFactory = JsonNodeFactory.instance;
-        dccObject = jsonNodeFactory.objectNode();
-        nameObject = jsonNodeFactory.objectNode();
         testObject = jsonNodeFactory.objectNode();
-        dccObject.set("version", jsonNodeFactory.textNode("1.0.0"));
-        dccObject.set("nam", nameObject);
         ArrayNode testArray = jsonNodeFactory.arrayNode();
         testArray.add(testObject);
         // disease-agent-targeted COVID-19
@@ -51,95 +34,18 @@ public class DccTestBuilder {
         dccObject.set("t", testArray);
     }
 
-    /**
-     * family name field.
-     *
-     * @param fn family name
-     * @return builder
-     */
-    public DccTestBuilder fn(String fn) {
-        assertNotNullMax("fn", fn, 50);
-        nameObject.set("fn", jsonNodeFactory.textNode(fn));
+    @Override
+    public DccTestBuilder getThis() {
         return this;
     }
 
-    /**
-     * given name.
-     *
-     * @param gn given name
-     * @return builder
-     */
-    public DccTestBuilder gn(String gn) {
-        assertNotNullMax("gn", gn, 50);
-        nameObject.set("gn", jsonNodeFactory.textNode(gn));
-        return this;
-    }
-
-    /**
-     * standardized family name.
-     *
-     * @param fnt standardized family name
-     * @return builder
-     */
-    public DccTestBuilder fnt(String fnt) {
-        assertNotNullMaxPattern("fnt", fnt, 50, standardNamePattern);
-        requiredNotSet.remove(RequiredFields.fnt);
-        nameObject.set("fnt", jsonNodeFactory.textNode(fnt));
-        return this;
-    }
-
-    /**
-     * standarized given name.
-     *
-     * @param gnt standardized given name
-     * @return builder
-     */
-    public DccTestBuilder gnt(String gnt) {
-        assertNotNullMaxPattern("gnt", gnt, 50, standardNamePattern);
-        nameObject.set("gnt", jsonNodeFactory.textNode(gnt));
-        return this;
-    }
-
-    /**
-     * buidl json string.
-     *
-     * @return json string
-     */
-    public String toJsonString() {
-        if (!requiredNotSet.isEmpty()) {
-            throw new IllegalStateException("not all required fields set " + requiredNotSet);
-        }
-        return dccObject.toString();
-    }
-
-    /**
-     * certificate identifier.
-     *
-     * @param dgci certificate identifier
-     * @return builder
-     */
-    public DccTestBuilder dgci(String dgci) {
-        assertNotNullMax("ci", dgci, 50);
-        testObject.set("ci", jsonNodeFactory.textNode(dgci));
-        requiredNotSet.remove(RequiredFields.ci);
-        return this;
-    }
-
-    /**
-     * date of birth in iso format.
-     *
-     * @param birthday dob
-     * @return builder
-     */
-    public DccTestBuilder dob(String birthday) {
-        dccObject.set("dob", jsonNodeFactory.textNode(birthday));
-        requiredNotSet.remove(RequiredFields.dob);
-        return this;
+    @Override
+    public ObjectNode getValueHolder() {
+        return testObject;
     }
 
     /**
      * test result.
-     *
      * @param covidDetected covid detected
      * @return builder
      */
@@ -152,7 +58,6 @@ public class DccTestBuilder {
 
     /**
      * test type.
-     *
      * @param isRapidTest true if rapid
      * @return builder
      */
@@ -162,48 +67,22 @@ public class DccTestBuilder {
         return this;
     }
 
-    /**
-     * country of test.
-     *
-     * @param co co
-     * @return builder
-     */
-    public DccTestBuilder countryOfTest(String co) {
-        testObject.set("co", jsonNodeFactory.textNode(co));
-        assertNotNullMaxPattern("co", co, 0, countryPattern);
-        requiredNotSet.remove(RequiredFields.co);
-        return this;
-    }
 
-    /**
-     * test issuer.
-     *
-     * @param is issuer
-     * @return builder
-     */
-    public DccTestBuilder certificateIssuer(String is) {
-        testObject.set("is", jsonNodeFactory.textNode(is));
-        assertNotNullMax("is", is, 50);
-        requiredNotSet.remove(RequiredFields.is);
-        return this;
-    }
 
     /**
      * testing centre.
-     *
      * @param tc testing centre
      * @return builder
      */
     public DccTestBuilder testingCentre(String tc) {
         testObject.set("tc", jsonNodeFactory.textNode(tc));
-        assertNotNullMax("tc", tc, 50);
+        assertNotNullMax("tc",tc,50);
         requiredNotSet.remove(RequiredFields.tc);
         return this;
     }
 
     /**
      * date time of sample collection.
-     *
      * @param dateTime sc
      * @return builder
      */
@@ -213,26 +92,12 @@ public class DccTestBuilder {
         return this;
     }
 
-    private String toIsoO8601(LocalDateTime dateTime) {
-        return dateTime.atZone(ZoneOffset.UTC).format(dateFormat);
-    }
 
-    private void assertNotNullMax(String description, String value, int maxLenght) {
-        if (value == null) {
-            throw new IllegalArgumentException("field " + description + " must not be null");
-        }
-        if (maxLenght > 0 && value.length() > maxLenght) {
-            throw new IllegalArgumentException("field " + description + " has max length "
-                + maxLenght + " but was: " + value.length());
-        }
-    }
 
-    private void assertNotNullMaxPattern(String description, String value, int maxLenght, Pattern pattern) {
-        assertNotNullMax(description, value, maxLenght);
-        Matcher matcher = pattern.matcher(value);
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("field: " + description + "value: "
-                + value + " do not match pattern: " + pattern);
+    protected void validate() {
+        super.validate();
+        if (!requiredNotSet.isEmpty()) {
+            throw new IllegalStateException("not all required fields set " + requiredNotSet);
         }
     }
 

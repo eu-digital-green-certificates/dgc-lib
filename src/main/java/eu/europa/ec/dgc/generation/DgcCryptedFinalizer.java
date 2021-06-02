@@ -37,10 +37,31 @@ public class DgcCryptedFinalizer {
         try {
             dgcData = decryptDccData(encodedDccData, dek, privateKey);
         } catch (GeneralSecurityException e) {
-
             log.error("Failed to finalize DCC: {}", e.getMessage());
+            throw new IllegalStateException("can not decrypt dcc data");
         }
         byte[] dgcCose = dgcGenerator.dgcSetCoseSignature(dgcData, signature);
+        return dgcGenerator.coseToQrCode(dgcCose);
+    }
+
+    /**
+     * finalize dcc.
+     * @param encodedDccData dcc data
+     * @param dek encoded key
+     * @param privateKey private key
+     * @param partialDcc cose with signature and key
+     * @return qr code of final dcc
+     */
+    public String finalizePartialDcc(byte[] encodedDccData, byte[] dek, PrivateKey privateKey, byte[] partialDcc) {
+        DgcGenerator dgcGenerator = new DgcGenerator();
+        byte[] dgcData = new byte[0];
+        try {
+            dgcData = decryptDccData(encodedDccData, dek, privateKey);
+        } catch (GeneralSecurityException e) {
+            log.error("Failed to finalize DCC: {}", e.getMessage());
+            throw new IllegalStateException("can not decrypt dcc data");
+        }
+        byte[] dgcCose = dgcGenerator.dgcSetCosePartial(dgcData, partialDcc);
         return dgcGenerator.coseToQrCode(dgcCose);
     }
 
