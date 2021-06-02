@@ -1,5 +1,6 @@
 package eu.europa.ec.dgc.generation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,7 +28,7 @@ class DccTestBuilderTest {
     @Test
     void genTestJson()  {
         DccTestBuilder dccTestBuilder = new DccTestBuilder();
-        dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob("1973-01-01");
+        dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob(LocalDate.parse("1973-01-01"));
         dccTestBuilder.detected(false)
                 .dgci("URN:UVCI:01:OS:B5921A35D6A0D696421B3E2462178297I")
                 .country("DE")

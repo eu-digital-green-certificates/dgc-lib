@@ -2,6 +2,7 @@ package eu.europa.ec.dgc.generation;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +23,8 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
     private static final Pattern countryPattern = Pattern.compile("[A-Z]{1,10}");
     private static final Pattern standardNamePattern = Pattern.compile("^[A-Z<]*$");
 
-    protected DateTimeFormatter dateFormat;
+    private DateTimeFormatter dateFormat;
+    private DateTimeFormatter dayDateFormat;
 
     private enum RequiredFieldsBase { dob, fnt, co, is, ci }
 
@@ -33,6 +35,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      */
     public DccBuilderBase() {
         dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+        dayDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         jsonNodeFactory = JsonNodeFactory.instance;
         dccObject = jsonNodeFactory.objectNode();
@@ -117,8 +120,8 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      * @param birthday dob
      * @return builder
      */
-    public T dob(String birthday) {
-        dccObject.set("dob", jsonNodeFactory.textNode(birthday));
+    public T dob(LocalDate birthday) {
+        dccObject.set("dob", jsonNodeFactory.textNode(toIsoDate(birthday)));
         requiredNotSet.remove(RequiredFieldsBase.dob);
         return getThis();
     }
@@ -161,6 +164,10 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
 
     protected String toIsoO8601(LocalDateTime dateTime) {
         return dateTime.atZone(ZoneOffset.UTC).format(dateFormat);
+    }
+
+    protected String toIsoDate(LocalDate date) {
+        return date.format(dayDateFormat);
     }
 
     protected void assertNotNullMax(String description, String value, int maxLenght) {

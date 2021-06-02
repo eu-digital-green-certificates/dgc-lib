@@ -16,15 +16,11 @@ public class DccRecoveryBuilder extends DccBuilderBase<DccRecoveryBuilder> {
 
     private EnumSet<RequiredFields> requiredNotSet = EnumSet.allOf(RequiredFields.class);
 
-    protected DateTimeFormatter dayDateFormat;
-
     /**
      * the constructor.
      */
     public DccRecoveryBuilder() {
         super();
-
-        dayDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         recoveryObject = jsonNodeFactory.objectNode();
         ArrayNode vaccinationArray = jsonNodeFactory.arrayNode();
@@ -83,10 +79,6 @@ public class DccRecoveryBuilder extends DccBuilderBase<DccRecoveryBuilder> {
         recoveryObject.set("du", jsonNodeFactory.textNode(toIsoDate(du)));
         requiredNotSet.remove(RequiredFields.du);
         return this;
-    }
-
-    private String toIsoDate(LocalDate date) {
-        return date.format(dayDateFormat);
     }
 
 }

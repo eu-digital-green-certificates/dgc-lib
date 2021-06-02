@@ -2,6 +2,7 @@ package eu.europa.ec.dgc.generation;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -19,7 +20,7 @@ class DgcSignerTest {
 
     public static String genSampleJson() {
         DccTestBuilder dccTestBuilder = new DccTestBuilder();
-        dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob("1973-01-01");
+        dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob(LocalDate.parse("1973-01-01"));
         dccTestBuilder.detected(false)
                 .dgci("URN:UVCI:01:OS:B5921A35D6A0D696421B3E2462178297I")
                 .country("DE")
