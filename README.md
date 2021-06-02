@@ -42,18 +42,44 @@ Include as Maven Dependency in pom.xml
 </dependencies>
 ```
 
+If you do not need the DCC Gateway Connector feature you can exclude some dependencies by adding an exclusions tag:
+
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>eu.europa.ec.dgc</groupId>
+        <artifactId>dgc-lib</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>*</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>io.github.openfeign</groupId>
+                <artifactId>*</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    ...
+</dependencies>
+```
+
 ### Authenticating to GitHub Packages
 
 **Attention:**
-GitHub does not allow anonymous access to it's package registry. You need to authenticate in order to use the dgc-lib artefact provided by us. 
-Therefore you need to authenticate to [GitHub Packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry)
+GitHub does not allow anonymous access to it's package registry. You need to authenticate in order to use the dgc-lib
+artefact provided by us. Therefore you need to authenticate
+to [GitHub Packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry)
 The following steps need to be performed
 
 - Create [PAT](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with scopes:
-  - `read:packages` for downloading packages
-- Copy/Augment `~/.m2/settings.xml` with the contents of `settings.xml` present in this repository (or in the DGC repository you are trying to build)
-  - Replace `${app.packages.username}` with your github username
-  - Replace `${app.packages.password}` with the generated PAT
+    - `read:packages` for downloading packages
+- Copy/Augment `~/.m2/settings.xml` with the contents of `settings.xml` present in this repository (or in the DGC
+  repository you are trying to build)
+    - Replace `${app.packages.username}` with your github username
+    - Replace `${app.packages.password}` with the generated PAT
 
 ## Development
 

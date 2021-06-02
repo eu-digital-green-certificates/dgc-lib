@@ -32,6 +32,8 @@
         <junit.version>5.7.1</junit.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <commonsio.version>2.8.0</commonsio.version>
+        <cbor.version>4.4.3</cbor.version>
+        <jackson.version>2.11.4</jackson.version>
 
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.6.1.1688</plugin.sonar.version>
@@ -74,17 +76,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <version>${spring.boot.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
             <version>${spring.boot.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -112,6 +116,21 @@
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>${bcpkix.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commonsio.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.upokecenter</groupId>
+            <artifactId>cbor</artifactId>
+            <version>${cbor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -124,11 +143,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <version>${spring.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commonsio.version}</version>
         </dependency>
     </dependencies>
 
