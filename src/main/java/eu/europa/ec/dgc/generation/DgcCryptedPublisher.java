@@ -13,7 +13,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DgcCryptedPublisher {
 
     public static final String KEY_CIPHER = "RSA/ECB/PKCS1Padding";

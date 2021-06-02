@@ -4,7 +4,9 @@ import java.io.ByteArrayOutputStream;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.util.Arrays;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CopyDigest implements Digest {
 
     private final OpenByteArrayOutputStream binaryOut = new OpenByteArrayOutputStream();

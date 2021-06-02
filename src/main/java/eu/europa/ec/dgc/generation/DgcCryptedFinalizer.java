@@ -11,10 +11,12 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.stereotype.Service;
 
 /**
  * build final dcc qr code from encode dcc data and signature.
  */
+@Service
 public class DgcCryptedFinalizer {
 
     /**

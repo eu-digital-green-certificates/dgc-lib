@@ -19,11 +19,13 @@ import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.PSSSigner;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.springframework.stereotype.Service;
 
 /**
  * The signer of cose message. It takes only hash as imput and does not need
  * to know payload of cose data
  */
+@Service
 public class DgcSigner {
 
     /**

@@ -20,7 +20,9 @@ public class DccTestBuilder {
     private final ObjectNode nameObject;
     private final ObjectNode testObject;
 
-    private enum RequiredFields {dob, fnt, tt, sc, tr, tc, co, is, ci}
+    private enum RequiredFields {
+        dob, fnt, tt, sc, tr, tc, co, is, ci
+    }
 
     private final EnumSet<RequiredFields> requiredNotSet = EnumSet.allOf(RequiredFields.class);
 

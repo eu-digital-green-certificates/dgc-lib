@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
-@Service
 public class DgciGenerator {
 
     private static final String CODE_POINTS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/:";

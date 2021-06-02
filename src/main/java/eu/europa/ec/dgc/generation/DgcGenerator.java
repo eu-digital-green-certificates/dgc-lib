@@ -8,12 +8,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
+import org.springframework.stereotype.Service;
 
 /**
  * Dgc Generator util.
  * It can generate EDGC cose structure, hash for signing,
  * copy the signature into cose and also generate final QR Code as string.
  */
+@Service
 public class DgcGenerator {
     /**
      * Generate CBOR EDGC payload for COSE.
