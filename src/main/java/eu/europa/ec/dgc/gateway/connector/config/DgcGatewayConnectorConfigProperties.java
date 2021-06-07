@@ -109,7 +109,7 @@ public class DgcGatewayConnectorConfigProperties {
         /**
          * Enable HTTP Proxy.
          */
-        private boolean enabled = false;
+        private boolean enabled;
 
         /**
          * Host Address of Proxy server (without protocol).

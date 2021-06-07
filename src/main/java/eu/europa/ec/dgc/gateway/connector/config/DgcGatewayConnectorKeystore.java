@@ -92,7 +92,7 @@ public class DgcGatewayConnectorKeystore {
     }
 
     private void loadKeyStore(KeyStore keyStore, String path, char[] password)
-        throws CertificateException, NoSuchAlgorithmException, IOException {
+        throws CertificateException, NoSuchAlgorithmException {
 
         try (InputStream fileStream = new FileInputStream(ResourceUtils.getFile(path))) {
 
