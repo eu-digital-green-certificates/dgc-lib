@@ -1,15 +1,8 @@
 package eu.europa.ec.dgc.generation;
 
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +62,7 @@ public class DgcCryptedFinalizer {
         throws java.security.GeneralSecurityException {
         // decrypt RSA key
         Cipher keyCipher = Cipher.getInstance(DgcCryptedPublisher.KEY_CIPHER);
-        keyCipher.init(Cipher.DECRYPT_MODE, privateKey, DgcCryptedPublisher.oaepParameterSpec);
+        keyCipher.init(Cipher.DECRYPT_MODE, privateKey, DgcCryptedPublisher.OAEP_PARAMETER_SPEC);
         byte[] rsaKey = keyCipher.doFinal(dek);
 
         byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

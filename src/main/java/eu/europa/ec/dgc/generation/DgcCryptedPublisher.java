@@ -23,7 +23,7 @@ public class DgcCryptedPublisher {
 
     public static final String KEY_CIPHER = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding";
     public static final String DATA_CIPHER = "AES/CBC/PKCS5Padding";
-    public static final OAEPParameterSpec oaepParameterSpec = new OAEPParameterSpec(
+    public static final OAEPParameterSpec OAEP_PARAMETER_SPEC = new OAEPParameterSpec(
             "SHA-256","MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT
     );
 
@@ -77,7 +77,7 @@ public class DgcCryptedPublisher {
 
         // encrypt RSA key
         Cipher keyCipher = Cipher.getInstance(KEY_CIPHER);
-        keyCipher.init(Cipher.ENCRYPT_MODE, publicKey, oaepParameterSpec);
+        keyCipher.init(Cipher.ENCRYPT_MODE, publicKey, OAEP_PARAMETER_SPEC);
         byte[] secretKeyBytes = secretKey.getEncoded();
         dgcData.setDek(keyCipher.doFinal(secretKeyBytes));
     }
