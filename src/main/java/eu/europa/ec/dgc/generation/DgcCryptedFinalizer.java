@@ -69,7 +69,7 @@ public class DgcCryptedFinalizer {
         throws java.security.GeneralSecurityException {
         // decrypt RSA key
         Cipher keyCipher = Cipher.getInstance(DgcCryptedPublisher.KEY_CIPHER);
-        keyCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        keyCipher.init(Cipher.DECRYPT_MODE, privateKey, DgcCryptedPublisher.oaepParameterSpec);
         byte[] rsaKey = keyCipher.doFinal(dek);
 
         byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
