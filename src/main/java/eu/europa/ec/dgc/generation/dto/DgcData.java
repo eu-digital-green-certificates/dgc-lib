@@ -4,7 +4,7 @@ public class DgcData {
 
     private byte[] dek;
     /**
-     * encrypted dcc cwt (cbor payload) data (cose array item 2)
+     * encrypted dcc cwt (cbor payload) data (cose array item 2).
      */
     private byte[] dataEncrypted;
     private byte[] hash;
