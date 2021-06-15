@@ -41,7 +41,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
         dccObject = jsonNodeFactory.objectNode();
         nameObject = jsonNodeFactory.objectNode();
 
-        dccObject.set("version", jsonNodeFactory.textNode("1.0.0"));
+        dccObject.set("ver", jsonNodeFactory.textNode("1.0.0"));
         dccObject.set("nam", nameObject);
     }
 
