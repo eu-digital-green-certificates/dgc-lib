@@ -49,7 +49,7 @@ public class DgcCryptedPublisher {
         dgcData.setDccData(edgcCoseUnsigned);
 
         try {
-            encryptData(dgcData, edgcCbor, publicKey);
+            encryptData(dgcData, dgcInitData.isEncryptCose() ? edgcCoseUnsigned : edgcCbor, publicKey);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException
             | InvalidKeyException | InvalidAlgorithmParameterException
             | IllegalBlockSizeException | BadPaddingException e) {
