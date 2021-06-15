@@ -66,6 +66,7 @@ class DgcCryptedPublisherTest {
         dgcInitData.setIssuerCode(countryCode);
         dgcInitData.setKeyId(keyId);
         dgcInitData.setAlgId(-7);
+        dgcInitData.setEncryptCose(true);
         DgcData dgcData = dgcCryptedPublisher.createDgc(dgcInitData, edgcJson, keyPair.getPublic());
 
         // Base64-kodierte und mit dem RSA Public Key verschlüsselter DEK. Der DEK selbst muss 32 Bytes haben (für AES-256).

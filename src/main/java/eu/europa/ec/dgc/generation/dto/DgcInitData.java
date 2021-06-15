@@ -7,6 +7,11 @@ public class DgcInitData {
     private long expriation;
     private int algId;
     private byte[] keyId;
+    /**
+     * if true the whole cose unsigned data are encrypted.
+     * if false only the cwt cbor data are encrypted
+     */
+    private boolean encryptCose = false;
 
     public String getIssuerCode() {
         return issuerCode;
@@ -46,5 +51,13 @@ public class DgcInitData {
 
     public void setKeyId(byte[] keyId) {
         this.keyId = keyId;
+    }
+
+    public boolean isEncryptCose() {
+        return encryptCose;
+    }
+
+    public void setEncryptCose(boolean encryptCose) {
+        this.encryptCose = encryptCose;
     }
 }
