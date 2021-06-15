@@ -92,32 +92,17 @@ public class DgcGenerator {
     /**
      * Set signature and unprotected header from partialDcc into unsigned cose dcc.
      *
-     * @param coseData   unsigned cose dcc
+     * @param cwtData  cwt paylaod data (cbor)
      * @param partialDcc cose with signature and unprotected header
      * @return signed cose dcc
      */
-    public byte[] dgcSetCosePartial(byte[] coseData, byte[] partialDcc) {
+    public byte[] dgcSetCosePartial(byte[] cwtData, byte[] partialDcc) {
         CBORObject partialCose = CBORObject.DecodeFromBytes(partialDcc);
         if (partialCose.getType() != CBORType.Array || partialCose.getValues().size() < 3) {
             throw new IllegalArgumentException("partial dcc is not cbor array");
         }
-        CBORObject cborObject = CBORObject.DecodeFromBytes(coseData);
-        if (cborObject.getType() == CBORType.Array && cborObject.getValues().size() == 4) {
-            // set signature
-            cborObject.set(3, partialCose.get(3));
-        } else {
-            throw new IllegalArgumentException("seems not to be cose");
-        }
-        // copy unprotected header
-        CBORObject unprotectedHeader = partialCose.get(1);
-        if (unprotectedHeader.getType() != CBORType.Map) {
-            throw new IllegalArgumentException("unprotected header in partial dcc is not cbor map");
-        }
-        for (CBORObject key : unprotectedHeader.getKeys()) {
-            CBORObject value = unprotectedHeader.get(key);
-            cborObject.get(1).set(key, value);
-        }
-        return cborObject.EncodeToBytes();
+        partialCose.set(2,CBORObject.FromObject(cwtData));
+        return partialCose.EncodeToBytes();
     }
 
     /**

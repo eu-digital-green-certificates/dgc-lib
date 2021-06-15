@@ -60,6 +60,13 @@ public class DgcSigner {
      */
     public byte[] signPartialDcc(byte[] hashBytes, PrivateKey privateKey, byte[] keyId) {
         CBORObject protectedHeader = CBORObject.NewMap();
+        int algId;
+        if (privateKey instanceof RSAPrivateCrtKey) {
+            algId = -37;
+        } else {
+            algId = -7;
+        }
+        protectedHeader.set(CBORObject.FromObject(1), CBORObject.FromObject(algId));
         byte[] protectedHeaderBytes = protectedHeader.EncodeToBytes();
 
         CBORObject coseObject = CBORObject.NewArray();

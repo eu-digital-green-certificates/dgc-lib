@@ -49,7 +49,7 @@ public class DgcCryptedPublisher {
         dgcData.setDccData(edgcCoseUnsigned);
 
         try {
-            encryptData(dgcData, edgcCoseUnsigned, publicKey);
+            encryptData(dgcData, edgcCbor, publicKey);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException
             | InvalidKeyException | InvalidAlgorithmParameterException
             | IllegalBlockSizeException | BadPaddingException e) {
@@ -59,7 +59,7 @@ public class DgcCryptedPublisher {
         return dgcData;
     }
 
-    private void encryptData(DgcData dgcData, byte[] edgcCoseUnsigned, PublicKey publicKey) throws
+    private void encryptData(DgcData dgcData, byte[] edgcCbor, PublicKey publicKey) throws
         NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
         InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
@@ -71,7 +71,7 @@ public class DgcCryptedPublisher {
         IvParameterSpec ivspec = new IvParameterSpec(iv);
         Cipher cipher = Cipher.getInstance(DATA_CIPHER);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivspec);
-        byte[] edgcDataEncrpyted = cipher.doFinal(edgcCoseUnsigned);
+        byte[] edgcDataEncrpyted = cipher.doFinal(edgcCbor);
 
         dgcData.setDataEncrypted(edgcDataEncrpyted);
 

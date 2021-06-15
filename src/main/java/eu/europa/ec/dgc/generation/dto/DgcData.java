@@ -3,8 +3,14 @@ package eu.europa.ec.dgc.generation.dto;
 public class DgcData {
 
     private byte[] dek;
+    /**
+     * encrypted dcc cwt (cbor payload) data (cose array item 2)
+     */
     private byte[] dataEncrypted;
     private byte[] hash;
+    /**
+     * unsigned dcc COSE data.
+     */
     private byte[] dccData;
 
     public byte[] getDek() {
