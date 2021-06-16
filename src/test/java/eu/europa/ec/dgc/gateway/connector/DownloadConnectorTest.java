@@ -74,7 +74,7 @@ class DownloadConnectorTest {
 
         String cscaSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(csca))
+            .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -91,7 +91,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -108,7 +108,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(upload), keyPairUpload.getPrivate())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -148,7 +148,7 @@ class DownloadConnectorTest {
 
         String cscaSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(csca))
+            .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -165,7 +165,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -183,7 +183,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(upload), keyPairUpload.getPrivate())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -221,7 +221,7 @@ class DownloadConnectorTest {
 
         String cscaSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(csca))
+            .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -238,7 +238,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -255,7 +255,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(upload), keyPairUpload.getPrivate())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -295,7 +295,7 @@ class DownloadConnectorTest {
 
         String cscaSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(fakeTrustAnchor), fakeTrustAnchorKeyPair.getPrivate())
-            .withPayloadCertificate(certificateUtils.convertCertificate(csca))
+            .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -312,7 +312,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -329,7 +329,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -362,7 +362,7 @@ class DownloadConnectorTest {
 
         String cscaSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(csca))
+            .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -382,7 +382,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(fakeTrustAnchor), fakeTrustAnchorKeyPair.getPrivate())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -399,7 +399,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -518,7 +518,7 @@ class DownloadConnectorTest {
 
         String cscaSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(csca))
+            .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -535,7 +535,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -552,7 +552,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(upload), keyPairUpload.getPrivate())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -601,7 +601,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto uploadTrustListItem = new TrustListItemDto();
@@ -618,7 +618,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();
@@ -654,7 +654,7 @@ class DownloadConnectorTest {
 
         String uploadSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(upload))
+            .withPayload(certificateUtils.convertCertificate(upload))
             .buildAsString(true);
 
         TrustListItemDto cscaTrustListItem = new TrustListItemDto();
@@ -680,7 +680,7 @@ class DownloadConnectorTest {
 
         String dscSignature = new SignedCertificateMessageBuilder()
             .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
-            .withPayloadCertificate(certificateUtils.convertCertificate(dsc))
+            .withPayload(certificateUtils.convertCertificate(dsc))
             .buildAsString(true);
 
         TrustListItemDto dscTrustListItem = new TrustListItemDto();

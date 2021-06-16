@@ -217,7 +217,7 @@ To create the signed message the following call is required:
 ```java
 String signedMessaged=new SignedCertificateMessageBuilder()
     .withSigningCertificate(signingCert,signingCertPrivateKey)
-    .withPayloadCertificate(inputCert)
+    .withPayload(inputCert)
     .buildAsString();
 ```
 
@@ -232,9 +232,9 @@ It is also possible to create a detached signature. Just pass the boolean value 
 or ```buildAsString()``` method.
 
 ```java
-String detachedSignature=new SignedCertificateMessageBuilder()
+String detachedSignature = new SignedCertificateMessageBuilder()
     .withSigningCertificate(signingCert,signingCertPrivateKey)
-    .withPayloadCertificate(inputCert)
+    .withPayload(inputCert)
     .buildAsString(true);
 ```
 
@@ -245,13 +245,13 @@ When a certificate is received it needs to be "unpacked". To do so the SignedCer
 Simply instantiate ```SignedCertificateMessageParser``` with the base64 encoded String.
 
 ```java
-SignedCertificateMessageParser parser=new SignedCertificateMessageParser(inputString);
+SignedCertificateMessageParser parser = new SignedCertificateMessageParser(inputString);
 ```
 
 The constructor accepts different formats as incoming message. Also detached signatures are accepted.
 
 ```java
-SignedCertificateMessageParser parser=new SignedCertificateMessageParser(payloadByteArray,signatureString);
+SignedCertificateMessageParser parser = new SignedCertificateMessageParser(payloadByteArray, signatureString);
 ```
 
 All combinations of String and byte[] as parameter for signature and payload are possible. Please be aware that the
@@ -260,7 +260,7 @@ payload will be always base64 encoded (even if it is passed as byte[]).
 The parser will immediately parse the message. The result can be obtained from
 
 ```java
-parser.getParserState()
+parser.getParserState();
 ```
 
 If the state is ```SUCCESS``` the syntax of the message was correct and the certificate could be parsed.
@@ -269,14 +269,14 @@ Also the parser checks if the signature of the CMS message was created by the em
 result of this check just read the property
 
 ```java
-parser.isSignatureVerified()
+parser.isSignatureVerified();
 ```
 
 The signer certificate and the containing certificate can be accessed by
 
 ```java
-parser.getSigningCertificate()
-    parser.getPayloadCertificate()
+parser.getSigningCertificate();
+parser.getPayload();
 ```
 
 Also a detached signature can be gained from parsed message
@@ -284,6 +284,20 @@ Also a detached signature can be gained from parsed message
 ```java
 parser.getSignature()
 ```
+
+#### Signing and Parsing of other data types
+
+It is also possible to sign and parse CMS messages with other data types.
+Therefore, implementations of ```SignedMessageBuilder``` and ```SignedMessageParser``` are required.
+
+The DGC-Lib currently contains Implementations for the following classes:
+
+| Data Type | Parser Implementation | Builder Implementation |
+| --- | --- | --- |
+| java.lang.String | SignedStringMessageParser | SignedStringMessageBuilder |
+| org.bouncycastle.cert.X509CertificateHolder | SignedCertificateMessageParser | SignedCertificateMessageBuilder |
+
+The usage of Parser and Builder can be seen in the chapter above. Basic usage is equal for all implementations of Parser and Builder.
 
 ### Utils
 
@@ -363,12 +377,9 @@ The following channels are available for discussions, feedback, and support requ
 
 | Type                      | Channel                                                |
 | ------------------------- | ------------------------------------------------------ |
-| **DGC Gateway
-issues**    | <a href="https://github.com/eu-digital-green-certificates/dgc-gateway/issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-gateway?style=flat"></a>  |
-| **DGC Lib
-issues**        | <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>  |
-| **Other
-requests**        | <a href="mailto:opensource@telekom.de" title="Email DGC Team"><img src="https://img.shields.io/badge/email-DGC%20team-green?logo=mail.ru&style=flat-square&logoColor=white"></a>   |
+| **DGC Gateway issues**    | <a href="https://github.com/eu-digital-green-certificates/dgc-gateway/issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-gateway?style=flat"></a>  |
+| **DGC Lib issues**        | <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/eu-digital-green-certificates/dgc-lib?style=flat"></a>  |
+| **Other requests**        | <a href="mailto:opensource@telekom.de" title="Email DGC Team"><img src="https://img.shields.io/badge/email-DGC%20team-green?logo=mail.ru&style=flat-square&logoColor=white"></a>   |
 
 ## How to contribute
 
