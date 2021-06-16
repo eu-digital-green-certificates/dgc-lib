@@ -209,7 +209,7 @@ class SignedCertificateMessageParserTest {
 
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(Base64.getEncoder().encode(signedData.getEncoded()));
 
-        Assertions.assertEquals(SignedCertificateMessageParser.ParserState.FAILURE_CMS_BODY_NO_CERTIFICATE, parser.getParserState());
+        Assertions.assertEquals(SignedCertificateMessageParser.ParserState.FAILURE_CMS_BODY_PARSING_FAILED, parser.getParserState());
         Assertions.assertFalse(parser.isSignatureVerified());
     }
 
