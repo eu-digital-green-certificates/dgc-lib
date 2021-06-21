@@ -34,6 +34,8 @@ class DccTestBuilderTest {
                 .country("DE")
                 .testTypeRapid(true)
                 .testingCentre("Hochdahl")
+                .testIdentifier("1833")
+                .testName("Example name")
                 .certificateIssuer("Dr Who")
                 .sampleCollection(LocalDateTime.now());
         String jsonString = dccTestBuilder.toJsonString();
