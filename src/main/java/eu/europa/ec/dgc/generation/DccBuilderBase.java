@@ -34,7 +34,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      * constructor.
      */
     public DccBuilderBase() {
-        dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+        dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
         dayDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         jsonNodeFactory = JsonNodeFactory.instance;
