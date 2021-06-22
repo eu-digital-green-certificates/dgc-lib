@@ -20,38 +20,24 @@
 
 package eu.europa.ec.dgc.signing;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.cert.X509CertificateHolder;
 
 /**
- * Utility to build a CMS signed message containing a DER encoded X509 certificate.
+ * Utility to build a CMS signed message containing a {@link String}.
  */
 @Slf4j
 @NoArgsConstructor
-public class SignedCertificateMessageBuilder
-    extends SignedMessageBuilder<X509CertificateHolder, SignedCertificateMessageBuilder> {
+public class SignedStringMessageBuilder extends SignedMessageBuilder<String, SignedStringMessageBuilder> {
 
     @Override
-    byte[] convertToBytes(X509CertificateHolder payload) throws IOException {
-        return payload.getEncoded();
+    byte[] convertToBytes(String payload) {
+        return payload.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
-    SignedCertificateMessageBuilder getThis() {
+    SignedStringMessageBuilder getThis() {
         return this;
     }
-
-    /**
-     * Add a payload certificate to MessageBuilder instance.
-     *
-     * @param certificate X509 certificate for payload.
-     * @deprecated Use .withPayload(X509CertificateHolder) instead
-     */
-    @Deprecated
-    public SignedCertificateMessageBuilder withPayloadCertificate(X509CertificateHolder certificate) {
-        return withPayload(certificate);
-    }
-
 }

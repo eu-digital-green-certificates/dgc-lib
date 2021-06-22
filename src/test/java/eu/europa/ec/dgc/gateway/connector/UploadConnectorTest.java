@@ -85,7 +85,7 @@ class UploadConnectorTest {
 
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(argumentCaptor.getValue());
 
-        Assertions.assertEquals(certificateUtils.convertCertificate(dsc), parser.getPayloadCertificate());
+        Assertions.assertEquals(certificateUtils.convertCertificate(dsc), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()), parser.getSigningCertificate());
     }
 
@@ -107,7 +107,7 @@ class UploadConnectorTest {
 
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(argumentCaptor.getValue());
 
-        Assertions.assertEquals(dsc, parser.getPayloadCertificate());
+        Assertions.assertEquals(dsc, parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()), parser.getSigningCertificate());
     }
 
@@ -127,7 +127,7 @@ class UploadConnectorTest {
 
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(argumentCaptor.getValue());
 
-        Assertions.assertEquals(certificateUtils.convertCertificate(dsc), parser.getPayloadCertificate());
+        Assertions.assertEquals(certificateUtils.convertCertificate(dsc), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()), parser.getSigningCertificate());
     }
 
@@ -148,7 +148,7 @@ class UploadConnectorTest {
 
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(argumentCaptor.getValue());
 
-        Assertions.assertEquals(dsc, parser.getPayloadCertificate());
+        Assertions.assertEquals(dsc, parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()), parser.getSigningCertificate());
     }
 

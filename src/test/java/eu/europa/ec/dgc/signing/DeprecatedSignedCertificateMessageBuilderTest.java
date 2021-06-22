@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class SignedCertificateMessageBuilderTest {
+class DeprecatedSignedCertificateMessageBuilderTest {
 
     KeyPair payloadKeyPair, signingKeyPair;
     X509Certificate payloadCertificate, signingCertificate;
@@ -55,10 +55,10 @@ class SignedCertificateMessageBuilderTest {
         signingCertificate = CertificateTestUtils.generateCertificate(signingKeyPair, "DE", "SigningCertificate");
 
         builder = new SignedCertificateMessageBuilder()
-            .withPayload(new X509CertificateHolder(payloadCertificate.getEncoded()))
+            .withPayloadCertificate(new X509CertificateHolder(payloadCertificate.getEncoded()))
             .withSigningCertificate(new X509CertificateHolder(signingCertificate.getEncoded()), signingKeyPair.getPrivate());
     }
-    
+
     @Test
     void testUnreadyBuilder() {
         builder = new SignedCertificateMessageBuilder();
@@ -70,7 +70,7 @@ class SignedCertificateMessageBuilderTest {
         X509CertificateHolder certMock = mock(X509CertificateHolder.class);
         when(certMock.getEncoded()).thenThrow(new IOException());
 
-        builder.withPayload(certMock);
+        builder.withPayloadCertificate(certMock);
 
         Assertions.assertThrows(RuntimeException.class, builder::build);
     }
