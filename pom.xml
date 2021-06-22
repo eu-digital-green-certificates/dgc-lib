@@ -24,7 +24,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
         <owasp.version>6.1.1</owasp.version>
-        <spring.boot.version>2.4.5</spring.boot.version>
+        <spring.boot.version>2.4.7</spring.boot.version>
         <spring.cloud.version>3.0.2</spring.cloud.version>
         <feign.version>11.2</feign.version>
         <bcpkix.version>1.68</bcpkix.version>
@@ -143,6 +143,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <version>${spring.boot.version}</version>
+        </dependency>
+        <!-- Explicit inclusion because of https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.4.7</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
