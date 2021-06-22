@@ -20,27 +20,26 @@
 
 package eu.europa.ec.dgc.gateway.connector;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
-import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
-import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
-import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
-import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
+import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
+import eu.europa.ec.dgc.gateway.connector.model.ValidationRule;
+import eu.europa.ec.dgc.gateway.connector.model.ValidationRulesByCountry;
+import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import feign.FeignException;
-import java.security.Security;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
@@ -57,7 +56,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @EnableScheduling
 @Slf4j
-public class DgcGatewayDownloadConnector {
+public class DgcGatewayValidationRuleDownloadConnector {
 
     private final DgcGatewayConnectorUtils connectorUtils;
 
@@ -65,31 +64,27 @@ public class DgcGatewayDownloadConnector {
 
     private final DgcGatewayConnectorConfigProperties properties;
 
-    private final TrustListMapper trustListMapper;
+    private final DgcGatewayCountryListDownloadConnector countryListDownloadConnector;
+
+    private final ObjectMapper objectMapper;
 
     @Getter
     private LocalDateTime lastUpdated = null;
 
-    private List<TrustListItem> trustedCertificates = new ArrayList<>();
+    private ValidationRulesByCountry validationRules = new ValidationRulesByCountry();
 
-    private List<X509CertificateHolder> trustedCscaCertificates = new ArrayList<>();
     private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
-    @PostConstruct
-    void init() {
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
     /**
-     * Gets the list of downloaded and validated trusted signer certificates.
+     * Gets the list of downloaded and validated validation rules.
      * This call will return a cached list if caching is enabled.
      * If cache is outdated a refreshed list will be returned.
      *
-     * @return List of {@link TrustListItem}
+     * @return {@link ValidationRulesByCountry}
      */
-    public List<TrustListItem> getTrustedCertificates() {
+    public ValidationRulesByCountry getValidationRules() {
         updateIfRequired();
-        return Collections.unmodifiableList(trustedCertificates);
+        return validationRules;
     }
 
     private synchronized void updateIfRequired() {
@@ -97,72 +92,70 @@ public class DgcGatewayDownloadConnector {
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
             log.info("Maximum age of cache reached. Fetching new TrustList from DGCG.");
 
-            trustedCscaCertificates = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
-            log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
+            validationRules = new ValidationRulesByCountry();
 
             trustedUploadCertificates =
                 connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
             log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
 
-            fetchTrustListAndVerifyByCscaAndUpload();
-            log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
+            List<String> countryCodes = countryListDownloadConnector.getCountryList();
+            log.info("Downloaded Countrylist");
+
+            countryCodes.forEach(this::fetchValidationRulesAndVerify);
+            log.info("ValidationRule Cache contains {} ValidationRules.", validationRules.size());
         } else {
             log.debug("Cache needs no refresh.");
         }
     }
 
-    private void fetchTrustListAndVerifyByCscaAndUpload() {
-        log.info("Fetching TrustList from DGCG");
+    private void fetchValidationRulesAndVerify(String countryCode) {
+        log.info("Fetching ValidationRules from DGCG for Country {}", countryCode);
 
-        ResponseEntity<List<TrustListItemDto>> responseEntity;
+        ResponseEntity<Map<String, List<ValidationRuleDto>>> responseEntity;
         try {
-            responseEntity = dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.DSC);
+            responseEntity = dgcGatewayConnectorRestClient.downloadValidationRule(countryCode);
         } catch (FeignException e) {
-            log.error("Download of TrustListItems failed. DGCG responded with status code: {}",
-                e.status());
+            log.error("Download of ValidationRules for country {} failed. DGCG responded with status code: {}",
+                countryCode, e.status());
             return;
         }
 
-        List<TrustListItemDto> downloadedDcs = responseEntity.getBody();
+        Map<String, List<ValidationRuleDto>> downloadedValidationRules = responseEntity.getBody();
 
-        if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedDcs == null) {
-            log.error("Download of TrustListItems failed. DGCG responded with status code: {}",
-                responseEntity.getStatusCode());
+        if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedValidationRules == null) {
+            log.error("Download of ValidationRules for country {} failed. DGCG responded with status code: {}",
+                countryCode, responseEntity.getStatusCode());
             return;
         } else {
-            log.info("Got Response from DGCG, Downloaded Certificates: {}", downloadedDcs.size());
+            log.info("Got Response from DGCG, Downloaded ValidationRules: {}", downloadedValidationRules.size());
         }
 
-        trustedCertificates = downloadedDcs.stream()
-            .filter(this::checkCscaCertificate)
+        downloadedValidationRules.values().stream()
+            .flatMap(Collection::stream)
             .filter(this::checkUploadCertificate)
-            .map(trustListMapper::map)
-            .collect(Collectors.toList());
+            .map(this::map)
+            .forEach(rule -> validationRules.set(countryCode, rule.getIdentifier(), rule.getVersion(), rule));
 
         lastUpdated = LocalDateTime.now();
-        log.info("Put {} trusted certificates into TrustList", trustedCertificates.size());
     }
 
-    private boolean checkCscaCertificate(TrustListItemDto trustListItem) {
-        boolean result = trustedCscaCertificates
-            .stream()
-            .anyMatch(ca -> connectorUtils.trustListItemSignedByCa(trustListItem, ca));
+    private ValidationRule map(ValidationRuleDto dto) {
+        SignedStringMessageParser parser =
+            new SignedStringMessageParser(dto.getCms());
 
-        if (!result) {
-            log.info("Could not find valid CSCA for DSC {}", trustListItem.getKid());
+        try {
+            ValidationRule parsedRule = objectMapper.readValue(parser.getPayload(), ValidationRule.class);
+            parsedRule.setRawJson(parser.getPayload());
+            return parsedRule;
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse Validation Rule JSON: {}", e.getMessage());
+            return null;
         }
-
-        return result;
     }
 
-    private boolean checkUploadCertificate(TrustListItemDto trustListItem) {
-        if (properties.isDisableUploadCertificateCheck()) {
-            log.debug("Upload Certificate Check is disabled. Skipping Check.");
-            return true;
-        }
-
-        SignedCertificateMessageParser parser =
-            new SignedCertificateMessageParser(trustListItem.getSignature(), trustListItem.getRawData());
+    private boolean checkUploadCertificate(ValidationRuleDto validationRule) {
+        SignedStringMessageParser parser =
+            new SignedStringMessageParser(validationRule.getCms());
         X509CertificateHolder uploadCertificate = parser.getSigningCertificate();
 
         if (uploadCertificate == null) {

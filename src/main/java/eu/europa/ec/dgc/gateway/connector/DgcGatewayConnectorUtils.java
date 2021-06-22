@@ -20,25 +20,72 @@
 
 package eu.europa.ec.dgc.gateway.connector;
 
+import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
+import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
+import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
+import eu.europa.ec.dgc.utils.CertificateUtils;
+import feign.FeignException;
 import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.Security;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.RuntimeOperatorException;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
+@RequiredArgsConstructor
 class DgcGatewayConnectorUtils {
+
+    private final CertificateUtils certificateUtils;
+
+    private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
+
+    private final DgcGatewayConnectorConfigProperties properties;
+
+    @Qualifier("trustAnchor")
+    private final KeyStore trustAnchorKeyStore;
+
+    private X509CertificateHolder trustAnchor;
+
+
+    @PostConstruct
+    void init() throws KeyStoreException, CertificateEncodingException, IOException {
+        Security.addProvider(new BouncyCastleProvider());
+
+        String trustAnchorAlias = properties.getTrustAnchor().getAlias();
+        X509Certificate trustAnchorCert = (X509Certificate) trustAnchorKeyStore.getCertificate(trustAnchorAlias);
+
+        if (trustAnchorCert == null) {
+            log.error("Could not find TrustAnchor Certificate in Keystore");
+            throw new KeyStoreException("Could not find TrustAnchor Certificate in Keystore");
+        }
+        trustAnchor = certificateUtils.convertCertificate(trustAnchorCert);
+    }
 
     public boolean trustListItemSignedByCa(TrustListItemDto certificate, X509CertificateHolder ca) {
         ContentVerifierProvider verifier;
@@ -93,6 +140,41 @@ class DgcGatewayConnectorUtils {
             log.error("Failed to parse Certificate Raw Data. KID: {}, Country: {}",
                 trustListItem.getKid(), trustListItem.getCountry());
             return null;
+        }
+    }
+
+    public List<X509CertificateHolder> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type) {
+        ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
+        try {
+            downloadedCertificates = dgcGatewayConnectorRestClient.getTrustedCertificates(type);
+        } catch (FeignException e) {
+            log.error("Failed to Download certificates from DGC Gateway. Type: {}, status code: {}", type, e.status());
+            return Collections.emptyList();
+        }
+
+        if (downloadedCertificates.getStatusCode() != HttpStatus.OK || downloadedCertificates.getBody() == null) {
+            log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
+                type, downloadedCertificates.getStatusCodeValue());
+            return Collections.emptyList();
+        }
+
+        return downloadedCertificates.getBody().stream()
+            .filter(this::checkThumbprintIntegrity)
+            .filter(c -> this.checkTrustAnchorSignature(c, trustAnchor))
+            .map(this::getCertificateFromTrustListItem)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    }
+
+    private boolean checkThumbprintIntegrity(TrustListItemDto trustListItem) {
+        byte[] certificateRawData = Base64.getDecoder().decode(trustListItem.getRawData());
+        try {
+            return trustListItem.getThumbprint().equals(
+                certificateUtils.getCertThumbprint(new X509CertificateHolder(certificateRawData)));
+
+        } catch (IOException e) {
+            log.error("Could not parse certificate raw data");
+            return false;
         }
     }
 }

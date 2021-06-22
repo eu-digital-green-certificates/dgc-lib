@@ -20,9 +20,12 @@
 
 package eu.europa.ec.dgc.gateway.connector.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
 import java.util.List;
+import java.util.Map;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -67,5 +70,54 @@ public interface DgcGatewayConnectorRestClient {
      */
     @DeleteMapping(value = "/signerCertificate", consumes = "application/cms")
     ResponseEntity<Void> deleteSignerInformation(@RequestBody String cmsSignedCertificate);
+
+    /**
+     * Downloads the Countrylist from digital green certificate gateway.
+     *
+     * @return List of Strings (2 Digit Country Codes)
+     */
+    @GetMapping(value = "/countrylist", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<String>> downloadCountryList();
+
+    /**
+     * Downloads the list of available ValueSets from digital green certificate gateway.
+     *
+     * @return List of Strings
+     */
+    @GetMapping(value = "/valuesets", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<String>> downloadValueSetIds();
+
+    /**
+     * Downloads a ValueSet by its id from digital green certificate gateway.
+     *
+     * @return the JSON Representation of the ValueSet.
+     */
+    @GetMapping(value = "/valuesets/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<JsonNode> downloadValueSet(@PathVariable("id") String id);
+
+    /**
+     * Uploads a new ValidationRule to digital green certificate gateway.
+     *
+     * @param validationRule the CMS signed ValidationRule JSON.
+     */
+    @PostMapping(value = "/rules", consumes = "application/cms-text")
+    ResponseEntity<Void> uploadValidationRule(@RequestBody String validationRule);
+
+    /**
+     * Deletes a ValidationRule from digital green certificate gateway.
+     *
+     * @param validationRuleId the CMS signed ValidationRule Identifier.
+     */
+    @DeleteMapping(value = "/rules", consumes = "application/cms-text")
+    ResponseEntity<Void> deleteValidationRule(@RequestBody String validationRuleId);
+
+    /**
+     * Downloads a Validation Rule from digital green certificate gateway.
+     *
+     * @param id of the Validation Rule
+     * @return JSON Structure containing relevant versions of Validation Rule
+     */
+    @GetMapping(value = "/rules/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Map<String, List<ValidationRuleDto>>> downloadValidationRule(@PathVariable("id") String id);
 
 }
