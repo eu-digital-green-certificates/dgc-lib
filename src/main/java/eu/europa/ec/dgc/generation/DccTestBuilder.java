@@ -77,10 +77,36 @@ public class DccTestBuilder extends DccBuilderBase<DccTestBuilder> {
      */
     public DccTestBuilder testingCentre(String tc) {
         testObject.set("tc", jsonNodeFactory.textNode(tc));
-        assertNotNullMax("tc",tc,50);
+        assertNotNullMax("tc",tc,80);
         requiredNotSet.remove(RequiredFields.tc);
         return this;
     }
+
+    /**
+     * NAA Test Name.
+     * @param nm "NAA Test Name"
+     * @return builder
+     */
+    public DccTestBuilder testName(String nm) {
+        testObject.set("nm", jsonNodeFactory.textNode(nm));
+        assertNotNullMax("nm",nm,80);
+        return this;
+    }
+
+    /**
+     * test identifier.
+     * Is required if test type is rapid.
+     * There is value list for it but is not checked during setting
+     * see https://github.com/ehn-dcc-development/ehn-dcc-schema/blob/main/valuesets/test-manf.json
+     * @param ma test identifier
+     * @return builder
+     */
+    public DccTestBuilder testIdentifier(String ma) {
+        testObject.set("ma", jsonNodeFactory.textNode(ma));
+        assertNotNullMax("ma",ma,0);
+        return this;
+    }
+
 
     /**
      * date time of sample collection.
