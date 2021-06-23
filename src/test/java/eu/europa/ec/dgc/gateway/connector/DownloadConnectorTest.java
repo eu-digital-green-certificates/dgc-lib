@@ -33,7 +33,6 @@ import feign.Request;
 import feign.RequestTemplate;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.util.Base64;
@@ -423,17 +422,6 @@ class DownloadConnectorTest {
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
     }
-
-/*    @Test
-    void shouldThrowExceptionOnInitWhenNoTrustAnchorIsPresent() {
-
-        X509Certificate trustAnchorBackup = testKeyStore.getTrustAnchor();
-        testKeyStore.setTrustAnchor(null);
-
-        Assertions.assertThrows(KeyStoreException.class, connector::init);
-
-        testKeyStore.setTrustAnchor(trustAnchorBackup);
-    }*/
 
     @Test
     void shouldReturnEmptyListWhenCscaDownloadFails() {
