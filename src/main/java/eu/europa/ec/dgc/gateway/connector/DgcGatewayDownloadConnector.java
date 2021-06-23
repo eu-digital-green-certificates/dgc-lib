@@ -27,21 +27,13 @@ import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
-import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.Security;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
@@ -49,7 +41,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
@@ -70,18 +61,11 @@ public class DgcGatewayDownloadConnector {
 
     private final DgcGatewayConnectorUtils connectorUtils;
 
-    private final CertificateUtils certificateUtils;
-
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
 
     private final DgcGatewayConnectorConfigProperties properties;
 
     private final TrustListMapper trustListMapper;
-
-    @Qualifier("trustAnchor")
-    private final KeyStore trustAnchorKeyStore;
-
-    private X509CertificateHolder trustAnchor;
 
     @Getter
     private LocalDateTime lastUpdated = null;
@@ -92,17 +76,8 @@ public class DgcGatewayDownloadConnector {
     private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
     @PostConstruct
-    void init() throws KeyStoreException, CertificateEncodingException, IOException {
+    void init() {
         Security.addProvider(new BouncyCastleProvider());
-
-        String trustAnchorAlias = properties.getTrustAnchor().getAlias();
-        X509Certificate trustAnchorCert = (X509Certificate) trustAnchorKeyStore.getCertificate(trustAnchorAlias);
-
-        if (trustAnchorCert == null) {
-            log.error("Could not find TrustAnchor Certificate in Keystore");
-            throw new KeyStoreException("Could not find TrustAnchor Certificate in Keystore");
-        }
-        trustAnchor = certificateUtils.convertCertificate(trustAnchorCert);
     }
 
     /**
@@ -122,10 +97,11 @@ public class DgcGatewayDownloadConnector {
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
             log.info("Maximum age of cache reached. Fetching new TrustList from DGCG.");
 
-            trustedCscaCertificates = fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
+            trustedCscaCertificates = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
             log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
 
-            trustedUploadCertificates = fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
+            trustedUploadCertificates =
+                connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
             log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
 
             fetchTrustListAndVerifyByCscaAndUpload();
@@ -133,29 +109,6 @@ public class DgcGatewayDownloadConnector {
         } else {
             log.debug("Cache needs no refresh.");
         }
-    }
-
-    private List<X509CertificateHolder> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type) {
-        ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
-        try {
-            downloadedCertificates = dgcGatewayConnectorRestClient.getTrustedCertificates(type);
-        } catch (FeignException e) {
-            log.error("Failed to Download certificates from DGC Gateway. Type: {}, status code: {}", type, e.status());
-            return Collections.emptyList();
-        }
-
-        if (downloadedCertificates.getStatusCode() != HttpStatus.OK || downloadedCertificates.getBody() == null) {
-            log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
-                type, downloadedCertificates.getStatusCodeValue());
-            return Collections.emptyList();
-        }
-
-        return downloadedCertificates.getBody().stream()
-            .filter(this::checkThumbprintIntegrity)
-            .filter(c -> connectorUtils.checkTrustAnchorSignature(c, trustAnchor))
-            .map(connectorUtils::getCertificateFromTrustListItem)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
     }
 
     private void fetchTrustListAndVerifyByCscaAndUpload() {
@@ -188,18 +141,6 @@ public class DgcGatewayDownloadConnector {
 
         lastUpdated = LocalDateTime.now();
         log.info("Put {} trusted certificates into TrustList", trustedCertificates.size());
-    }
-
-    private boolean checkThumbprintIntegrity(TrustListItemDto trustListItem) {
-        byte[] certificateRawData = Base64.getDecoder().decode(trustListItem.getRawData());
-        try {
-            return trustListItem.getThumbprint().equals(
-                certificateUtils.getCertThumbprint(new X509CertificateHolder(certificateRawData)));
-
-        } catch (IOException e) {
-            log.error("Could not parse certificate raw data");
-            return false;
-        }
     }
 
     private boolean checkCscaCertificate(TrustListItemDto trustListItem) {

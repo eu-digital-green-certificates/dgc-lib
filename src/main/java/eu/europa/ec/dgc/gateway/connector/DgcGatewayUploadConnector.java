@@ -121,7 +121,7 @@ public class DgcGatewayUploadConnector {
     public void uploadTrustedCertificate(X509CertificateHolder certificate) throws DgcCertificateUploadException {
 
         String payload = new SignedCertificateMessageBuilder()
-            .withPayloadCertificate(certificate)
+            .withPayload(certificate)
             .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey)
             .buildAsString();
 
@@ -169,7 +169,7 @@ public class DgcGatewayUploadConnector {
     public void deleteTrustedCertificate(X509CertificateHolder certificate) throws DgcCertificateUploadException {
 
         String payload = new SignedCertificateMessageBuilder()
-            .withPayloadCertificate(certificate)
+            .withPayload(certificate)
             .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey)
             .buildAsString();
 
