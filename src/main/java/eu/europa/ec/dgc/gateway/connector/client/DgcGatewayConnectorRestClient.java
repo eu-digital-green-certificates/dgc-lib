@@ -93,7 +93,7 @@ public interface DgcGatewayConnectorRestClient {
      * @return the JSON Representation of the ValueSet.
      */
     @GetMapping(value = "/valuesets/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<JsonNode> downloadValueSet(@PathVariable("id") String id);
+    ResponseEntity<String> downloadValueSet(@PathVariable("id") String id);
 
     /**
      * Uploads a new ValidationRule to digital green certificate gateway.
@@ -114,10 +114,10 @@ public interface DgcGatewayConnectorRestClient {
     /**
      * Downloads a Validation Rule from digital green certificate gateway.
      *
-     * @param id of the Validation Rule
+     * @param countryCode of the Validation Rule
      * @return JSON Structure containing relevant versions of Validation Rule
      */
-    @GetMapping(value = "/rules/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Map<String, List<ValidationRuleDto>>> downloadValidationRule(@PathVariable("id") String id);
+    @GetMapping(value = "/rules/{cc}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Map<String, List<ValidationRuleDto>>> downloadValidationRule(@PathVariable("cc") String countryCode);
 
 }

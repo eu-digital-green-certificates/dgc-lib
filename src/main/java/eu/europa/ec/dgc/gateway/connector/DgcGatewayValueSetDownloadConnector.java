@@ -22,18 +22,17 @@ package eu.europa.ec.dgc.gateway.connector;
 
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
+import eu.europa.ec.dgc.gateway.connector.model.ValidationRulesByCountry;
 import feign.FeignException;
-import java.security.Security;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
@@ -50,7 +49,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @EnableScheduling
 @Slf4j
-public class DgcGatewayCountryListDownloadConnector {
+public class DgcGatewayValueSetDownloadConnector {
 
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
 
@@ -59,63 +58,86 @@ public class DgcGatewayCountryListDownloadConnector {
     @Getter
     private LocalDateTime lastUpdated = null;
 
-    private List<String> countryList = new ArrayList<>();
-
-    @PostConstruct
-    void init() {
-        Security.addProvider(new BouncyCastleProvider());
-    }
+    private final Map<String, String> valueSets = new HashMap<>();
 
     /**
-     * Gets the list of downloaded Country Codes.
+     * Gets the list of downloaded ValueSets.
+     * Map Containing Key ValueSetId and Value is the JSON String
      * This call will return a cached list if caching is enabled.
      * If cache is outdated a refreshed list will be returned.
      *
-     * @return List of {@link String}
+     * @return {@link ValidationRulesByCountry}
      */
-    public List<String> getCountryList() {
+    public Map<String, String> getValueSets() {
         updateIfRequired();
-        return Collections.unmodifiableList(countryList);
+        return valueSets;
     }
 
     private synchronized void updateIfRequired() {
         if (lastUpdated == null
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
-            log.info("Maximum age of cache reached. Fetching new CountryList from DGCG.");
+            log.info("Maximum age of cache reached. Fetching new ValueSets from DGCG.");
 
-            countryList = new ArrayList<>();
-            fetchCountryList();
-            log.info("CountryList contains {} country codes.", countryList.size());
+            valueSets.clear();
+
+            List<String> valueSetIds = fetchValueSetIds();
+            log.info("Got List of ValueSet Ids");
+
+            valueSetIds.forEach(this::fetchValueSet);
+            log.info("ValueSet Cache contains {} ValueSets.", valueSets.size());
         } else {
             log.debug("Cache needs no refresh.");
         }
     }
 
-    private void fetchCountryList() {
-        log.info("Fetching CountryList from DGCG");
+    private List<String> fetchValueSetIds() {
+        log.info("Fetching ValueSet IDs from DGCG");
 
         ResponseEntity<List<String>> responseEntity;
         try {
-            responseEntity = dgcGatewayConnectorRestClient.downloadCountryList();
+            responseEntity = dgcGatewayConnectorRestClient.downloadValueSetIds();
         } catch (FeignException e) {
-            log.error("Download of CountryList failed. DGCG responded with status code: {}",
+            log.error("Download of ValueSet IDs failed. DGCG responded with status code: {}",
                 e.status());
+            return Collections.emptyList();
+        }
+
+        List<String> valueSetIds = responseEntity.getBody();
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK || valueSetIds == null) {
+            log.error("Download of ValueSet IDs failed. DGCG responded with status code: {}",
+                responseEntity.getStatusCode());
+            return Collections.emptyList();
+        } else {
+            log.info("Got Response from DGCG, downloaded {} ValueSet IDs.", valueSetIds.size());
+        }
+
+        return valueSetIds;
+    }
+
+    private void fetchValueSet(String id) {
+        log.info("Fetching ValueSet from DGCG with Id {}", id);
+
+        ResponseEntity<String> responseEntity;
+        try {
+            responseEntity = dgcGatewayConnectorRestClient.downloadValueSet(id);
+        } catch (FeignException e) {
+            log.error("Download of ValueSet with ID {} failed. DGCG responded with status code: {}",
+                id, e.status());
             return;
         }
 
-        List<String> downloadedCountries = responseEntity.getBody();
+        String valueSet = responseEntity.getBody();
 
-        if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedCountries == null) {
-            log.error("Download of CountryList failed. DGCG responded with status code: {}",
-                responseEntity.getStatusCode());
+        if (responseEntity.getStatusCode() != HttpStatus.OK || valueSet == null) {
+            log.error("Download of ValueSet with ID {} failed. DGCG responded with status code: {}",
+                id, responseEntity.getStatusCode());
             return;
         } else {
-            log.info("Got Response from DGCG, Downloaded Countries: {}", downloadedCountries.size());
+            log.info("Got Response from DGCG, ValueSet downloaded.");
         }
 
-        countryList = downloadedCountries;
-
+        valueSets.put(id, valueSet);
         lastUpdated = LocalDateTime.now();
-        log.info("Put {} country codes CountryList", countryList.size());
     }
 }

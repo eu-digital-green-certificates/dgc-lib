@@ -28,6 +28,7 @@ import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
 import eu.europa.ec.dgc.gateway.connector.model.ValidationRule;
 import eu.europa.ec.dgc.gateway.connector.model.ValidationRulesByCountry;
+import eu.europa.ec.dgc.signing.SignedMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import feign.FeignException;
 import java.time.LocalDateTime;
@@ -36,12 +37,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -132,11 +135,20 @@ public class DgcGatewayValidationRuleDownloadConnector {
 
         downloadedValidationRules.values().stream()
             .flatMap(Collection::stream)
+            .filter(this::checkCmsSignature)
             .filter(this::checkUploadCertificate)
             .map(this::map)
+            .filter(Objects::nonNull)
             .forEach(rule -> validationRules.set(countryCode, rule.getIdentifier(), rule.getVersion(), rule));
 
         lastUpdated = LocalDateTime.now();
+    }
+
+    private boolean checkCmsSignature(ValidationRuleDto validationRuleDto) {
+        SignedStringMessageParser parser =
+            new SignedStringMessageParser(validationRuleDto.getCms());
+
+        return parser.getParserState() == SignedMessageParser.ParserState.SUCCESS && parser.isSignatureVerified();
     }
 
     private ValidationRule map(ValidationRuleDto dto) {

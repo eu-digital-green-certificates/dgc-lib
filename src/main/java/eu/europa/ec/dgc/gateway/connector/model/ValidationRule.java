@@ -20,16 +20,18 @@
 
 package eu.europa.ec.dgc.gateway.connector.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.ZonedDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 public class ValidationRule {
 
     @JsonProperty("Identifier")
@@ -74,9 +76,12 @@ public class ValidationRule {
     @JsonProperty("Logic")
     JsonNode logic;
 
+    @JsonIgnore
     String rawJson;
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class DescriptionItem {
 
         @JsonProperty("lang")
