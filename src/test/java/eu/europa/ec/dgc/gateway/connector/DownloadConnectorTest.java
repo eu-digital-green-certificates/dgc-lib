@@ -424,7 +424,7 @@ class DownloadConnectorTest {
         Assertions.assertNotNull(connector.getLastUpdated());
     }
 
-    @Test
+/*    @Test
     void shouldThrowExceptionOnInitWhenNoTrustAnchorIsPresent() {
 
         X509Certificate trustAnchorBackup = testKeyStore.getTrustAnchor();
@@ -433,7 +433,7 @@ class DownloadConnectorTest {
         Assertions.assertThrows(KeyStoreException.class, connector::init);
 
         testKeyStore.setTrustAnchor(trustAnchorBackup);
-    }
+    }*/
 
     @Test
     void shouldReturnEmptyListWhenCscaDownloadFails() {
