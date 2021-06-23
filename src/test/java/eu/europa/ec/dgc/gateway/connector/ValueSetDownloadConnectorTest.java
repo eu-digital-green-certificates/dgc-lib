@@ -54,10 +54,10 @@ class ValueSetDownloadConnectorTest {
         when(restClientMock.downloadValueSetIds())
             .thenReturn(ResponseEntity.ok(List.of("VS1", "VS2")));
 
-        when(restClientMock.downloadValueSet(eq("VS1")))
+        when(restClientMock.downloadValueSet("VS1"))
             .thenReturn(ResponseEntity.ok("VS1CONTENT"));
 
-        when(restClientMock.downloadValueSet(eq("VS2")))
+        when(restClientMock.downloadValueSet("VS2"))
             .thenReturn(ResponseEntity.ok("VS2CONTENT"));
 
         Map<String, String> result = connector.getValueSets();
@@ -85,10 +85,10 @@ class ValueSetDownloadConnectorTest {
         when(restClientMock.downloadValueSetIds())
             .thenReturn(ResponseEntity.ok(List.of("VS1", "VS2")));
 
-        when(restClientMock.downloadValueSet(eq("VS1")))
+        when(restClientMock.downloadValueSet("VS1"))
             .thenReturn(ResponseEntity.status(500).build());
 
-        when(restClientMock.downloadValueSet(eq("VS2")))
+        when(restClientMock.downloadValueSet("VS2"))
             .thenReturn(ResponseEntity.ok("VS2CONTENT"));
 
         Map<String, String> valueSets = connector.getValueSets();
@@ -96,7 +96,7 @@ class ValueSetDownloadConnectorTest {
         Assertions.assertEquals("VS2CONTENT", valueSets.get("VS2"));
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
-            .when(restClientMock).downloadValueSet(eq("VS1"));
+            .when(restClientMock).downloadValueSet("VS1");
 
         valueSets = connector.getValueSets();
         Assertions.assertEquals(1, valueSets.size());

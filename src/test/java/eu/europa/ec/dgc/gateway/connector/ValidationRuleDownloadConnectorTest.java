@@ -140,7 +140,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
         ValidationRulesByCountry result = connector.getValidationRules();
@@ -199,7 +199,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
         ValidationRulesByCountry result = connector.getValidationRules();
@@ -247,7 +247,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
 
@@ -298,7 +298,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
@@ -323,7 +323,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
         when(restClientMock.downloadCountryList())
@@ -351,7 +351,7 @@ class ValidationRuleDownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.status(500).build());
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
@@ -402,7 +402,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
@@ -451,7 +451,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule(eq("EU")))
+        when(restClientMock.downloadValidationRule("EU"))
             .thenReturn(ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());

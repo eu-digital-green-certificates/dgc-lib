@@ -20,7 +20,6 @@
 
 package eu.europa.ec.dgc.gateway.connector.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
