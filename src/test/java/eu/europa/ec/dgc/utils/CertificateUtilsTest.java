@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -51,11 +52,6 @@ public class CertificateUtilsTest {
         certificateUtils = new CertificateUtils();
         keyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         certificate = CertificateTestUtils.generateCertificate(keyPair, "DE", "PayloadCertificate");
-    }
-
-    @Test
-    void testDefineConstructor() {
-        assertNotNull(new CertificateUtils());
     }
 
     @Test
@@ -86,6 +82,15 @@ public class CertificateUtilsTest {
         byte[] thumbprint = Hex.decode(certificateUtils.getCertThumbprint(certificate));
 
         Assertions.assertArrayEquals(expectedThumbprint, thumbprint);
+    }
+
+    @Test
+    void testHashingLeadingZero() throws NoSuchAlgorithmException {
+
+        byte[] bytes = Hex.decode("0def64b0223f86d746cc4406000a625dc550fe7b4d0df9c7e399571909d7c182");
+        String expectedHash = "00dcf2cf8e89a076becfc54327c3a9135babcce006232aab10ee0b5365e078c7";
+
+        Assertions.assertEquals(expectedHash, certificateUtils.calculateHash(bytes));
     }
 
     @Test
