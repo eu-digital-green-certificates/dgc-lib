@@ -21,7 +21,6 @@
 package eu.europa.ec.dgc.utils;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
@@ -32,6 +31,7 @@ import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.util.encoders.Hex;
 import org.springframework.stereotype.Service;
 
 /**
@@ -137,15 +137,15 @@ public class CertificateUtils {
         return new JcaX509CertificateConverter().getCertificate(inputCertificate);
     }
 
-    private String calculateHash(byte[] data) throws NoSuchAlgorithmException {
+    /**
+     * Calculates SHA-256 hash of a given Byte-Array.
+     *
+     * @param data data to hash.
+     * @return HEX-String with the hash of the data.
+     */
+    public String calculateHash(byte[] data) throws NoSuchAlgorithmException {
         byte[] certHashBytes = MessageDigest.getInstance("SHA-256").digest(data);
-        String hexString = new BigInteger(1, certHashBytes).toString(16);
-
-        if (hexString.length() == 63) {
-            hexString = "0" + hexString;
-        }
-
-        return hexString;
+        return Hex.toHexString(certHashBytes);
     }
 
     private byte[] calculateHashBytes(byte[] data) throws NoSuchAlgorithmException {
