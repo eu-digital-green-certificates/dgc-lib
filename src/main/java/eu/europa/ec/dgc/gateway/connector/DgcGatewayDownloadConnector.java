@@ -166,7 +166,12 @@ public class DgcGatewayDownloadConnector {
         X509CertificateHolder uploadCertificate = parser.getSigningCertificate();
 
         if (uploadCertificate == null) {
+            log.error("Invalid CMS for DSC {} of {}", trustListItem.getKid(), trustListItem.getCountry());
             return false;
+        }
+
+        if (!parser.isSignatureVerified()) {
+            log.error("Invalid CMS Signature for DSC {} of {}", trustListItem.getKid(), trustListItem.getCountry());
         }
 
         return trustedUploadCertificates
