@@ -26,6 +26,9 @@ import java.security.Security;
 import java.util.Base64;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
@@ -35,7 +38,6 @@ import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -115,8 +117,17 @@ public abstract class SignedMessageBuilder<T, R extends SignedMessageBuilder<T, 
         try {
             DigestCalculatorProvider digestCalculatorProvider = new JcaDigestCalculatorProviderBuilder().build();
 
-            String signingAlgorithmName =
-                new DefaultAlgorithmNameFinder().getAlgorithmName(signingCertificate.getSignatureAlgorithm());
+            ASN1ObjectIdentifier publicKeyAlgoOid =
+                signingCertificate.getSubjectPublicKeyInfo().getAlgorithm().getAlgorithm();
+
+            String signingAlgorithmName;
+            if (publicKeyAlgoOid.equals(PKCSObjectIdentifiers.rsaEncryption)) {
+                signingAlgorithmName = "SHA256WITHRSA";
+            } else if (publicKeyAlgoOid.equals(X9ObjectIdentifiers.id_ecPublicKey)) {
+                signingAlgorithmName = "SHA256WITHECDSA";
+            } else {
+                throw new RuntimeException("Public key must be RSA or EC");
+            }
 
             ContentSigner contentSigner =
                 new JcaContentSignerBuilder(signingAlgorithmName).build(signingCertificatePrivateKey);
