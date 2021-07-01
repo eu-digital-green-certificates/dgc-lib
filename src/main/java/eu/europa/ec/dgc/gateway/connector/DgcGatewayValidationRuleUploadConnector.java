@@ -156,7 +156,8 @@ public class DgcGatewayValidationRuleUploadConnector {
             } else if (e.status() == HttpStatus.UNAUTHORIZED.value()
                 || e.status() == HttpStatus.FORBIDDEN.value()) {
                 log.error("Client is not authorized. (Invalid Client Certificate)");
-                throw new DgcValidationRuleUploadException(DgcValidationRuleUploadException.Reason.INVALID_AUTHORIZATION);
+                throw new DgcValidationRuleUploadException(
+                    DgcValidationRuleUploadException.Reason.INVALID_AUTHORIZATION);
 
             } else if (e.status() == HttpStatus.NOT_FOUND.value()) {
                 log.info("ValidationRules with ID {} does not exists on DGCG", ruleId);
