@@ -34,4 +34,8 @@ public class TrustListItem {
 
     private String rawData;
 
+    private String country;
+
+    private String thumbprint;
+
 }
