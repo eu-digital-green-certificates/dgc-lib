@@ -107,8 +107,7 @@ The following chapter describes the features of dgc-lib and how to use them.
 
 ### DGCG Connector
 
-The dgc-lib provides a Spring-Boot ready connector for communicating with DGC Gateway. The connector has two core
-functions:
+The dgc-lib provides a Spring-Boot ready connector for communicating with DGC Gateway. The connector has the following functions:
 
 #### Trusted Certificate Download
 
@@ -201,6 +200,40 @@ dgc:
 Certificates can also be deleted from gateway. The method call is equal to uploading new certificates. Just use
 ```deleteTrustedCertificate``` instead of ```uploadTrustedCertificate```.
 
+#### ValidationRule Download
+
+To download ValidationRules from DGCG you just have to inject the ```DgcGatewayValidationRuleDownloadConnector``` and call the method
+```getValidationRules```. This method has the same behaviour as the one for downloading DCC.
+
+The connector will do the following checks on downloaded ValidationRules:
+
+* TrustAnchor check of downloaded Upload Certificates
+* Check CMS Signature of ValidationRule
+* Check that Rule is signed by trusted Upload Certificate
+
+The validated list will be returned. In order to connect to DGC Gateway and do all the validating stuff the same configuration as for download DCC is required.
+
+#### ValidationRule Upload
+
+It is also possible to upload new ValidationRules to provide them to other member states. Therefore the
+```DgcGatewayValidationRuleUploadConnector``` needs to be injected. ValidationRules can then be send to the gateway by calling the
+```uploadValidationRule``` with one parameter (a string containing the JSON with the Rule). The signing with upload certificate is
+handled by the connector.
+
+The same properties as for uploading DCC need to be set in order to upload validation rules.
+
+ValidationRules can also be deleted from gateway. The method call is equal to uploading new certificates. Just use
+```deleteValidationRules```. Keep in mind that this call will delete all ValidationRules (all versions) with the given ID.
+
+#### ValueSet Download
+
+To download ValueSets from DGCG you just have to inject the ```DgcGatewayValueSetDownloadConnector``` and call the method
+```getValueSets```. This method has the same behaviour as the one for downloading DCC.
+
+For ValidationRules there are no content checks possible.
+
+In order to connect to DGC Gateway the same configuration as for download DCC is required.
+
 ### Signing
 
 #### Create Signed Certificate CMS Message
@@ -215,7 +248,7 @@ X509CertificateHolder format
 To create the signed message the following call is required:
 
 ```java
-String signedMessaged=new SignedCertificateMessageBuilder()
+String signedMessaged = new SignedCertificateMessageBuilder()
     .withSigningCertificate(signingCert,signingCertPrivateKey)
     .withPayload(inputCert)
     .buildAsString();
