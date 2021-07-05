@@ -44,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -135,7 +134,7 @@ public class DgcGatewayValidationRuleDownloadConnector {
 
         downloadedValidationRules.values().stream()
             .flatMap(Collection::stream)
-            .filter(this::checkCmsSignature)
+            .filter(v -> checkCmsSignature(v, countryCode))
             .filter(this::checkUploadCertificate)
             .map(this::map)
             .filter(Objects::nonNull)
@@ -144,11 +143,21 @@ public class DgcGatewayValidationRuleDownloadConnector {
         lastUpdated = LocalDateTime.now();
     }
 
-    private boolean checkCmsSignature(ValidationRuleDto validationRuleDto) {
+    private boolean checkCmsSignature(ValidationRuleDto validationRuleDto, String countryCode) {
         SignedStringMessageParser parser =
             new SignedStringMessageParser(validationRuleDto.getCms());
 
-        return parser.getParserState() == SignedMessageParser.ParserState.SUCCESS && parser.isSignatureVerified();
+        if (parser.getParserState() != SignedMessageParser.ParserState.SUCCESS) {
+            log.error("Invalid CMS for Validation Rule of {}", countryCode);
+            return false;
+        }
+
+        if (!parser.isSignatureVerified()) {
+            log.error("Invalid CMS Signature for Validation Rule of {}", countryCode);
+            return false;
+        }
+
+        return true;
     }
 
     private ValidationRule map(ValidationRuleDto dto) {
