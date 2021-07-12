@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +31,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.util.encoders.Hex;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,8 @@ import org.springframework.stereotype.Service;
 public class CertificateUtils {
 
     private static final byte KID_BYTE_COUNT = 8;
+
+    private final CertificateFactory certificateFactory = new CertificateFactory();
 
     /**
      * Calculates in DGC context used KID of {@link X509Certificate}.
@@ -134,7 +137,12 @@ public class CertificateUtils {
      */
     public X509Certificate convertCertificate(X509CertificateHolder inputCertificate)
         throws CertificateException {
-        return new JcaX509CertificateConverter().getCertificate(inputCertificate);
+        try {
+            return (X509Certificate) certificateFactory.engineGenerateCertificate(
+                new ByteArrayInputStream(inputCertificate.getEncoded()));
+        } catch (IOException e) {
+            throw new CertificateException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
