@@ -23,22 +23,22 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
-        <owasp.version>6.1.1</owasp.version>
-        <spring.boot.version>2.4.7</spring.boot.version>
-        <spring.cloud.version>3.0.2</spring.cloud.version>
-        <feign.version>11.2</feign.version>
-        <bcpkix.version>1.68</bcpkix.version>
+        <owasp.version>6.1.6</owasp.version>
+        <spring.boot.version>2.5.3</spring.boot.version>
+        <spring.cloud.version>3.0.3</spring.cloud.version>
+        <feign.version>11.6</feign.version>
+        <bcpkix.version>1.69</bcpkix.version>
         <lombok.version>1.18.20</lombok.version>
-        <junit.version>5.7.1</junit.version>
+        <junit.version>5.7.2</junit.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <commonsio.version>2.8.0</commonsio.version>
-        <cbor.version>4.4.3</cbor.version>
-        <jackson.version>2.11.4</jackson.version>
+        <commonsio.version>2.11.0</commonsio.version>
+        <cbor.version>4.4.4</cbor.version>
+        <jackson.version>2.12.4</jackson.version>
 
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
-        <plugin.sonar.version>3.6.1.1688</plugin.sonar.version>
+        <plugin.sonar.version>3.9.0.2155</plugin.sonar.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
-        <plugin.jacoco.version>0.8.6</plugin.jacoco.version>
+        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
 
         <!-- license -->
         <license.projectName>EU Digital Green Certificate Gateway Service / dgc-lib</license.projectName>
@@ -150,6 +150,12 @@
             <artifactId>json-smart</artifactId>
             <version>2.4.7</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Explicit inclusion because of https://nvd.nist.gov/vuln/detail/CVE-2021-22119 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>5.5.1</version>
         </dependency>
     </dependencies>
 
