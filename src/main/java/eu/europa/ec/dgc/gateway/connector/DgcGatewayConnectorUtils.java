@@ -37,6 +37,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -111,6 +112,42 @@ class DgcGatewayConnectorUtils {
         } catch (CertException | RuntimeOperatorException e) {
             log.debug("Could not verify that certificate was issued by ca. Certificate: {}, CA: {}",
                 dcs.getSubject().toString(), ca.getSubject().toString());
+            return false;
+        }
+    }
+
+    public boolean trustListItemSignedByCa(TrustListItemDto certificate, Map<String, X509CertificateHolder> caMap) {
+
+        X509CertificateHolder dcs;
+        try {
+            dcs = new X509CertificateHolder(Base64.getDecoder().decode(certificate.getRawData()));
+        } catch (IOException e) {
+            log.error("Could not parse certificate. KID: {}, Country: {}",
+                    certificate.getKid(), certificate.getCountry());
+            return false;
+        }
+
+        X509CertificateHolder ca = caMap.get(dcs.getIssuer().toString());
+        if (ca == null) {
+            log.error("Failed to find issuer certificate from cert. KID: {}, Country: {}",
+                    certificate.getKid(), certificate.getCountry());
+            return false;
+        }
+
+        ContentVerifierProvider verifier;
+        try {
+            verifier = new JcaContentVerifierProviderBuilder().build(ca);
+        } catch (OperatorCreationException | CertificateException e) {
+            log.error("Failed to instantiate JcaContentVerifierProvider from cert. KID: {}, Country: {}",
+                    certificate.getKid(), certificate.getCountry());
+            return false;
+        }
+
+        try {
+            return dcs.isSignatureValid(verifier);
+        } catch (CertException | RuntimeOperatorException e) {
+            log.debug("Could not verify that certificate was issued by ca. Certificate: {}, CA: {}",
+                    dcs.getSubject().toString(), ca.getSubject().toString());
             return false;
         }
     }
