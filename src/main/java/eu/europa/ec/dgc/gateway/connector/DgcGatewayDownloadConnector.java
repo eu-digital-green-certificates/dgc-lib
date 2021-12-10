@@ -33,7 +33,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
@@ -73,6 +75,7 @@ public class DgcGatewayDownloadConnector {
     private List<TrustListItem> trustedCertificates = new ArrayList<>();
 
     private List<X509CertificateHolder> trustedCscaCertificates = new ArrayList<>();
+    private Map<String, X509CertificateHolder> trustedCscaCertificateMap = new HashMap<>();
     private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
     @PostConstruct
@@ -99,6 +102,8 @@ public class DgcGatewayDownloadConnector {
 
             trustedCscaCertificates = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
             log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
+            trustedCscaCertificateMap = trustedCscaCertificates.stream()
+                    .collect(Collectors.toMap((ca) -> ca.getSubject().toString(), (ca) -> ca));
 
             trustedUploadCertificates =
                 connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
@@ -144,9 +149,7 @@ public class DgcGatewayDownloadConnector {
     }
 
     private boolean checkCscaCertificate(TrustListItemDto trustListItem) {
-        boolean result = trustedCscaCertificates
-            .stream()
-            .anyMatch(ca -> connectorUtils.trustListItemSignedByCa(trustListItem, ca));
+        boolean result = connectorUtils.trustListItemSignedByCa(trustListItem, trustedCscaCertificateMap);
 
         if (!result) {
             log.info("Could not find valid CSCA for DSC {}", trustListItem.getKid());
