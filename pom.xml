@@ -24,7 +24,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
         <owasp.version>6.1.6</owasp.version>
-        <spring.boot.version>2.5.3</spring.boot.version>
+        <spring.boot.version>2.5.7</spring.boot.version>
         <spring.cloud.version>3.0.3</spring.cloud.version>
         <feign.version>11.6</feign.version>
         <bcpkix.version>1.69</bcpkix.version>
@@ -34,7 +34,8 @@
         <commonsio.version>2.11.0</commonsio.version>
         <cbor.version>4.4.4</cbor.version>
         <jackson.version>2.12.4</jackson.version>
-
+        <slf4j.version>1.7.32</slf4j.version>
+        <log4j2.version>2.15.0</log4j2.version>
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.0.2155</plugin.sonar.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
