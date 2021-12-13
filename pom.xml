@@ -25,7 +25,7 @@
         <!-- dependencies -->
         <owasp.version>6.1.6</owasp.version>
         <spring.boot.version>2.5.7</spring.boot.version>
-        <spring.cloud.version>3.0.4</spring.cloud.version>
+        <spring.cloud.version>3.0.5</spring.cloud.version>
         <feign.version>11.6</feign.version>
         <bcpkix.version>1.69</bcpkix.version>
         <lombok.version>1.18.20</lombok.version>
