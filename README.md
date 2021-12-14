@@ -1,5 +1,5 @@
 <h1 align="center">
-    EU Digital COVID Certificate Lib
+   DDCC Gatewaay Lib
 </h1>
 
 <p align="center">
