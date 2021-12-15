@@ -3,9 +3,6 @@ package eu.europa.ec.dgc.generation;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 
 public class DccRecoveryBuilder extends DccBuilderBase<DccRecoveryBuilder> {

@@ -30,7 +30,6 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,7 @@ class ValueSetDownloadConnectorTest {
 
         Assertions.assertEquals(0, connector.getValueSets().size());
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).downloadValueSetIds();
 
         Assertions.assertEquals(0, connector.getValueSets().size());
@@ -95,7 +94,7 @@ class ValueSetDownloadConnectorTest {
         Assertions.assertEquals(1, valueSets.size());
         Assertions.assertEquals("VS2CONTENT", valueSets.get("VS2"));
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).downloadValueSet("VS1");
 
         valueSets = connector.getValueSets();
