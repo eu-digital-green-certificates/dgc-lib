@@ -34,7 +34,6 @@ import java.util.Base64;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;

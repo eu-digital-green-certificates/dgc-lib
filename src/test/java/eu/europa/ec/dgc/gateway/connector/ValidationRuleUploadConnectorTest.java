@@ -132,7 +132,7 @@ class ValidationRuleUploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).uploadValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -154,7 +154,7 @@ class ValidationRuleUploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).uploadValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -168,7 +168,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldThrowAnExceptionWhenUploadRequestGetsInternalServerError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).uploadValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -181,7 +181,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldThrowAnExceptionWhenUploadRequestGetsUnauthorizedError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.Unauthorized("", dummyRequest(), null))
+        doThrow(new FeignException.Unauthorized("", dummyRequest(), null, null))
             .when(restClientMock).uploadValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -194,7 +194,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldThrowAnExceptionWhenUploadRequestGetsForbiddenError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.Forbidden("", dummyRequest(), null))
+        doThrow(new FeignException.Forbidden("", dummyRequest(), null, null))
             .when(restClientMock).uploadValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -215,7 +215,7 @@ class ValidationRuleUploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).deleteValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -237,7 +237,7 @@ class ValidationRuleUploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).deleteValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -251,7 +251,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldThrowAnExceptionWhenDeleteRequestGetsInternalServerError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).deleteValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -264,7 +264,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldThrowAnExceptionWhenDeleteRequestGetsUnauthorizedError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.Unauthorized("", dummyRequest(), null))
+        doThrow(new FeignException.Unauthorized("", dummyRequest(), null, null))
             .when(restClientMock).deleteValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -277,7 +277,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldThrowAnExceptionWhenDeleteRequestGetsForbiddenError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.Forbidden("", dummyRequest(), null))
+        doThrow(new FeignException.Forbidden("", dummyRequest(), null, null))
             .when(restClientMock).deleteValidationRule(any());
 
         DgcGatewayValidationRuleUploadConnector.DgcValidationRuleUploadException e =
@@ -290,7 +290,7 @@ class ValidationRuleUploadConnectorTest {
     void shouldNotThrowAnExceptionWhenDeleteRequestGetsNotFoundError() {
         String dummyValidationRule = "dummyValidationRule";
 
-        doThrow(new FeignException.NotFound("", dummyRequest(), null))
+        doThrow(new FeignException.NotFound("", dummyRequest(), null, null))
             .when(restClientMock).deleteValidationRule(any());
 
         Assertions.assertDoesNotThrow(() -> connector.deleteValidationRules(dummyValidationRule));

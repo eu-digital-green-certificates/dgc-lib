@@ -21,8 +21,6 @@
 package eu.europa.ec.dgc.gateway.connector;
 
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
-import eu.europa.ec.dgc.testdata.DgcTestKeyStore;
-import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
@@ -68,7 +66,7 @@ class CountryListDownloadConnectorTest {
 
         Assertions.assertEquals(0, connector.getCountryList().size());
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).downloadCountryList();
 
         Assertions.assertEquals(0, connector.getCountryList().size());

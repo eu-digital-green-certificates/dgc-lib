@@ -20,14 +20,12 @@
 
 package eu.europa.ec.dgc.gateway.connector;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
-import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.ValidationRule;
 import eu.europa.ec.dgc.gateway.connector.model.ValidationRulesByCountry;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageBuilder;
@@ -40,7 +38,6 @@ import feign.Request;
 import feign.RequestTemplate;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -53,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -337,7 +333,7 @@ class ValidationRuleDownloadConnectorTest {
         when(restClientMock.downloadCountryList())
             .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.UPLOAD);
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
@@ -362,7 +358,7 @@ class ValidationRuleDownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.DSC);
 
         Assertions.assertEquals(0, connector.getValidationRules().size());

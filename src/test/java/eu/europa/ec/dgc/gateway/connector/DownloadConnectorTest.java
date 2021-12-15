@@ -436,7 +436,7 @@ class DownloadConnectorTest {
 
         Assertions.assertTrue(connector.getTrustedCertificates().isEmpty());
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.CSCA);
 
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
@@ -467,7 +467,7 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.UPLOAD);
 
         Assertions.assertTrue(connector.getTrustedCertificates().isEmpty());
@@ -489,7 +489,7 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.DSC);
 
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
