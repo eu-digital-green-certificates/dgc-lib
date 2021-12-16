@@ -41,7 +41,7 @@
         <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
 
         <!-- license -->
-        <license.projectName>WHO Digital Documentation Covid Certificate Gateway Service / dgc-lib</license.projectName>
+        <license.projectName>WHO Digital Documentation Covid Certificate Gateway Service / ddcc-gateway-lib</license.projectName>
         <license.inceptionYear>2022</license.inceptionYear>
         <license.licenseName>apache_v2</license.licenseName>
         <!-- github -->
