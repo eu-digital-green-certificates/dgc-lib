@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.europa.ec.dgc</groupId>
-    <artifactId>dgc-lib</artifactId>
+    <artifactId>ddcc-gateway-lib</artifactId>
     <version>latest</version>
     <packaging>jar</packaging>
 
-    <name>dgc-lib</name>
-    <description>Library with common used methods and classes for European Digital Green Certificate Services.
+    <name>ddcc-gateway-lib</name>
+    <description>Library with common used methods and classes for Digital Documentation Covid Certificate Gateway.
     </description>
     <organization>
         <name>T-Systems International GmbH</name>
@@ -41,32 +41,32 @@
         <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
 
         <!-- license -->
-        <license.projectName>EU Digital Green Certificate Gateway Service / dgc-lib</license.projectName>
-        <license.inceptionYear>2021</license.inceptionYear>
+        <license.projectName>WHO Digital Documentation Covid Certificate Gateway Service / dgc-lib</license.projectName>
+        <license.inceptionYear>2022</license.inceptionYear>
         <license.licenseName>apache_v2</license.licenseName>
         <!-- github -->
-        <github.organization>eu-digital-green-certificates</github.organization>
-        <github.project>dgc-lib</github.project>
+        <github.organization>WorldHealthOrganization</github.organization>
+        <github.project>ddcc-gateway-lib</github.project>
         <!-- sonar -->
-        <sonar.projectKey>eu-digital-green-certificates_dgc-lib</sonar.projectKey>
-        <sonar.organization>eu-digital-green-certificates</sonar.organization>
+        <sonar.organization>WorldHealthOrganization</sonar.organization>
+        <sonar.projectKey>${sonar.organization}_${project.artifactId}</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
-    <url>https://github.com/eu-digital-green-certificates/dgc-lib</url>
+    <url>https://github.com/WorldHealthOrganization/ddcc-gateway-lib</url>
     <ciManagement>
-        <url>https://github.com/eu-digital-green-certificates/dgc-lib/actions?query=workflow%3Aci</url>
+        <url>https://github.com/WorldHealthOrganization/ddcc-gateway-lib/actions?query=workflow%3Aci</url>
     </ciManagement>
     <issueManagement>
-        <url>https://github.com/eu-digital-green-certificates/dgc-lib/issues</url>
+        <url>https://github.com/WorldHealthOrganization/ddcc-gateway-lib/issues</url>
     </issueManagement>
     <scm>
-        <url>https://github.com/eu-digital-green-certificates/dgc-lib</url>
+        <url>https://github.com/WorldHealthOrganization/ddcc-gateway-lib</url>
     </scm>
 
     <distributionManagement>
         <repository>
-            <id>dgc-github</id>
+            <id>who-github</id>
             <url>https://maven.pkg.github.com/${github.organization}/${github.project}</url>
         </repository>
     </distributionManagement>
@@ -216,7 +216,7 @@
                         <exclude>**/connector/dto/**</exclude>
                         <exclude>**/connector/mapper/**</exclude>
                         <exclude>**/connector/model/**</exclude>
-                        <exclude>**/DgcLibAutoConfiguration.java</exclude>
+                        <exclude>**/DgcLibAutoConfiguration.ava</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -277,6 +277,9 @@
                     <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
                     <trimHeaderLine>true</trimHeaderLine>
                     <emptyLineAfterHeader>true</emptyLineAfterHeader>
+                    <outputDirectory>.</outputDirectory>
+                    <thirdPartyFilename>THIRD-PARTY.md</thirdPartyFilename>
+                    <fileTemplate>templates/third-party.ftl</fileTemplate>
                 </configuration>
             </plugin>
             <plugin>
