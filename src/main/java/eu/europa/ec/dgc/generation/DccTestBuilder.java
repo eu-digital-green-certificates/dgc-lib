@@ -1,14 +1,9 @@
 package eu.europa.ec.dgc.generation;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Builder for DCC Test Json.

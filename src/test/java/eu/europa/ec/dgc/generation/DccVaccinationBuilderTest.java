@@ -2,9 +2,8 @@ package eu.europa.ec.dgc.generation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
 
 class DccVaccinationBuilderTest {
     @Test

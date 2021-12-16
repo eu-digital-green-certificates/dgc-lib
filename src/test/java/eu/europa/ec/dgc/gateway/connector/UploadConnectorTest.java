@@ -201,7 +201,7 @@ class UploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).uploadSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -223,7 +223,7 @@ class UploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).uploadSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -237,7 +237,7 @@ class UploadConnectorTest {
     void shouldThrowAnExceptionWhenUploadRequestGetsInternalServerError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).uploadSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -250,7 +250,7 @@ class UploadConnectorTest {
     void shouldThrowAnExceptionWhenUploadRequestGetsUnauthorizedError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.Unauthorized("", dummyRequest(), null))
+        doThrow(new FeignException.Unauthorized("", dummyRequest(), null, null))
             .when(restClientMock).uploadSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -263,7 +263,7 @@ class UploadConnectorTest {
     void shouldThrowAnExceptionWhenUploadRequestGetsForbiddenError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.Forbidden("", dummyRequest(), null))
+        doThrow(new FeignException.Forbidden("", dummyRequest(), null, null))
             .when(restClientMock).uploadSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -276,7 +276,7 @@ class UploadConnectorTest {
     void shouldNotThrowAnExceptionWhenUploadRequestGetsConflictError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.Conflict("", dummyRequest(), null))
+        doThrow(new FeignException.Conflict("", dummyRequest(), null, null))
             .when(restClientMock).uploadSignerInformation(any());
 
         Assertions.assertDoesNotThrow(() -> connector.uploadTrustedCertificate(certificateMock));
@@ -294,7 +294,7 @@ class UploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).deleteSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -316,7 +316,7 @@ class UploadConnectorTest {
             "}";
 
 
-        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8)))
+        doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
             .when(restClientMock).deleteSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -330,7 +330,7 @@ class UploadConnectorTest {
     void shouldThrowAnExceptionWhenDeleteRequestGetsInternalServerError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.InternalServerError("", dummyRequest(), null))
+        doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).deleteSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -343,7 +343,7 @@ class UploadConnectorTest {
     void shouldThrowAnExceptionWhenDeleteRequestGetsUnauthorizedError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.Unauthorized("", dummyRequest(), null))
+        doThrow(new FeignException.Unauthorized("", dummyRequest(), null, null))
             .when(restClientMock).deleteSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -356,7 +356,7 @@ class UploadConnectorTest {
     void shouldThrowAnExceptionWhenDeleteRequestGetsForbiddenError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.Forbidden("", dummyRequest(), null))
+        doThrow(new FeignException.Forbidden("", dummyRequest(), null, null))
             .when(restClientMock).deleteSignerInformation(any());
 
         DgcGatewayUploadConnector.DgcCertificateUploadException e =
@@ -369,7 +369,7 @@ class UploadConnectorTest {
     void shouldNotThrowAnExceptionWhenDeleteRequestGetsNotFoundError() {
         X509CertificateHolder certificateMock = mock(X509CertificateHolder.class);
 
-        doThrow(new FeignException.NotFound("", dummyRequest(), null))
+        doThrow(new FeignException.NotFound("", dummyRequest(), null, null))
             .when(restClientMock).deleteSignerInformation(any());
 
         Assertions.assertDoesNotThrow(() -> connector.deleteTrustedCertificate(certificateMock));

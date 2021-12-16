@@ -2,9 +2,11 @@ name: Dependency Check (OWASP)
 on:
   schedule:
     - cron: '13 04 * * 0' # Each Sunday at 04:13 UTC
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
   workflow_dispatch:
 
 jobs:
