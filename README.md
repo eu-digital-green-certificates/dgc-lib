@@ -1,5 +1,5 @@
 <h1 align="center">
-   DDCC Gatewaay Lib
+   DDCC Gateway Lib
 </h1>
 
 
