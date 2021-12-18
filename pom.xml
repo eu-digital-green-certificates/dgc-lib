@@ -34,7 +34,7 @@
         <cbor.version>4.4.4</cbor.version>
         <jackson.version>2.13.0</jackson.version>
         <slf4j.version>1.7.32</slf4j.version>
-        <log4j2.version>2.16.0</log4j2.version>
+        <log4j2.version>2.17.0</log4j2.version>
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
