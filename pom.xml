@@ -23,8 +23,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
-        <owasp.version>6.5.0</owasp.version>
-        <spring.boot.version>2.6.1</spring.boot.version>
+        <owasp.version>6.5.2</owasp.version>
+        <spring.boot.version>2.6.2</spring.boot.version>
         <spring.cloud.version>3.1.0</spring.cloud.version>
         <feign.version>11.7</feign.version>
         <bcpkix.version>1.70</bcpkix.version>
@@ -34,7 +34,6 @@
         <cbor.version>4.4.4</cbor.version>
         <jackson.version>2.13.0</jackson.version>
         <slf4j.version>1.7.32</slf4j.version>
-        <log4j2.version>2.16.0</log4j2.version>
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
@@ -72,21 +71,6 @@
     </distributionManagement>
 
     <dependencies>
-        <dependency>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-to-slf4j</artifactId>
-          <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j2.version}</version>
-        </dependency>
-        <dependency>
-             <groupId>org.apache.logging.log4j</groupId>
-             <artifactId>log4j-core</artifactId>
-             <version>${log4j2.version}</version>
-        </dependency>
         <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-openfeign-dependencies</artifactId>
