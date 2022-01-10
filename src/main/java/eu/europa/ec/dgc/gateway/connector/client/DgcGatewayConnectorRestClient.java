@@ -21,12 +21,15 @@
 package eu.europa.ec.dgc.gateway.connector.client;
 
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
 @FeignClient(
@@ -118,5 +122,23 @@ public interface DgcGatewayConnectorRestClient {
      */
     @GetMapping(value = "/rules/{cc}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Map<String, List<ValidationRuleDto>>> downloadValidationRule(@PathVariable("cc") String countryCode);
+
+
+    /**
+     *  Downloads a batch list from the revocation list.
+     *
+     */
+    @GetMapping(value = "/revocation-list", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<RevocationBatchListDto> downloadRevocationList(
+        @RequestHeader(HttpHeaders.IF_MODIFIED_SINCE) String lastUpdate);
+
+    /**
+     * Downloads a batch of the revocation list.
+     *
+     * @param batchId ID of the batch to download
+     * @return batch as cms massage
+     */
+    @GetMapping(value = "/revocation-list/{batchId}", produces = {"application/cms-text"})
+    ResponseEntity<String> downloadBatch(@PathVariable("batchId") String batchId);
 
 }
