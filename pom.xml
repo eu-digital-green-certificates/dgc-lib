@@ -34,6 +34,7 @@
         <cbor.version>4.4.4</cbor.version>
         <jackson.version>2.13.0</jackson.version>
         <slf4j.version>1.7.32</slf4j.version>
+        <log4j2.version>2.17.1</log4j2.version>
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
@@ -157,6 +158,18 @@
             <artifactId>spring-security-crypto</artifactId>
             <version>5.5.1</version>
         </dependency>
+        <!-- Explitzit Dependencies for log4j dependencies-->
+         <dependency>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-to-slf4j</artifactId>
+          <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
