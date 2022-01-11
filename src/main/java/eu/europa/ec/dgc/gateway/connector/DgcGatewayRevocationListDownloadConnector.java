@@ -70,7 +70,7 @@ public class DgcGatewayRevocationListDownloadConnector {
             log.error("Download of revocation list batch failed. DGCG responded with status code: {}", e.status());
 
             if (e.status() == HttpStatus.GONE.value()) {
-                throw new RevocationBatchGoneException(String.format("Batch already gone: {}", batchId),batchId);
+                throw new RevocationBatchGoneException(String.format("Batch already gone: %s", batchId),batchId);
             }
 
             throw new RevocationBatchDownloadException("Batch download failed with exception.", e);
@@ -81,7 +81,7 @@ public class DgcGatewayRevocationListDownloadConnector {
             log.error("Download of revocation list batch failed. DGCG responded with status code: {}", statusCode);
 
             throw new RevocationBatchDownloadException(
-                String.format("Batch download failed with unexpected response. Response status code: {}", statusCode),
+                String.format("Batch download failed with unexpected response. Response status code: %d", statusCode),
                     statusCode);
         }
 
@@ -90,7 +90,7 @@ public class DgcGatewayRevocationListDownloadConnector {
         if (!checkCmsSignature(cms)) {
             log.error("CMS check failed for revocation batch: {}", batchId);
             throw new RevocationBatchParseException(
-                String.format("CMS check failed for revocation batch: {}", batchId), batchId);
+                String.format("CMS check failed for revocation batch: %s", batchId), batchId);
         }
 
         return map(cms, batchId);
@@ -124,7 +124,7 @@ public class DgcGatewayRevocationListDownloadConnector {
             log.error("Failed to parse revocation batch JSON: {}", e.getMessage());
 
             throw new RevocationBatchParseException(
-                String.format("Failed to parse revocation batch JSON: {}", e.getMessage()), batchId);
+                String.format("Failed to parse revocation batch JSON: %s", e.getMessage()), batchId);
         }
 
     }
