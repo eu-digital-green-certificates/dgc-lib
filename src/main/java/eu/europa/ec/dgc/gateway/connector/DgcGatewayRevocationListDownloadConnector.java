@@ -3,11 +3,13 @@ package eu.europa.ec.dgc.gateway.connector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
-import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchListDto;
-import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDto;
+import eu.europa.ec.dgc.gateway.connector.exception.RevocationBatchDownloadException;
+import eu.europa.ec.dgc.gateway.connector.exception.RevocationBatchGoneException;
+import eu.europa.ec.dgc.gateway.connector.exception.RevocationBatchParseException;
 import eu.europa.ec.dgc.gateway.connector.iterator.DgcGatewayRevocationListDownloadIterator;
-import eu.europa.ec.dgc.gateway.connector.model.ValidationRule;
 import eu.europa.ec.dgc.signing.SignedMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import feign.FeignException;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class DgcGatewayRevocationListDownloadConnector {
 
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
+    private final ObjectMapper objectMapper;
 
     /**
      * Gets a revocation list iterator, for partly downloading the revocation list.
@@ -56,35 +59,41 @@ public class DgcGatewayRevocationListDownloadConnector {
      * @param batchId the id of the batch to download.
      * @return the batch data.
      */
-    public String getRevocationListBatchById(String batchId) {
+    public RevocationBatchDto getRevocationListBatchById(String batchId) throws RevocationBatchDownloadException,
+        RevocationBatchGoneException, RevocationBatchParseException {
 
         ResponseEntity<String> responseEntity;
 
         try {
             responseEntity = dgcGatewayConnectorRestClient.downloadBatch(batchId);
         } catch (FeignException e) {
-            log.error("Download of revocation list batch failed. DGCG responded with status code: {}",
-                e.status());
-            return null;
+            log.error("Download of revocation list batch failed. DGCG responded with status code: {}", e.status());
+
+            if (e.status() == HttpStatus.GONE.value()) {
+                throw new RevocationBatchGoneException(String.format("Batch already gone: {}", batchId),batchId);
+            }
+
+            throw new RevocationBatchDownloadException("Batch download failed with exception.", e);
         }
 
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            int statusCode = responseEntity.getStatusCode().value();
+            log.error("Download of revocation list batch failed. DGCG responded with status code: {}", statusCode);
 
-            log.error("Download of revocation list batch failed. DGCG responded with status code: {}",
-                responseEntity.getStatusCode());
-            return null;
+            throw new RevocationBatchDownloadException(
+                String.format("Batch download failed with unexpected response. Response status code: {}", statusCode),
+                    statusCode);
         }
 
         String cms = responseEntity.getBody();
 
         if (!checkCmsSignature(cms)) {
             log.error("CMS check failed for revocation batch: {}", batchId);
-            return null;
+            throw new RevocationBatchParseException(
+                String.format("CMS check failed for revocation batch: {}", batchId), batchId);
         }
 
-        String rawJson = map(cms);
-
-        return rawJson;
+        return map(cms, batchId);
     }
 
     private boolean checkCmsSignature(String cms) {
@@ -104,28 +113,19 @@ public class DgcGatewayRevocationListDownloadConnector {
         return true;
     }
 
-    private String map(String cms) {
+    private RevocationBatchDto map(String cms, String batchId) {
         SignedStringMessageParser parser =
             new SignedStringMessageParser(cms);
-        /*
+
         try {
             objectMapper.configure(DeserializationFeature.FAIL_ON_TRAILING_TOKENS, true);
-            return objectMapper.readValue(json, clazz);
+            return objectMapper.readValue(parser.getPayload(), RevocationBatchDto.class);
         } catch (JsonProcessingException e) {
-            throw new RevocationBatchServiceException(
-                RevocationBatchServiceException.Reason.INVALID_JSON,
-                "JSON could not be parsed");
+            log.error("Failed to parse revocation batch JSON: {}", e.getMessage());
+
+            throw new RevocationBatchParseException(
+                String.format("Failed to parse revocation batch JSON: {}", e.getMessage()), batchId);
         }
-        */
-        //        try {
-        //            ValidationRule parsedRule = objectMapper.readValue(parser.getPayload(), ValidationRule.class);
-        //            parsedRule.setRawJson(parser.getPayload());
-        //            return parsedRule;
-        //        } catch (JsonProcessingException e) {
-        //            log.error("Failed to parse Validation Rule JSON: {}", e.getMessage());
-        //            return null;
-        //        }
-        return parser.getPayload();
 
     }
 

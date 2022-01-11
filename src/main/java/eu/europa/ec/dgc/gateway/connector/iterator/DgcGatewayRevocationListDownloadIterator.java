@@ -113,13 +113,14 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
 
         ResponseEntity<RevocationBatchListDto> responseEntity;
 
+        hasNext = false;
+        nextData = null;
+
         try {
             responseEntity = dgcGatewayConnectorRestClient.downloadRevocationList(toIsoO8601(lastUpdated));
         } catch (FeignException e) {
             log.error("Download of revocation list failed. DGCG responded with status code: {}",
                 e.status());
-            hasNext = false;
-            nextData = null;
             return;
         }
 
@@ -128,8 +129,6 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
 
             log.error("DGCG responded with unexpected status code: {}",
                 responseEntity.getStatusCode());
-            hasNext = false;
-            nextData = null;
             return;
         }
 
@@ -138,8 +137,6 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
             || responseEntity.getBody().getBatches().isEmpty()) {
 
             log.debug("No Content received for download with If-Modified-Since date: {}", toIsoO8601(lastUpdated));
-            hasNext = false;
-            nextData = null;
             return;
         }
 
