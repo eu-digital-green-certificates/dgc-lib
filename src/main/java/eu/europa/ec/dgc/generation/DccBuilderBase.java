@@ -11,7 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * abstract builder for all certificate types.
+ * Abstract builder for all certificate types.
+ *
  * @param <T> the concrete builder
  */
 public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
@@ -23,12 +24,10 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
     private static final Pattern countryPattern = Pattern.compile("[A-Z]{1,10}");
     private static final Pattern standardNamePattern = Pattern.compile("^[A-Z<]*$");
 
-    private DateTimeFormatter dateFormat;
-    private DateTimeFormatter dayDateFormat;
+    private final DateTimeFormatter dateFormat;
+    private final DateTimeFormatter dayDateFormat;
 
-    private enum RequiredFieldsBase { dob, fnt, co, is, ci }
-
-    private EnumSet<RequiredFieldsBase> requiredNotSet = EnumSet.allOf(RequiredFieldsBase.class);
+    private final EnumSet<RequiredFieldsBase> requiredNotSet = EnumSet.allOf(RequiredFieldsBase.class);
 
     /**
      * constructor.
@@ -56,7 +55,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      * @return builder
      */
     public T fn(String fn) {
-        assertNotNullMax("fn", fn, 50);
+        assertNotNullMax("fn", fn, 80);
         nameObject.set("fn", jsonNodeFactory.textNode(fn));
         return getThis();
     }
@@ -68,7 +67,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      * @return builder
      */
     public T gn(String gn) {
-        assertNotNullMax("gn", gn, 50);
+        assertNotNullMax("gn", gn, 80);
         nameObject.set("gn", jsonNodeFactory.textNode(gn));
         return getThis();
     }
@@ -80,7 +79,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      * @return builder
      */
     public T fnt(String fnt) {
-        assertNotNullMaxPattern("fnt", fnt, 50, standardNamePattern);
+        assertNotNullMaxPattern("fnt", fnt, 80, standardNamePattern);
         requiredNotSet.remove(RequiredFieldsBase.fnt);
         nameObject.set("fnt", jsonNodeFactory.textNode(fnt));
         return getThis();
@@ -93,7 +92,7 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
      * @return builder
      */
     public T gnt(String gnt) {
-        assertNotNullMaxPattern("gnt", gnt, 50, standardNamePattern);
+        assertNotNullMaxPattern("gnt", gnt, 80, standardNamePattern);
         nameObject.set("gnt", jsonNodeFactory.textNode(gnt));
         return getThis();
     }
@@ -128,11 +127,12 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
 
     /**
      * country of test.
+     *
      * @param co co
      * @return builder
      */
     public T country(String co) {
-        assertNotNullMaxPattern("co",co,0,countryPattern);
+        assertNotNullMaxPattern("co", co, 0, countryPattern);
         getValueHolder().set("co", jsonNodeFactory.textNode(co));
         requiredNotSet.remove(RequiredFieldsBase.co);
         return getThis();
@@ -140,11 +140,12 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
 
     /**
      * test issuer.
+     *
      * @param is issuer
      * @return builder
      */
     public T certificateIssuer(String is) {
-        assertNotNullMax("is",is,50);
+        assertNotNullMax("is", is, 80);
         getValueHolder().set("is", jsonNodeFactory.textNode(is));
         requiredNotSet.remove(RequiredFieldsBase.is);
         return getThis();
@@ -152,11 +153,12 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
 
     /**
      * certificate identifier.
+     *
      * @param dgci certificate identifier
      * @return builder
      */
     public T dgci(String dgci) {
-        assertNotNullMax("ci", dgci, 50);
+        assertNotNullMax("ci", dgci, 80);
         getValueHolder().set("ci", jsonNodeFactory.textNode(dgci));
         requiredNotSet.remove(RequiredFieldsBase.ci);
         return getThis();
@@ -176,16 +178,24 @@ public abstract class DccBuilderBase<T extends DccBuilderBase<T>> {
         }
         if (maxLenght > 0 && value.length() > maxLenght) {
             throw new IllegalArgumentException("field " + description + " has max length "
-                    + maxLenght + " but was: " + value.length());
+                + maxLenght + " but was: " + value.length());
         }
     }
 
-    protected void assertNotNullMaxPattern(String description, String value, int maxLenght, Pattern pattern) {
-        assertNotNullMax(description, value, maxLenght);
+    protected void assertNotNullMaxPattern(String description, String value, int maxLength, Pattern pattern) {
+        assertNotNullMax(description, value, maxLength);
         Matcher matcher = pattern.matcher(value);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("field: " + description + "value: "
-                    + value + " do not match pattern: " + pattern);
+                + value + " do not match pattern: " + pattern);
         }
+    }
+
+    private enum RequiredFieldsBase {
+        dob,
+        fnt,
+        co,
+        is,
+        ci
     }
 }
