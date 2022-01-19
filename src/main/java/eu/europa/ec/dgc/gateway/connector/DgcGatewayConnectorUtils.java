@@ -116,7 +116,8 @@ class DgcGatewayConnectorUtils {
         }
     }
 
-    public boolean trustListItemSignedByCa(TrustListItemDto certificate, Map<String, X509CertificateHolder> caMap) {
+    public boolean trustListItemSignedByCa(TrustListItemDto certificate, Map<String,
+            List<X509CertificateHolder>> caMap) {
 
         X509CertificateHolder dcs;
         try {
@@ -127,29 +128,16 @@ class DgcGatewayConnectorUtils {
             return false;
         }
 
-        X509CertificateHolder ca = caMap.get(dcs.getIssuer().toString());
-        if (ca == null) {
+        List<X509CertificateHolder> caList = caMap.get(dcs.getIssuer().toString());
+        if (caList == null) {
             log.error("Failed to find issuer certificate from cert. KID: {}, Country: {}",
                     certificate.getKid(), certificate.getCountry());
             return false;
         }
 
-        ContentVerifierProvider verifier;
-        try {
-            verifier = new JcaContentVerifierProviderBuilder().build(ca);
-        } catch (OperatorCreationException | CertificateException e) {
-            log.error("Failed to instantiate JcaContentVerifierProvider from cert. KID: {}, Country: {}",
-                    certificate.getKid(), certificate.getCountry());
-            return false;
-        }
-
-        try {
-            return dcs.isSignatureValid(verifier);
-        } catch (CertException | RuntimeOperatorException e) {
-            log.debug("Could not verify that certificate was issued by ca. Certificate: {}, CA: {}",
-                    dcs.getSubject().toString(), ca.getSubject().toString());
-            return false;
-        }
+        return caList
+                .stream()
+                .anyMatch(ca -> trustListItemSignedByCa(certificate, ca));
     }
 
     boolean checkTrustAnchorSignature(TrustListItemDto trustListItem, X509CertificateHolder trustAnchor) {

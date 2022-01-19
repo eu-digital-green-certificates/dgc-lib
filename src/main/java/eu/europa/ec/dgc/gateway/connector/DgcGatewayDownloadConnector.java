@@ -75,7 +75,7 @@ public class DgcGatewayDownloadConnector {
     private List<TrustListItem> trustedCertificates = new ArrayList<>();
 
     private List<X509CertificateHolder> trustedCscaCertificates = new ArrayList<>();
-    private Map<String, X509CertificateHolder> trustedCscaCertificateMap = new HashMap<>();
+    private Map<String, List<X509CertificateHolder>> trustedCscaCertificateMap = new HashMap<>();
     private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
     @PostConstruct
@@ -103,7 +103,8 @@ public class DgcGatewayDownloadConnector {
             trustedCscaCertificates = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
             log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
             trustedCscaCertificateMap = trustedCscaCertificates.stream()
-                    .collect(Collectors.toMap((ca) -> ca.getSubject().toString(), (ca) -> ca));
+                    .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
+                            Collectors.mapping((ca) -> ca, Collectors.toList())));
 
             trustedUploadCertificates =
                 connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
