@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.gateway.connector.config;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -93,11 +95,20 @@ public class DgcGatewayConnectorKeystore {
 
     private void loadKeyStore(KeyStore keyStore, String path, char[] password)
         throws CertificateException, NoSuchAlgorithmException {
+        try {
 
-        try (InputStream fileStream = new FileInputStream(ResourceUtils.getFile(path))) {
+            InputStream stream = null;
 
-            if (fileStream.available() > 0) {
-                keyStore.load(fileStream, password);
+            if (path.startsWith("$ENV:")) {
+                String env = path.substring(6);
+                String b64 = System.getenv(env);
+                stream = new ByteArrayInputStream(Base64.getDecoder().decode(b64));
+            } else {
+                stream = new FileInputStream(ResourceUtils.getFile(path));
+            }
+
+            if (stream.available() > 0) {
+                keyStore.load(stream, password);
             } else {
                 keyStore.load(null);
                 log.info("Could not load Keystore {}", path);
