@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -71,6 +72,7 @@ class DgcGatewayConnectorUtils {
     @Qualifier("trustAnchor")
     private final KeyStore trustAnchorKeyStore;
 
+    @Setter
     private X509CertificateHolder trustAnchor;
 
 
