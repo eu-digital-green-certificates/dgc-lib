@@ -231,6 +231,7 @@
                 <configuration>
                     <configLocation>codestyle/checkstyle.xml</configLocation>
                     <excludes>target/**/*</excludes>
+                    <excludes>**/springbootworkaroundforks/*</excludes>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
