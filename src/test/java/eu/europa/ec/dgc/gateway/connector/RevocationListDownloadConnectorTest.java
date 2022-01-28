@@ -5,6 +5,8 @@ import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDto;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationHashTypeDto;
+import eu.europa.ec.dgc.gateway.connector.exception.RevocationBatchDownloadException;
+import eu.europa.ec.dgc.gateway.connector.exception.RevocationBatchParseException;
 import eu.europa.ec.dgc.gateway.connector.iterator.DgcGatewayRevocationListDownloadIterator;
 import eu.europa.ec.dgc.signing.SignedStringMessageBuilder;
 import eu.europa.ec.dgc.testdata.CertificateTestUtils;
@@ -22,10 +24,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -227,6 +231,63 @@ class RevocationListDownloadConnectorTest {
 
         assertNotNull(downloadedBatch);
         assertEquals(downloadedBatch, batch);
+
+    }
+
+    @Test
+    void getRevocationListBatchByIdNotFoundBatch() throws Exception {
+        String batchId1 = "batchId1";
+        when(restClientMock.downloadBatch(batchId1))
+            .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build());
+
+        RevocationBatchDownloadException exception = assertThrows(RevocationBatchDownloadException.class, () -> {
+            downloadConnector.getRevocationListBatchById(batchId1);
+        });
+
+        Assertions.assertEquals(exception.getStatus(), HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void getRevocationListBatchByIdCMSJsonFail() throws Exception {
+        KeyPair keyPairUpload = KeyPairGenerator.getInstance("ec").generateKeyPair();
+        X509Certificate upload = CertificateTestUtils.generateCertificate(keyPairUpload, "EU", "UPLOAD");
+
+        String batch = "NoValidJSON";
+
+        String batchId1 = "batchId1";
+
+        String signedBatch = new SignedStringMessageBuilder()
+            .withSigningCertificate(certificateUtils.convertCertificate(upload), keyPairUpload.getPrivate())
+            .withPayload(batch)
+            .buildAsString(false);
+
+
+        when(restClientMock.downloadBatch(batchId1))
+            .thenReturn(ResponseEntity.ok(signedBatch));
+
+        RevocationBatchParseException exception = assertThrows(RevocationBatchParseException.class, () -> {
+            downloadConnector.getRevocationListBatchById(batchId1);
+        });
+        assertTrue(exception.getMessage().contains("Failed to parse revocation batch JSON"));
+
+    }
+
+    @Test
+    void getRevocationListBatchByIdCMSJFail() throws Exception {
+        KeyPair keyPairUpload = KeyPairGenerator.getInstance("ec").generateKeyPair();
+        X509Certificate upload = CertificateTestUtils.generateCertificate(keyPairUpload, "EU", "UPLOAD");
+
+        String batch = "NoValidCMS";
+
+        String batchId1 = "batchId1";
+
+        when(restClientMock.downloadBatch(batchId1))
+            .thenReturn(ResponseEntity.ok(batch));
+
+        RevocationBatchParseException exception = assertThrows(RevocationBatchParseException.class, () -> {
+            downloadConnector.getRevocationListBatchById(batchId1);
+        });
+        assertTrue(exception.getMessage().contains("CMS check failed for revocation batch"));
 
     }
 
