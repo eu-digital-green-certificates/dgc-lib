@@ -33,7 +33,7 @@
         <commonsio.version>2.11.0</commonsio.version>
         <cbor.version>4.5.1</cbor.version>
         <jackson.version>2.13.0</jackson.version>
-        <slf4j.version>1.7.32</slf4j.version>
+        <mockwebserver.version>4.9.3</mockwebserver.version>
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
@@ -71,13 +71,6 @@
     </distributionManagement>
 
     <dependencies>
-        <dependency>
-             <groupId>org.springframework.cloud</groupId>
-             <artifactId>spring-cloud-openfeign-dependencies</artifactId>
-             <version>${spring.cloud.version}</version>
-             <type>pom</type>
-             <scope>provided</scope>
-             </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -143,6 +136,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${mockwebserver.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- Explicit inclusion because of https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
         <dependency>
@@ -232,6 +231,7 @@
                 <configuration>
                     <configLocation>codestyle/checkstyle.xml</configLocation>
                     <excludes>target/**/*</excludes>
+                    <excludes>**/springbootworkaroundforks/*</excludes>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
