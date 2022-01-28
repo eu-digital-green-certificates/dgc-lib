@@ -37,7 +37,6 @@ import org.springframework.http.ResponseEntity;
 
 /**
  * This class provides an Iterator for downloading the revocation List parts from the gateway.
- *
  */
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
@@ -58,6 +57,7 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
      * Creates a new Iterator instance for downloading the revocation list from the dgc gateway.
      * The If-Modified-Since Header is set to the default value and the download should start with the first
      * part of the revocation list.
+     *
      * @param dgcGatewayConnectorRestClient The rest client for the connection to the dgc gateway
      */
 
@@ -69,8 +69,9 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
      * Creates a new Iterator instance for downloading the revocation list from the dgc gateway.
      * The If-Modified-Since Header is set to the given value and only newer parts of the revocation list
      * are downloaded.
+     *
      * @param dgcGatewayConnectorRestClient The rest client for the connection to the dgc gateway
-     * @param ifModifiedSinceDate The value for the If-Modified-Since date
+     * @param ifModifiedSinceDate           The value for the If-Modified-Since date
      */
 
     public DgcGatewayRevocationListDownloadIterator(DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient,
@@ -81,7 +82,8 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
     }
 
     /**
-     *  Sets the If-Modified-Since date and downloads the next newer part of the revocation list from the dgc gateway.
+     * Sets the If-Modified-Since date and downloads the next newer part of the revocation list from the dgc gateway.
+     *
      * @param dateTime The value for the If-Modified-Since date
      */
     public void setIfModifiedSinceDate(ZonedDateTime dateTime) {
@@ -131,18 +133,20 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
                 responseEntity.getStatusCode());
             return;
         }
+        try {
+            if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT
+                || responseEntity.getBody().getBatches().isEmpty()) {
 
-        if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT
-            || responseEntity.getBody() == null
-            || responseEntity.getBody().getBatches().isEmpty()) {
+                log.debug("No Content received for download with If-Modified-Since date: {}", toIsoO8601(lastUpdated));
+                return;
+            }
 
+            nextData = responseEntity.getBody().getBatches();
+            hasNext = true;
+            lastUpdated = nextData.get(nextData.size() - 1).getDate();
+        } catch (NullPointerException e) {
             log.debug("No Content received for download with If-Modified-Since date: {}", toIsoO8601(lastUpdated));
             return;
         }
-
-        nextData = responseEntity.getBody().getBatches();
-        hasNext = true;
-        lastUpdated = nextData.get(nextData.size() - 1).getDate();
     }
-
 }
