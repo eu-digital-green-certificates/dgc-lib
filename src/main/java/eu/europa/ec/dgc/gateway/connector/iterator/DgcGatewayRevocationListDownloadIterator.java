@@ -135,17 +135,16 @@ public class DgcGatewayRevocationListDownloadIterator implements Iterator<List<R
         }
 
         if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT
-            || responseEntity.hasBody() == false) {
+            || responseEntity.getBody() == null) {
             log.debug("No Content received for download with If-Modified-Since date: {}", toIsoO8601(lastUpdated));
-            return;
         } else {
             if (responseEntity.getBody().getBatches().isEmpty()) {
                 log.debug("No Content received for download with If-Modified-Since date: {}", toIsoO8601(lastUpdated));
-                return;
+            } else {
+                nextData = responseEntity.getBody().getBatches();
+                hasNext = true;
+                lastUpdated = nextData.get(nextData.size() - 1).getDate();
             }
-            nextData = responseEntity.getBody().getBatches();
-            hasNext = true;
-            lastUpdated = nextData.get(nextData.size() - 1).getDate();
         }
     }
 }
