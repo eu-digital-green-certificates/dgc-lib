@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.gateway.connector.config;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,14 +50,13 @@ public class DgcGatewayConnectorKeystore {
      *
      * @return KeyStore Instance
      * @throws KeyStoreException        if no implementation for the specified type found
-     * @throws IOException              if there is an I/O or format problem with the keystore data
      * @throws CertificateException     if any of the certificates in the keystore could not be loaded
      * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
      */
     @Bean
     @Qualifier("upload")
     @ConditionalOnProperty("dgc.gateway.connector.upload-key-store.path")
-    public KeyStore uploadKeyStore() throws KeyStoreException, IOException,
+    public KeyStore uploadKeyStore() throws KeyStoreException,
         CertificateException, NoSuchAlgorithmException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
 
@@ -72,14 +73,13 @@ public class DgcGatewayConnectorKeystore {
      *
      * @return KeyStore Instance
      * @throws KeyStoreException        if no implementation for the specified type found
-     * @throws IOException              if there is an I/O or format problem with the keystore data
      * @throws CertificateException     if any of the certificates in the keystore could not be loaded
      * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
      */
     @Bean
     @Qualifier("trustAnchor")
     @ConditionalOnProperty("dgc.gateway.connector.trust-anchor.path")
-    public KeyStore trustAnchorKeyStore() throws KeyStoreException, IOException,
+    public KeyStore trustAnchorKeyStore() throws KeyStoreException,
         CertificateException, NoSuchAlgorithmException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
 
@@ -93,11 +93,21 @@ public class DgcGatewayConnectorKeystore {
 
     private void loadKeyStore(KeyStore keyStore, String path, char[] password)
         throws CertificateException, NoSuchAlgorithmException {
+        try {
 
-        try (InputStream fileStream = new FileInputStream(ResourceUtils.getFile(path))) {
+            InputStream stream;
 
-            if (fileStream.available() > 0) {
-                keyStore.load(fileStream, password);
+            if (path.startsWith("$ENV:")) {
+                String env = path.substring(6);
+                String b64 = System.getenv(env);
+                stream = new ByteArrayInputStream(Base64.getDecoder().decode(b64));
+            } else {
+                stream = new FileInputStream(ResourceUtils.getFile(path));
+            }
+
+            if (stream.available() > 0) {
+                keyStore.load(stream, password);
+                stream.close();
             } else {
                 keyStore.load(null);
                 log.info("Could not load Keystore {}", path);
