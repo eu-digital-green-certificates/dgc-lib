@@ -25,6 +25,7 @@ import feign.Client;
 import feign.httpclient.ApacheHttpClient;
 import java.io.IOException;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -37,11 +38,11 @@ import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ResourceUtils;
 
 @ConditionalOnProperty("dgc.gateway.connector.tls-key-store.path")
 @Configuration
@@ -50,6 +51,12 @@ import org.springframework.util.ResourceUtils;
 public class DgcGatewayConnectorRestClientConfig {
 
     private final DgcGatewayConnectorConfigProperties properties;
+
+    @Qualifier("tlsKeyStore")
+    private final KeyStore tlsKeyStore;
+
+    @Qualifier("tlsTrustStore")
+    private final KeyStore tlsTrustStore;
 
     /**
      * Feign Client for connection to DGC Gateway.
@@ -77,16 +84,10 @@ public class DgcGatewayConnectorRestClientConfig {
         IOException, UnrecoverableKeyException,
         CertificateException, NoSuchAlgorithmException,
         KeyStoreException, KeyManagementException {
-
         return SSLContextBuilder.create()
-            .loadTrustMaterial(
-                ResourceUtils.getFile(properties.getTlsTrustStore().getPath()),
-                properties.getTlsTrustStore().getPassword())
+            .loadTrustMaterial(tlsTrustStore, null)
             .loadKeyMaterial(
-                ResourceUtils.getFile(properties.getTlsKeyStore().getPath()),
-                properties.getTlsKeyStore().getPassword(),
-                properties.getTlsKeyStore().getPassword(),
-                (map, socket) -> properties.getTlsKeyStore().getAlias())
+                tlsKeyStore, properties.getTlsKeyStore().getPassword())
             .build();
     }
 
