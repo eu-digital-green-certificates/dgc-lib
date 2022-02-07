@@ -9,6 +9,7 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
@@ -86,7 +87,7 @@ public class DownloadConnectorBuilderTest {
             .withTrustedServerCert(certificateUtils.convertCertificate(serverCertificate))
             .withUrl(server.url("/test").toString())
             .withSslHostnameValidation(false)
-            .withTrustAnchor(certificateUtils.convertCertificate(trustAnchorCertificate))
+            .withTrustAnchors(Collections.singletonList(certificateUtils.convertCertificate(trustAnchorCertificate)))
             .build();
 
         connector.getTrustedCertificates();

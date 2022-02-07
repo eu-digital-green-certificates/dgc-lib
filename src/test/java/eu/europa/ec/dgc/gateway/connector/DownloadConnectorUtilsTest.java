@@ -33,6 +33,7 @@ import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -146,7 +147,9 @@ class DownloadConnectorUtilsTest {
         cscaTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(csca));
         cscaTrustListItem.setRawData(Base64.getEncoder().encodeToString(csca.getEncoded()));
 
-        Assertions.assertTrue(connectorUtils.checkTrustAnchorSignature(cscaTrustListItem, certificateUtils.convertCertificate(testKeyStore.getTrustAnchor())));
+        Assertions.assertTrue(
+            connectorUtils.checkTrustAnchorSignature(cscaTrustListItem,
+                Collections.singletonList(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()))));
     }
 
     @Test
@@ -169,7 +172,8 @@ class DownloadConnectorUtilsTest {
         cscaTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(csca));
         cscaTrustListItem.setRawData(Base64.getEncoder().encodeToString(csca.getEncoded()));
 
-        Assertions.assertFalse(connectorUtils.checkTrustAnchorSignature(cscaTrustListItem, certificateUtils.convertCertificate(testKeyStore.getTrustAnchor())));
+        Assertions.assertFalse(connectorUtils.checkTrustAnchorSignature(cscaTrustListItem,
+            Collections.singletonList(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()))));
     }
 
     @Test
