@@ -1,6 +1,6 @@
 /*-
  * ---license-start
- * eu-digital-green-certificates / dgc-lib
+ * WHO Digital Documentation Covid Certificate Gateway Service / ddcc-gateway-lib
  * ---
  * Copyright (C) 2022 T-Systems International GmbH and all other contributors
  * ---
