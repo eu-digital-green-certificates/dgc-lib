@@ -91,6 +91,54 @@ public class DgcGatewayConnectorKeystore {
         return keyStore;
     }
 
+    /**
+     * Creates a KeyStore instance with keys for TLS trust Store.
+     *
+     * @return KeyStore Instance
+     * @throws KeyStoreException        if no implementation for the specified type found
+     * @throws CertificateException     if any of the certificates in the keystore could not be loaded
+     * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
+     */
+    @Bean
+    @Qualifier("tlsTrustStore")
+    @ConditionalOnProperty("dgc.gateway.connector.tls-trust-store.path")
+    public KeyStore tlsTrustStore() throws KeyStoreException,
+        CertificateException, NoSuchAlgorithmException {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+
+        loadKeyStore(
+            keyStore,
+            dgcConfigProperties.getTlsTrustStore().getPath(),
+            dgcConfigProperties.getTlsTrustStore().getPassword());
+
+        return keyStore;
+    }
+
+
+    /**
+     * Creates a KeyStore instance with keys for TLS key Store.
+     *
+     * @return KeyStore Instance
+     * @throws KeyStoreException        if no implementation for the specified type found
+     * @throws CertificateException     if any of the certificates in the keystore could not be loaded
+     * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
+     */
+    @Bean
+    @Qualifier("tlsKeyStore")
+    @ConditionalOnProperty("dgc.gateway.connector.tls-key-store.path")
+    public KeyStore tlsKeyStore() throws KeyStoreException,
+        CertificateException, NoSuchAlgorithmException {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+
+        loadKeyStore(
+            keyStore,
+            dgcConfigProperties.getTlsKeyStore().getPath(),
+            dgcConfigProperties.getTlsKeyStore().getPassword());
+
+        return keyStore;
+    }
+
+
     private void loadKeyStore(KeyStore keyStore, String path, char[] password)
         throws CertificateException, NoSuchAlgorithmException {
         try {
@@ -98,7 +146,7 @@ public class DgcGatewayConnectorKeystore {
             InputStream stream;
 
             if (path.startsWith("$ENV:")) {
-                String env = path.substring(6);
+                String env = path.substring(5);
                 String b64 = System.getenv(env);
                 stream = new ByteArrayInputStream(Base64.getDecoder().decode(b64));
             } else {

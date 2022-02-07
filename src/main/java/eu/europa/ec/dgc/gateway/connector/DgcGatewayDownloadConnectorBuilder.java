@@ -17,7 +17,9 @@ import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import lombok.AllArgsConstructor;
@@ -60,7 +62,7 @@ public class DgcGatewayDownloadConnectorBuilder {
     private String url;
     private KeyStore mtlsTrustStore;
     private KeyStore mtlsKeyStore;
-    private X509CertificateHolder trustAnchor;
+    private final List<X509CertificateHolder> trustAnchors = new ArrayList<>();
     private HttpHost proxy;
     private int cacheMagAge = -1;
     private boolean enableSslHostnameValidation = true;
@@ -79,13 +81,24 @@ public class DgcGatewayDownloadConnectorBuilder {
     }
 
     /**
-     * Set the TrustAnchor to validate the received entities.
+     * Add multiple TrustAnchors to validate the received entities.
+     * Required.
+     *
+     * @param certs X509 Certificates which are allowed as TrustAnchor.
+     */
+    public DgcGatewayDownloadConnectorBuilder withTrustAnchors(List<X509CertificateHolder> certs) {
+        this.trustAnchors.addAll(certs);
+        return this;
+    }
+
+    /**
+     * Add one TrustAnchor to validate the received entities.
      * Required.
      *
      * @param cert X509 Certificate which is the TrustAnchor.
      */
     public DgcGatewayDownloadConnectorBuilder withTrustAnchor(X509CertificateHolder cert) {
-        this.trustAnchor = cert;
+        this.trustAnchors.add(cert);
         return this;
     }
 
@@ -140,7 +153,7 @@ public class DgcGatewayDownloadConnectorBuilder {
     }
 
     /**
-     * Set the trusted Server Certificate of target DGCG.
+     * Add a trusted Server Certificate to trustlist of target DGCG.
      * Default: Trust all incomming Certificates.
      *
      * @param cert X509 Certificate
@@ -233,10 +246,10 @@ public class DgcGatewayDownloadConnectorBuilder {
                 "URL is not set");
         }
 
-        if (this.trustAnchor == null) {
+        if (this.trustAnchors.isEmpty()) {
             throw new DgcGatewayDownloadConnectorBuilderException(
                 DgcGatewayDownloadConnectorBuilderException.Reason.NOT_READY,
-                "TrustAnchor is not set");
+                "At least one TrustAnchor is required.");
         }
 
         DgcGatewayConnectorConfigProperties properties = new DgcGatewayConnectorConfigProperties();
@@ -260,7 +273,7 @@ public class DgcGatewayDownloadConnectorBuilder {
 
         DgcGatewayConnectorUtils connectorUtils =
             new DgcGatewayConnectorUtils(certificateUtils, restClient, null, null);
-        connectorUtils.setTrustAnchor(trustAnchor);
+        connectorUtils.setTrustAnchors(trustAnchors);
 
         return new DgcGatewayDownloadConnector(connectorUtils, restClient, properties, trustListMapper);
     }
