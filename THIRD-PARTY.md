@@ -19,9 +19,12 @@ ThirdParty Licenses
 | com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.1 | The Apache Software License, Version 2.0 |
 | com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1 | The Apache Software License, Version 2.0 |
 | com.fasterxml.jackson.module:jackson-module-parameter-names:2.13.1 | The Apache Software License, Version 2.0 |
-| com.github.peteroupc:numbers:1.8.0 | CC0-1.0 |
+| com.github.peteroupc:numbers:1.8.2 | CC0-1.0 |
 | com.jayway.jsonpath:json-path:2.6.0 | The Apache Software License, Version 2.0 |
-| com.upokecenter:cbor:4.4.4 | CC0-1.0 |
+| com.squareup.okhttp3:mockwebserver:4.9.3 | The Apache Software License, Version 2.0 |
+| com.squareup.okhttp3:okhttp:4.9.3 | The Apache Software License, Version 2.0 |
+| com.squareup.okio:okio:2.8.0 | The Apache Software License, Version 2.0 |
+| com.upokecenter:cbor:4.5.1 | CC0-1.0 |
 | com.vaadin.external.google:android-json:0.0.20131108.vaadin1 | Apache License 2.0 |
 | commons-codec:commons-codec:1.11 | Apache License, Version 2.0 |
 | commons-fileupload:commons-fileupload:1.4 | Apache License, Version 2.0 |
@@ -35,6 +38,7 @@ ThirdParty Licenses
 | jakarta.activation:jakarta.activation-api:1.2.2 | EDL 1.0 |
 | jakarta.annotation:jakarta.annotation-api:1.3.5 | EPL 2.0 GPL2 w/ CPE |
 | jakarta.xml.bind:jakarta.xml.bind-api:2.3.3 | Eclipse Distribution License - v 1.0 |
+| junit:junit:4.13 | Eclipse Public License 1.0 |
 | net.bytebuddy:byte-buddy:1.11.19 | Apache License, Version 2.0 |
 | net.bytebuddy:byte-buddy-agent:1.11.19 | Apache License, Version 2.0 |
 | net.minidev:accessors-smart:2.4.7 | The Apache Software License, Version 2.0 |
@@ -53,6 +57,12 @@ ThirdParty Licenses
 | org.bouncycastle:bcprov-jdk15on:1.70 | Bouncy Castle Licence |
 | org.bouncycastle:bcutil-jdk15on:1.70 | Bouncy Castle Licence |
 | org.hamcrest:hamcrest:2.2 | BSD License 3 |
+| org.hamcrest:hamcrest-core:1.3 | New BSD License |
+| org.jetbrains:annotations:13.0 | The Apache Software License, Version 2.0 |
+| org.jetbrains.kotlin:kotlin-stdlib:1.4.10 | The Apache License, Version 2.0 |
+| org.jetbrains.kotlin:kotlin-stdlib-common:1.4.0 | The Apache License, Version 2.0 |
+| org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10 | The Apache License, Version 2.0 |
+| org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.10 | The Apache License, Version 2.0 |
 | org.junit.jupiter:junit-jupiter:5.8.2 | Eclipse Public License v2.0 |
 | org.junit.jupiter:junit-jupiter-api:5.8.2 | Eclipse Public License v2.0 |
 | org.junit.jupiter:junit-jupiter-engine:5.8.2 | Eclipse Public License v2.0 |
@@ -93,7 +103,6 @@ ThirdParty Licenses
 | org.springframework.cloud:spring-cloud-commons:3.1.0 | Apache License, Version 2.0 |
 | org.springframework.cloud:spring-cloud-context:3.1.0 | Apache License, Version 2.0 |
 | org.springframework.cloud:spring-cloud-openfeign-core:3.1.0 | Apache License, Version 2.0 |
-| org.springframework.cloud:spring-cloud-openfeign-dependencies:3.1.0 | Apache License, Version 2.0 |
 | org.springframework.cloud:spring-cloud-starter:3.1.0 | Apache License, Version 2.0 |
 | org.springframework.cloud:spring-cloud-starter-openfeign:3.1.0 | Apache License, Version 2.0 |
 | org.springframework.security:spring-security-crypto:5.5.1 | Apache License, Version 2.0 |
