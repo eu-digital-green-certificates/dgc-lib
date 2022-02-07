@@ -73,7 +73,7 @@ class DgcGatewayConnectorUtils {
     private final KeyStore trustAnchorKeyStore;
 
     @Setter
-    private X509CertificateHolder trustAnchor;
+    private List<X509CertificateHolder> trustAnchors;
 
 
     @PostConstruct
@@ -87,7 +87,7 @@ class DgcGatewayConnectorUtils {
             log.error("Could not find TrustAnchor Certificate in Keystore");
             throw new KeyStoreException("Could not find TrustAnchor Certificate in Keystore");
         }
-        trustAnchor = certificateUtils.convertCertificate(trustAnchorCert);
+        trustAnchors = Collections.singletonList(certificateUtils.convertCertificate(trustAnchorCert));
     }
 
     public boolean trustListItemSignedByCa(TrustListItemDto certificate, X509CertificateHolder ca) {
@@ -142,7 +142,7 @@ class DgcGatewayConnectorUtils {
                 .anyMatch(ca -> trustListItemSignedByCa(certificate, ca));
     }
 
-    boolean checkTrustAnchorSignature(TrustListItemDto trustListItem, X509CertificateHolder trustAnchor) {
+    boolean checkTrustAnchorSignature(TrustListItemDto trustListItem, List<X509CertificateHolder> trustAnchors) {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
             trustListItem.getSignature(), trustListItem.getRawData());
 
@@ -155,7 +155,7 @@ class DgcGatewayConnectorUtils {
             return false;
         }
 
-        return parser.getSigningCertificate().equals(trustAnchor);
+        return trustAnchors.stream().anyMatch(trustAnchor -> parser.getSigningCertificate().equals(trustAnchor));
     }
 
     X509CertificateHolder getCertificateFromTrustListItem(TrustListItemDto trustListItem) {
@@ -187,7 +187,7 @@ class DgcGatewayConnectorUtils {
 
         return downloadedCertificates.getBody().stream()
             .filter(this::checkThumbprintIntegrity)
-            .filter(c -> this.checkTrustAnchorSignature(c, trustAnchor))
+            .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
             .map(this::getCertificateFromTrustListItem)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
