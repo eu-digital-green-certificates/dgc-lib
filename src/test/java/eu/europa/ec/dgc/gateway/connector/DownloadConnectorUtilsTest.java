@@ -23,6 +23,7 @@ package eu.europa.ec.dgc.gateway.connector;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageBuilder;
 import eu.europa.ec.dgc.testdata.CertificateTestUtils;
 import eu.europa.ec.dgc.testdata.DgcTestKeyStore;
@@ -187,12 +188,10 @@ class DownloadConnectorUtilsTest {
             .withPayload(certificateUtils.convertCertificate(csca))
             .buildAsString(true);
 
-        TrustListItemDto cscaTrustListItem = new TrustListItemDto();
+        TrustListItem cscaTrustListItem = new TrustListItem();
         cscaTrustListItem.setCountry("EU");
         cscaTrustListItem.setKid("KID_EU");
-        cscaTrustListItem.setCertificateType(CertificateTypeDto.CSCA);
         cscaTrustListItem.setTimestamp(ZonedDateTime.now());
-        cscaTrustListItem.setSignature(cscaSignature);
         cscaTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(csca));
         cscaTrustListItem.setRawData(Base64.getEncoder().encodeToString(csca.getEncoded()));
 

@@ -24,6 +24,8 @@ import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
@@ -68,6 +70,8 @@ class DgcGatewayConnectorUtils {
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
 
     private final DgcGatewayConnectorConfigProperties properties;
+
+    private final TrustListMapper trustListMapper;
 
     @Qualifier("trustAnchor")
     private final KeyStore trustAnchorKeyStore;
@@ -158,7 +162,7 @@ class DgcGatewayConnectorUtils {
         return trustAnchors.stream().anyMatch(trustAnchor -> parser.getSigningCertificate().equals(trustAnchor));
     }
 
-    X509CertificateHolder getCertificateFromTrustListItem(TrustListItemDto trustListItem) {
+    X509CertificateHolder getCertificateFromTrustListItem(TrustListItem trustListItem) {
         byte[] decodedBytes = Base64.getDecoder().decode(trustListItem.getRawData());
 
         try {
@@ -170,7 +174,7 @@ class DgcGatewayConnectorUtils {
         }
     }
 
-    public List<X509CertificateHolder> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type) {
+    public List<TrustListItem> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type) {
         ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
         try {
             downloadedCertificates = dgcGatewayConnectorRestClient.getTrustedCertificates(type);
@@ -188,8 +192,7 @@ class DgcGatewayConnectorUtils {
         return downloadedCertificates.getBody().stream()
             .filter(this::checkThumbprintIntegrity)
             .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
-            .map(this::getCertificateFromTrustListItem)
-            .filter(Objects::nonNull)
+            .map(trustListMapper::map)
             .collect(Collectors.toList());
     }
 

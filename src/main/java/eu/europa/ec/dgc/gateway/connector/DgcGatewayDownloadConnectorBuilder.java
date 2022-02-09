@@ -292,7 +292,7 @@ public class DgcGatewayDownloadConnectorBuilder {
             .build();
 
         DgcGatewayConnectorUtils connectorUtils =
-            new DgcGatewayConnectorUtils(certificateUtils, restClient, null, null);
+            new DgcGatewayConnectorUtils(certificateUtils, restClient, null, trustListMapper, null);
         connectorUtils.setTrustAnchors(trustAnchors);
 
         return new DgcGatewayDownloadConnector(connectorUtils, restClient, properties, trustListMapper);

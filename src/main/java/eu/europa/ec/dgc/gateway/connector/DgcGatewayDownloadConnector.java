@@ -74,8 +74,11 @@ public class DgcGatewayDownloadConnector {
 
     private List<TrustListItem> trustedCertificates = new ArrayList<>();
 
+    private List<TrustListItem> trustedCscaTrustList = new ArrayList<>();
     private List<X509CertificateHolder> trustedCscaCertificates = new ArrayList<>();
     private Map<String, List<X509CertificateHolder>> trustedCscaCertificateMap = new HashMap<>();
+
+    private List<TrustListItem> trustedUploadCertificateTrustList = new ArrayList<>();
     private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
     @PostConstruct
@@ -95,19 +98,49 @@ public class DgcGatewayDownloadConnector {
         return Collections.unmodifiableList(trustedCertificates);
     }
 
+    /**
+     * Gets the list of downloaded and validated CSCA certificates.
+     * This call will return a cached list. It requires that the getTrustedCertificates
+     * method was called before. Otherwise, the returned list will be empty.
+     *
+     * @return List of {@link TrustListItem}
+     */
+    public List<TrustListItem> getTrustedCscaCertificates() {
+        return Collections.unmodifiableList(trustedCscaTrustList);
+    }
+
+    /**
+     * Gets the list of downloaded and validated Upload certificates.
+     * This call will return a cached list. It requires that the getTrustedCertificates
+     * method was called before. Otherwise, the returned list will be empty.
+     *
+     * @return List of {@link TrustListItem}
+     */
+    public List<TrustListItem> getTrustedUploadCertificates() {
+        return Collections.unmodifiableList(trustedUploadCertificateTrustList);
+    }
+
     private synchronized void updateIfRequired() {
         if (lastUpdated == null
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
             log.info("Maximum age of cache reached. Fetching new TrustList from DGCG.");
 
-            trustedCscaCertificates = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
+            // Fetching CSCA Certs
+            trustedCscaTrustList = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
+            trustedCscaCertificates = trustedCscaTrustList.stream()
+                .map(connectorUtils::getCertificateFromTrustListItem)
+                .collect(Collectors.toList());
             log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
             trustedCscaCertificateMap = trustedCscaCertificates.stream()
-                    .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
-                            Collectors.mapping((ca) -> ca, Collectors.toList())));
+                .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
+                    Collectors.mapping((ca) -> ca, Collectors.toList())));
 
-            trustedUploadCertificates =
+            // Fetching Upload Certs
+            trustedUploadCertificateTrustList =
                 connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
+            trustedUploadCertificates = trustedUploadCertificateTrustList.stream()
+                .map(connectorUtils::getCertificateFromTrustListItem)
+                .collect(Collectors.toList());
             log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
 
             fetchTrustListAndVerifyByCscaAndUpload();

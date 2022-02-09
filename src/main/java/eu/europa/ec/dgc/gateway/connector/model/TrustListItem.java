@@ -38,4 +38,6 @@ public class TrustListItem {
 
     private String thumbprint;
 
+    private String signature;
+
 }

@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +98,9 @@ public class DgcGatewayValidationRuleDownloadConnector {
             validationRules = new ValidationRulesByCountry();
 
             trustedUploadCertificates =
-                connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
+                connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD).stream()
+                    .map(connectorUtils::getCertificateFromTrustListItem)
+                    .collect(Collectors.toList());
             log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
 
             List<String> countryCodes = countryListDownloadConnector.getCountryList();
