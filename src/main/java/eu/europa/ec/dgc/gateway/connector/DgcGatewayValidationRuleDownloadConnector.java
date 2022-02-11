@@ -72,6 +72,9 @@ public class DgcGatewayValidationRuleDownloadConnector {
     private final ObjectMapper objectMapper;
 
     @Getter
+    private String status = null;
+
+    @Getter
     private LocalDateTime lastUpdated = null;
 
     private ValidationRulesByCountry validationRules = new ValidationRulesByCountry();
@@ -95,42 +98,48 @@ public class DgcGatewayValidationRuleDownloadConnector {
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
             log.info("Maximum age of cache reached. Fetching new TrustList from DGCG.");
 
-            validationRules = new ValidationRulesByCountry();
+            try {
+                validationRules = new ValidationRulesByCountry();
 
-            trustedUploadCertificates =
-                connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD).stream()
-                    .map(connectorUtils::getCertificateFromTrustListItem)
-                    .collect(Collectors.toList());
-            log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
+                trustedUploadCertificates =
+                    connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD).stream()
+                        .map(connectorUtils::getCertificateFromTrustListItem)
+                        .collect(Collectors.toList());
+                log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
 
-            List<String> countryCodes = countryListDownloadConnector.getCountryList();
-            log.info("Downloaded Countrylist");
+                List<String> countryCodes = countryListDownloadConnector.getCountryList();
+                log.info("Downloaded Countrylist");
 
-            countryCodes.forEach(this::fetchValidationRulesAndVerify);
-            log.info("ValidationRule Cache contains {} ValidationRules.", validationRules.size());
+                for (String countryCode : countryCodes) {
+                    fetchValidationRulesAndVerify(countryCode);
+                }
+                log.info("ValidationRule Cache contains {} ValidationRules.", validationRules.size());
+            } catch (DgcGatewayConnectorUtils.DgcGatewayConnectorException e) {
+                log.error("Failed to Download Validation Rules: {} - {}", e.getHttpStatusCode(), e.getMessage());
+                status = "Download Failed: " + e.getHttpStatusCode() + " - " + e.getMessage();
+            }
         } else {
             log.debug("Cache needs no refresh.");
         }
     }
 
-    private void fetchValidationRulesAndVerify(String countryCode) {
+    private void fetchValidationRulesAndVerify(String countryCode)
+        throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         log.info("Fetching ValidationRules from DGCG for Country {}", countryCode);
 
         ResponseEntity<Map<String, List<ValidationRuleDto>>> responseEntity;
         try {
             responseEntity = dgcGatewayConnectorRestClient.downloadValidationRule(countryCode);
         } catch (FeignException e) {
-            log.error("Download of ValidationRules for country {} failed. DGCG responded with status code: {}",
-                countryCode, e.status());
-            return;
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                e.status(), "Download of ValidationRules failed.");
         }
 
         Map<String, List<ValidationRuleDto>> downloadedValidationRules = responseEntity.getBody();
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedValidationRules == null) {
-            log.error("Download of ValidationRules for country {} failed. DGCG responded with status code: {}",
-                countryCode, responseEntity.getStatusCode());
-            return;
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                responseEntity.getStatusCodeValue(), "Download of TrustListItems failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded ValidationRules: {}", downloadedValidationRules.size());
         }

@@ -40,9 +40,9 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -123,27 +123,27 @@ class DgcGatewayConnectorUtils {
     }
 
     public boolean trustListItemSignedByCa(TrustListItemDto certificate, Map<String,
-            List<X509CertificateHolder>> caMap) {
+        List<X509CertificateHolder>> caMap) {
 
         X509CertificateHolder dcs;
         try {
             dcs = new X509CertificateHolder(Base64.getDecoder().decode(certificate.getRawData()));
         } catch (IOException e) {
             log.error("Could not parse certificate. KID: {}, Country: {}",
-                    certificate.getKid(), certificate.getCountry());
+                certificate.getKid(), certificate.getCountry());
             return false;
         }
 
         List<X509CertificateHolder> caList = caMap.get(dcs.getIssuer().toString());
         if (caList == null) {
             log.error("Failed to find issuer certificate from cert. KID: {}, Country: {}",
-                    certificate.getKid(), certificate.getCountry());
+                certificate.getKid(), certificate.getCountry());
             return false;
         }
 
         return caList
-                .stream()
-                .anyMatch(ca -> trustListItemSignedByCa(certificate, ca));
+            .stream()
+            .anyMatch(ca -> trustListItemSignedByCa(certificate, ca));
     }
 
     boolean checkTrustAnchorSignature(TrustListItemDto trustListItem, List<X509CertificateHolder> trustAnchors) {
@@ -174,19 +174,22 @@ class DgcGatewayConnectorUtils {
         }
     }
 
-    public List<TrustListItem> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type) {
+    public List<TrustListItem> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type)
+        throws DgcGatewayConnectorException {
         ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
         try {
             downloadedCertificates = dgcGatewayConnectorRestClient.getTrustedCertificates(type);
         } catch (FeignException e) {
             log.error("Failed to Download certificates from DGC Gateway. Type: {}, status code: {}", type, e.status());
-            return Collections.emptyList();
+            throw new DgcGatewayConnectorException(
+                e.status(), "Failed to Download certificates from DGC Gateway of type: " + type.toString());
         }
 
         if (downloadedCertificates.getStatusCode() != HttpStatus.OK || downloadedCertificates.getBody() == null) {
             log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
                 type, downloadedCertificates.getStatusCodeValue());
-            return Collections.emptyList();
+            throw new DgcGatewayConnectorException(downloadedCertificates.getStatusCodeValue(),
+                "Failed to Download certificates from DGC Gateway of type: " + type.toString());
         }
 
         return downloadedCertificates.getBody().stream()
@@ -206,5 +209,12 @@ class DgcGatewayConnectorUtils {
             log.error("Could not parse certificate raw data");
             return false;
         }
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    public static class DgcGatewayConnectorException extends Exception {
+        private final int httpStatusCode;
+        private final String message;
     }
 }

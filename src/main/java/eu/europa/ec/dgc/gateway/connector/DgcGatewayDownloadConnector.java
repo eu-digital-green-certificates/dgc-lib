@@ -70,6 +70,9 @@ public class DgcGatewayDownloadConnector {
     private final TrustListMapper trustListMapper;
 
     @Getter
+    private String status = null;
+
+    @Getter
     private LocalDateTime lastUpdated = null;
 
     private List<TrustListItem> trustedCertificates = new ArrayList<>();
@@ -126,48 +129,52 @@ public class DgcGatewayDownloadConnector {
             log.info("Maximum age of cache reached. Fetching new TrustList from DGCG.");
 
             // Fetching CSCA Certs
-            trustedCscaTrustList = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
-            trustedCscaCertificates = trustedCscaTrustList.stream()
-                .map(connectorUtils::getCertificateFromTrustListItem)
-                .collect(Collectors.toList());
-            log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
-            trustedCscaCertificateMap = trustedCscaCertificates.stream()
-                .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
-                    Collectors.mapping((ca) -> ca, Collectors.toList())));
+            try {
+                trustedCscaTrustList = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
+                trustedCscaCertificates = trustedCscaTrustList.stream()
+                    .map(connectorUtils::getCertificateFromTrustListItem)
+                    .collect(Collectors.toList());
+                log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
+                trustedCscaCertificateMap = trustedCscaCertificates.stream()
+                    .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
+                        Collectors.mapping((ca) -> ca, Collectors.toList())));
 
-            // Fetching Upload Certs
-            trustedUploadCertificateTrustList =
-                connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
-            trustedUploadCertificates = trustedUploadCertificateTrustList.stream()
-                .map(connectorUtils::getCertificateFromTrustListItem)
-                .collect(Collectors.toList());
-            log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
+                // Fetching Upload Certs
+                trustedUploadCertificateTrustList =
+                    connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
+                trustedUploadCertificates = trustedUploadCertificateTrustList.stream()
+                    .map(connectorUtils::getCertificateFromTrustListItem)
+                    .collect(Collectors.toList());
+                log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());
 
-            fetchTrustListAndVerifyByCscaAndUpload();
-            log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
+                fetchTrustListAndVerifyByCscaAndUpload();
+                log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
+                status = null;
+            } catch (DgcGatewayConnectorUtils.DgcGatewayConnectorException e) {
+                log.error("Failed to Download Trusted Certificates: {} - {}", e.getHttpStatusCode(), e.getMessage());
+                status = "Download Failed: " + e.getHttpStatusCode() + " - " + e.getMessage();
+            }
         } else {
             log.debug("Cache needs no refresh.");
         }
     }
 
-    private void fetchTrustListAndVerifyByCscaAndUpload() {
+    private void fetchTrustListAndVerifyByCscaAndUpload() throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         log.info("Fetching TrustList from DGCG");
 
         ResponseEntity<List<TrustListItemDto>> responseEntity;
         try {
             responseEntity = dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.DSC);
         } catch (FeignException e) {
-            log.error("Download of TrustListItems failed. DGCG responded with status code: {}",
-                e.status());
-            return;
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                e.status(), "Download of TrustListItems failed.");
         }
 
         List<TrustListItemDto> downloadedDcs = responseEntity.getBody();
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedDcs == null) {
-            log.error("Download of TrustListItems failed. DGCG responded with status code: {}",
-                responseEntity.getStatusCode());
-            return;
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                responseEntity.getStatusCodeValue(), "Download of TrustListItems failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded Certificates: {}", downloadedDcs.size());
         }
