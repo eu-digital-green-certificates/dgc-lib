@@ -26,6 +26,7 @@ import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import feign.FeignException;
 import java.security.Security;
@@ -84,6 +85,8 @@ public class DgcGatewayDownloadConnector {
     private List<TrustListItem> trustedUploadCertificateTrustList = new ArrayList<>();
     private List<X509CertificateHolder> trustedUploadCertificates = new ArrayList<>();
 
+    private List<TrustedIssuer> trustedIssuers = new ArrayList<>();
+
     @PostConstruct
     void init() {
         Security.addProvider(new BouncyCastleProvider());
@@ -123,6 +126,18 @@ public class DgcGatewayDownloadConnector {
         return Collections.unmodifiableList(trustedUploadCertificateTrustList);
     }
 
+    /**
+     * Gets the list of downloaded and validated TrustedIssuers.
+     * This call will return a cached list if caching is enabled.
+     * If cache is outdated a refreshed list will be returned.
+     *
+     * @return List of {@link TrustedIssuer}
+     */
+    public List<TrustedIssuer> getTrustedIssuers() {
+        updateIfRequired();
+        return Collections.unmodifiableList(trustedIssuers);
+    }
+
     private synchronized void updateIfRequired() {
         if (lastUpdated == null
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
@@ -136,8 +151,8 @@ public class DgcGatewayDownloadConnector {
                     .collect(Collectors.toList());
                 log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
                 trustedCscaCertificateMap = trustedCscaCertificates.stream()
-                    .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
-                        Collectors.mapping((ca) -> ca, Collectors.toList())));
+                    .collect(Collectors.groupingBy(ca -> ca.getSubject().toString(),
+                        Collectors.mapping(ca -> ca, Collectors.toList())));
 
                 // Fetching Upload Certs
                 trustedUploadCertificateTrustList =
@@ -149,6 +164,10 @@ public class DgcGatewayDownloadConnector {
 
                 fetchTrustListAndVerifyByCscaAndUpload();
                 log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
+
+                // Fetching TrustedIssuers
+                trustedIssuers = connectorUtils.fetchTrustedIssuersAndVerifyByTrustAnchor();
+                log.info("TrustedIssuers contains {} entries", trustedIssuers.size());
                 status = null;
             } catch (DgcGatewayConnectorUtils.DgcGatewayConnectorException e) {
                 log.error("Failed to Download Trusted Certificates: {} - {}", e.getHttpStatusCode(), e.getMessage());

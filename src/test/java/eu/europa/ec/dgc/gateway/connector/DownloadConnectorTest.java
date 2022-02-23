@@ -23,8 +23,11 @@ package eu.europa.ec.dgc.gateway.connector;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageBuilder;
+import eu.europa.ec.dgc.signing.SignedStringMessageBuilder;
 import eu.europa.ec.dgc.testdata.CertificateTestUtils;
 import eu.europa.ec.dgc.testdata.DgcTestKeyStore;
 import eu.europa.ec.dgc.utils.CertificateUtils;
@@ -128,6 +131,7 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
 
         List<TrustListItem> result = connector.getTrustedCertificates();
         Assertions.assertEquals(1, result.size());
@@ -203,6 +207,7 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
 
         List<TrustListItem> result = connector.getTrustedCertificates();
         Assertions.assertTrue(result.isEmpty());
@@ -275,6 +280,8 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+        when(restClientMock.downloadTrustedIssuers())
+                .thenReturn(ResponseEntity.ok(List.of()));
 
         List<TrustListItem> result = connector.getTrustedCertificates();
         Assertions.assertTrue(result.isEmpty());
@@ -349,6 +356,8 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
+
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
     }
@@ -418,6 +427,8 @@ class DownloadConnectorTest {
 
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+
+        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
 
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -561,6 +572,9 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+        when(restClientMock.downloadTrustedIssuers())
+                .thenReturn(ResponseEntity.ok(List.of()));
+
 
         List<TrustListItem> result = connector.getTrustedCertificates();
         Assertions.assertTrue(result.isEmpty());
@@ -627,6 +641,9 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+
+        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
+
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
     }
@@ -689,16 +706,57 @@ class DownloadConnectorTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
+        when(restClientMock.downloadTrustedIssuers())
+                .thenReturn(ResponseEntity.ok(List.of()));
+
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
     }
 
+    @Test
+    void testDownloadOfTrustedIssuers() throws Exception {
+
+        KeyPair keyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
+        X509Certificate csca = CertificateTestUtils.generateCertificate(keyPair, "EU", "CSCA");
+
+        TrustedIssuerDto trustedIssuerDto = new TrustedIssuerDto();
+        trustedIssuerDto.setCountry("EU");
+        trustedIssuerDto.setType(TrustedIssuerDto.UrlTypeDto.HTTP);
+        trustedIssuerDto.setUrl("hhtps://gateway.test");
+
+        String issuerSignature = new SignedStringMessageBuilder()
+                .withSigningCertificate(certificateUtils.convertCertificate(testKeyStore.getTrustAnchor()), testKeyStore.getTrustAnchorPrivateKey())
+                .withPayload(getHashData(trustedIssuerDto))
+                .buildAsString(true);
+        trustedIssuerDto.setSignature(issuerSignature);
+
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
+                .thenReturn(ResponseEntity.ok(List.of()));
+
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
+                .thenReturn(ResponseEntity.ok(List.of()));
+
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+                .thenReturn(ResponseEntity.ok(List.of()));
+
+        when(restClientMock.downloadTrustedIssuers())
+                .thenReturn(ResponseEntity.ok(Collections.singletonList(trustedIssuerDto)));
+
+        List<TrustedIssuer> trustedIssuers = connector.getTrustedIssuers();
+        Assertions.assertEquals(1, trustedIssuers.size());
+    }
 
     /**
      * Method to create dummy request which is required to throw FeignExceptions.
      */
     private Request dummyRequest() {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    }
+
+    private String getHashData(TrustedIssuerDto trustedIssuerDto) {
+        return trustedIssuerDto.getCountry() + ";"
+                + trustedIssuerDto.getUrl() + ";"
+                + trustedIssuerDto.getType().name() + ";";
     }
 
 }

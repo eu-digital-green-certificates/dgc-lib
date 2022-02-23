@@ -25,6 +25,8 @@ import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.testdata.DgcTestKeyStore;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import java.util.Collections;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.clearInvocations;
@@ -64,6 +66,8 @@ class DownloadConnectorCacheTest {
 
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
 
         connector.getTrustedCertificates();
 

@@ -24,18 +24,24 @@ import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
+import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -73,11 +79,15 @@ class DgcGatewayConnectorUtils {
 
     private final TrustListMapper trustListMapper;
 
+    private final TrustedIssuerMapper trustedIssuerMapper;
+
     @Qualifier("trustAnchor")
     private final KeyStore trustAnchorKeyStore;
 
     @Setter
     private List<X509CertificateHolder> trustAnchors;
+
+    private static final String HASH_SEPARATOR = ";";
 
 
     @PostConstruct
@@ -162,6 +172,22 @@ class DgcGatewayConnectorUtils {
         return trustAnchors.stream().anyMatch(trustAnchor -> parser.getSigningCertificate().equals(trustAnchor));
     }
 
+    boolean checkTrustAnchorSignature(TrustedIssuerDto trustedIssuer, List<X509CertificateHolder> trustAnchors) {
+        SignedStringMessageParser parser = new SignedStringMessageParser(trustedIssuer.getSignature(),
+                Base64.getEncoder().encodeToString(getHashData(trustedIssuer).getBytes(StandardCharsets.UTF_8)));
+
+        if (parser.getParserState() != SignedCertificateMessageParser.ParserState.SUCCESS) {
+            log.error("Could not parse trustedIssuer signature. ParserState: {}", parser.getParserState());
+            return false;
+        } else if (!parser.isSignatureVerified()) {
+            log.error("Could not verify trustedIssuer Signature, Country: {}, URL: {}",
+                    trustedIssuer.getCountry(), trustedIssuer.getUrl());
+            return false;
+        }
+
+        return trustAnchors.stream().anyMatch(trustAnchor -> parser.getSigningCertificate().equals(trustAnchor));
+    }
+
     X509CertificateHolder getCertificateFromTrustListItem(TrustListItem trustListItem) {
         byte[] decodedBytes = Base64.getDecoder().decode(trustListItem.getRawData());
 
@@ -185,14 +211,15 @@ class DgcGatewayConnectorUtils {
                 e.status(), "Failed to Download certificates from DGC Gateway of type: " + type.toString());
         }
 
-        if (downloadedCertificates.getStatusCode() != HttpStatus.OK || downloadedCertificates.getBody() == null) {
+        final List<TrustListItemDto> trustListItemDtoList = downloadedCertificates.getBody();
+        if (downloadedCertificates.getStatusCode() != HttpStatus.OK || trustListItemDtoList == null) {
             log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
                 type, downloadedCertificates.getStatusCodeValue());
             throw new DgcGatewayConnectorException(downloadedCertificates.getStatusCodeValue(),
                 "Failed to Download certificates from DGC Gateway of type: " + type.toString());
         }
 
-        return downloadedCertificates.getBody().stream()
+        return trustListItemDtoList.stream()
             .filter(this::checkThumbprintIntegrity)
             .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
             .map(trustListMapper::map)
@@ -209,6 +236,41 @@ class DgcGatewayConnectorUtils {
             log.error("Could not parse certificate raw data");
             return false;
         }
+    }
+
+    public List<TrustedIssuer> fetchTrustedIssuersAndVerifyByTrustAnchor()
+            throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
+        log.info("Fetching TrustedIssuers from DGCG");
+
+        ResponseEntity<List<TrustedIssuerDto>> responseEntity;
+        try {
+            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedIssuers();
+        } catch (FeignException e) {
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                    e.status(), "Download of TrustedIssuers failed.");
+        }
+
+        List<TrustedIssuerDto> downloadedTrustedIssuers = responseEntity.getBody();
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedIssuers == null) {
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                    responseEntity.getStatusCodeValue(), "Download of TrustedIssuers failed.");
+        } else {
+            log.info("Got Response from DGCG, Downloaded downloadedTrustedIssuers: {}",
+                    downloadedTrustedIssuers.size());
+        }
+
+        return downloadedTrustedIssuers.stream()
+                .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
+                .map(trustedIssuerMapper::map)
+                .collect(Collectors.toList());
+
+    }
+
+    private String getHashData(TrustedIssuerDto trustedIssuerDto) {
+        return trustedIssuerDto.getCountry() + HASH_SEPARATOR
+                + trustedIssuerDto.getUrl() + HASH_SEPARATOR
+                + trustedIssuerDto.getType().name() + HASH_SEPARATOR;
     }
 
     @RequiredArgsConstructor

@@ -23,6 +23,8 @@ package eu.europa.ec.dgc.gateway.connector.client;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
 import java.util.List;
 import java.util.Map;
@@ -140,4 +142,52 @@ public interface DgcGatewayConnectorRestClient {
     @GetMapping(value = "/revocation-list/{batchId}", produces = {"application/cms-text"})
     ResponseEntity<String> downloadBatch(@PathVariable("batchId") String batchId);
 
+    /**
+     * Download all trusted issuers.
+     *
+     * @return List of Trusted Issuers
+     */
+    @GetMapping(value = "/trustList/issuers", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<TrustedIssuerDto>> downloadTrustedIssuers();
+
+    /**
+     * Download trusted issuers for a given country.
+     *
+     * @param country countrycode
+     * @return List of Trusted Issuers
+     */
+    @GetMapping(value = "/trustList/issuers/{country}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<TrustedIssuerDto>> downloadTrustedIssuersForCountry(@PathVariable("country") String country);
+
+    /**
+     * Uploads a new Trusted Reference.
+     *
+     * @param trustedReference the CMS signed Trusted Reference JSON.
+     */
+    @PostMapping(value = "/trustList/references", consumes = "application/cms-text")
+    ResponseEntity<Void> uploadTrustedReference(@RequestBody String trustedReference);
+
+    /**
+     * Download all trusted references.
+     *
+     * @return List of Trusted References.
+     */
+    @GetMapping(value = "/trust/reference", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<TrustedReferenceDto>> downloadTrustedReferences();
+
+    /**
+     * Download a specific trusted reference.
+     *
+     * @return Trusted References.
+     */
+    @GetMapping(value = "/trust/reference/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<TrustedReferenceDto>> downloadTrustedReferences(@PathVariable("uuid") String uuid);
+
+    /**
+     * Deletes a Trusted Reference.
+     *
+     * @param trustedReference the CMS signed Trusted Reference Identifier.
+     */
+    @DeleteMapping(value = "/trust/reference", consumes = "application/cms-text")
+    ResponseEntity<Void> deleteTrustedReference(@RequestBody String trustedReference);
 }
