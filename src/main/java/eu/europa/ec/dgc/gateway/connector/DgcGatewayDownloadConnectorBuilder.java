@@ -24,6 +24,7 @@ import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.gateway.connector.springbootworkaroundforks.DgcFeignClientBuilder;
 import eu.europa.ec.dgc.gateway.connector.springbootworkaroundforks.DgcFeignClientFactoryBean;
 import eu.europa.ec.dgc.utils.CertificateUtils;
@@ -77,6 +78,7 @@ public class DgcGatewayDownloadConnectorBuilder {
     private final ApplicationContext springBootContext;
     private final TrustListMapper trustListMapper;
     private final TrustedIssuerMapper trustedIssuerMapper;
+    private final TrustedReferenceMapper trustedReferenceMapper;
 
     /**
      * Builder parameters.
@@ -295,7 +297,7 @@ public class DgcGatewayDownloadConnectorBuilder {
 
         DgcGatewayConnectorUtils connectorUtils =
             new DgcGatewayConnectorUtils(certificateUtils, restClient, null, trustListMapper, trustedIssuerMapper,
-                    null);
+                    trustedReferenceMapper,null);
         connectorUtils.setTrustAnchors(trustAnchors);
 
         return new DgcGatewayDownloadConnector(connectorUtils, restClient, properties, trustListMapper);

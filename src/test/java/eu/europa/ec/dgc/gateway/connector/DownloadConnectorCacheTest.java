@@ -67,7 +67,11 @@ class DownloadConnectorCacheTest {
         when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        when(restClientMock.downloadTrustedIssuers()).thenReturn(ResponseEntity.ok(List.of()));
+        when(restClientMock.downloadTrustedIssuers())
+                .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+        when(restClientMock.downloadTrustedReferences())
+                .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
         connector.getTrustedCertificates();
 

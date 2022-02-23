@@ -27,6 +27,7 @@ import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
+import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import feign.FeignException;
 import java.security.Security;
@@ -87,6 +88,8 @@ public class DgcGatewayDownloadConnector {
 
     private List<TrustedIssuer> trustedIssuers = new ArrayList<>();
 
+    private List<TrustedReference> trustedReferences = new ArrayList<>();
+
     @PostConstruct
     void init() {
         Security.addProvider(new BouncyCastleProvider());
@@ -138,6 +141,18 @@ public class DgcGatewayDownloadConnector {
         return Collections.unmodifiableList(trustedIssuers);
     }
 
+    /**
+     * Gets the list of downloaded and validated TrustedReferences.
+     * This call will return a cached list if caching is enabled.
+     * If cache is outdated a refreshed list will be returned.
+     *
+     * @return List of {@link TrustedIssuer}
+     */
+    public List<TrustedReference> getTrustedReferences() {
+        updateIfRequired();
+        return Collections.unmodifiableList(trustedReferences);
+    }
+
     private synchronized void updateIfRequired() {
         if (lastUpdated == null
             || ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now()) >= properties.getMaxCacheAge()) {
@@ -168,6 +183,11 @@ public class DgcGatewayDownloadConnector {
                 // Fetching TrustedIssuers
                 trustedIssuers = connectorUtils.fetchTrustedIssuersAndVerifyByTrustAnchor();
                 log.info("TrustedIssuers contains {} entries", trustedIssuers.size());
+
+                // Fetching TrustedReferences
+                trustedReferences = connectorUtils.fetchTrustedReferences();
+                log.info("TrustedReferences contains {} entries", trustedReferences.size());
+
                 status = null;
             } catch (DgcGatewayConnectorUtils.DgcGatewayConnectorException e) {
                 log.error("Failed to Download Trusted Certificates: {} - {}", e.getHttpStatusCode(), e.getMessage());

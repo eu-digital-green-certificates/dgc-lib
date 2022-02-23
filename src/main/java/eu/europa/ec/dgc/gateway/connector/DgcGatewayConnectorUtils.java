@@ -25,10 +25,13 @@ import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProper
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
+import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
@@ -80,6 +83,8 @@ class DgcGatewayConnectorUtils {
     private final TrustListMapper trustListMapper;
 
     private final TrustedIssuerMapper trustedIssuerMapper;
+
+    private final TrustedReferenceMapper trustedReferenceMapper;
 
     @Qualifier("trustAnchor")
     private final KeyStore trustAnchorKeyStore;
@@ -256,13 +261,41 @@ class DgcGatewayConnectorUtils {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
                     responseEntity.getStatusCodeValue(), "Download of TrustedIssuers failed.");
         } else {
-            log.info("Got Response from DGCG, Downloaded downloadedTrustedIssuers: {}",
+            log.info("Got Response from DGCG, Downloaded TrustedIssuers: {}",
                     downloadedTrustedIssuers.size());
         }
 
         return downloadedTrustedIssuers.stream()
                 .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
                 .map(trustedIssuerMapper::map)
+                .collect(Collectors.toList());
+
+    }
+
+    public List<TrustedReference> fetchTrustedReferences()
+            throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
+        log.info("Fetching TrustedReferences from DGCG");
+
+        ResponseEntity<List<TrustedReferenceDto>> responseEntity;
+        try {
+            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedReferences();
+        } catch (FeignException e) {
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                    e.status(), "Download of TrustedReferences failed.");
+        }
+
+        List<TrustedReferenceDto> downloadedTrustedReferences = responseEntity.getBody();
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedReferences == null) {
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                    responseEntity.getStatusCodeValue(), "Download of TrustedReferences failed.");
+        } else {
+            log.info("Got Response from DGCG, Downloaded TrustedReferences: {}",
+                    downloadedTrustedReferences.size());
+        }
+
+        return downloadedTrustedReferences.stream()
+                .map(trustedReferenceMapper::map)
                 .collect(Collectors.toList());
 
     }

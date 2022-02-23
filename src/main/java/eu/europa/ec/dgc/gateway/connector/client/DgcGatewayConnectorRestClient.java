@@ -181,7 +181,7 @@ public interface DgcGatewayConnectorRestClient {
      * @return Trusted References.
      */
     @GetMapping(value = "/trust/reference/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<TrustedReferenceDto>> downloadTrustedReferences(@PathVariable("uuid") String uuid);
+    ResponseEntity<TrustedReferenceDto> downloadTrustedReference(@PathVariable("uuid") String uuid);
 
     /**
      * Deletes a Trusted Reference.
