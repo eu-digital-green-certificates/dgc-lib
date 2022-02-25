@@ -164,7 +164,7 @@ public interface DgcGatewayConnectorRestClient {
      *
      * @param trustedReference the CMS signed Trusted Reference JSON.
      */
-    @PostMapping(value = "/trustList/references", consumes = "application/cms-text")
+    @PostMapping(value = "/trust/references", consumes = "application/cms-text")
     ResponseEntity<Void> uploadTrustedReference(@RequestBody String trustedReference);
 
     /**
@@ -172,7 +172,7 @@ public interface DgcGatewayConnectorRestClient {
      *
      * @return List of Trusted References.
      */
-    @GetMapping(value = "/trust/reference", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/trustList/references", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<List<TrustedReferenceDto>> downloadTrustedReferences();
 
     /**
