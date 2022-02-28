@@ -20,31 +20,29 @@
 
 package eu.europa.ec.dgc.gateway.connector.dto;
 
-import java.time.ZonedDateTime;
+import java.util.Map;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
-public class TrustedIssuerDto {
+@NoArgsConstructor
+public class TrustedCertificateTrustListDto {
 
-    private String url;
+    String certificate;
 
-    private UrlTypeDto type;
+    String signature;
 
-    private String country;
+    String kid;
 
-    private String thumbprint;
+    String group;
 
-    private String sslPublicKey;
+    String country;
 
-    private String keyStorageType;
-
-    private String signature;
-
-    private ZonedDateTime timestamp;
+    Map<String, String> properties;
 
     private String sourceGateway;
 
@@ -53,9 +51,4 @@ public class TrustedIssuerDto {
     private String domain;
 
     private Long version;
-
-    public enum UrlTypeDto {
-        HTTP,
-        DID
-    }
 }

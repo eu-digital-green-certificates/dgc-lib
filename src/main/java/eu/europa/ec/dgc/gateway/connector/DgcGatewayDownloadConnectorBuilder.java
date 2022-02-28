@@ -90,6 +90,7 @@ public class DgcGatewayDownloadConnectorBuilder {
     private HttpHost proxy;
     private int cacheMagAge = -1;
     private boolean enableSslHostnameValidation = true;
+    private boolean enableDdccSupport = false;
     private HttpClient customApacheHttpClient;
 
     /**
@@ -232,6 +233,17 @@ public class DgcGatewayDownloadConnectorBuilder {
     }
 
     /**
+     * Enable Support for DDCCG specific endpoints.
+     * Default: Disabled.
+     *
+     * @param enable whether Support for DDCCG is enabled.
+     */
+    public DgcGatewayDownloadConnectorBuilder withDdccSupport(boolean enable) {
+        this.enableDdccSupport = enable;
+        return this;
+    }
+
+    /**
      * Define HTTP-Proxy for outbound requests.D
      *
      * @param host Hostname of http Proxy.
@@ -278,6 +290,7 @@ public class DgcGatewayDownloadConnectorBuilder {
 
         DgcGatewayConnectorConfigProperties properties = new DgcGatewayConnectorConfigProperties();
         properties.setMaxCacheAge(cacheMagAge);
+        properties.setEnableDdccSupport(enableDdccSupport);
 
         Client client;
         try {
@@ -297,7 +310,7 @@ public class DgcGatewayDownloadConnectorBuilder {
 
         DgcGatewayConnectorUtils connectorUtils =
             new DgcGatewayConnectorUtils(certificateUtils, restClient, null, trustListMapper, trustedIssuerMapper,
-                    trustedReferenceMapper,null);
+                trustedReferenceMapper, null);
         connectorUtils.setTrustAnchors(trustAnchors);
 
         return new DgcGatewayDownloadConnector(connectorUtils, restClient, properties, trustListMapper);

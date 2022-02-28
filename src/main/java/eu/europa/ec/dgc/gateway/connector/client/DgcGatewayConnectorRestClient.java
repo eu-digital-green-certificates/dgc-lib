@@ -23,6 +23,7 @@ package eu.europa.ec.dgc.gateway.connector.client;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedCertificateTrustListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
 @FeignClient(
@@ -55,7 +57,7 @@ public interface DgcGatewayConnectorRestClient {
      * @return List of trustListItems
      */
     @GetMapping(value = "/trustList/{type}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<TrustListItemDto>> getTrustedCertificates(@PathVariable("type") CertificateTypeDto type);
+    ResponseEntity<List<TrustListItemDto>> getTrustList(@PathVariable("type") CertificateTypeDto type);
 
     /**
      * Uploads a new Signer Certificate to digital green certificate gateway.
@@ -126,8 +128,7 @@ public interface DgcGatewayConnectorRestClient {
 
 
     /**
-     *  Downloads a batch list from the revocation list.
-     *
+     * Downloads a batch list from the revocation list.
      */
     @GetMapping(value = "/revocation-list", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RevocationBatchListDto> downloadRevocationList(
@@ -148,16 +149,7 @@ public interface DgcGatewayConnectorRestClient {
      * @return List of Trusted Issuers
      */
     @GetMapping(value = "/trustList/issuers", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<TrustedIssuerDto>> downloadTrustedIssuers();
-
-    /**
-     * Download trusted issuers for a given country.
-     *
-     * @param country countrycode
-     * @return List of Trusted Issuers
-     */
-    @GetMapping(value = "/trustList/issuers/{country}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<TrustedIssuerDto>> downloadTrustedIssuersForCountry(@PathVariable("country") String country);
+    ResponseEntity<List<TrustedIssuerDto>> downloadTrustedIssuers(@RequestParam Map<String, String> queryParams);
 
     /**
      * Uploads a new Trusted Reference.
@@ -173,7 +165,7 @@ public interface DgcGatewayConnectorRestClient {
      * @return List of Trusted References.
      */
     @GetMapping(value = "/trustList/references", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<TrustedReferenceDto>> downloadTrustedReferences();
+    ResponseEntity<List<TrustedReferenceDto>> downloadTrustedReferences(@RequestParam Map<String, String> queryParams);
 
     /**
      * Download a specific trusted reference.
@@ -190,4 +182,13 @@ public interface DgcGatewayConnectorRestClient {
      */
     @DeleteMapping(value = "/trust/reference", consumes = "application/cms-text")
     ResponseEntity<Void> deleteTrustedReference(@RequestBody String trustedReference);
+
+    /**
+     * Download all trusted certificates.
+     *
+     * @return List of Trusted Issuers
+     */
+    @GetMapping(value = "/trustList/certificate", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<TrustedCertificateTrustListDto>> downloadTrustedCertificates(
+        @RequestParam Map<String, String> queryParams);
 }

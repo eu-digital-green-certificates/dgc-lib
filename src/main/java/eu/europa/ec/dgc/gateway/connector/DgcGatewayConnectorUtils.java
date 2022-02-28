@@ -29,6 +29,7 @@ import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
+import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
@@ -37,6 +38,7 @@ import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -44,7 +46,6 @@ import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -179,14 +180,14 @@ class DgcGatewayConnectorUtils {
 
     boolean checkTrustAnchorSignature(TrustedIssuerDto trustedIssuer, List<X509CertificateHolder> trustAnchors) {
         SignedStringMessageParser parser = new SignedStringMessageParser(trustedIssuer.getSignature(),
-                Base64.getEncoder().encodeToString(getHashData(trustedIssuer).getBytes(StandardCharsets.UTF_8)));
+            Base64.getEncoder().encodeToString(getHashData(trustedIssuer).getBytes(StandardCharsets.UTF_8)));
 
         if (parser.getParserState() != SignedCertificateMessageParser.ParserState.SUCCESS) {
             log.error("Could not parse trustedIssuer signature. ParserState: {}", parser.getParserState());
             return false;
         } else if (!parser.isSignatureVerified()) {
             log.error("Could not verify trustedIssuer Signature, Country: {}, URL: {}",
-                    trustedIssuer.getCountry(), trustedIssuer.getUrl());
+                trustedIssuer.getCountry(), trustedIssuer.getUrl());
             return false;
         }
 
@@ -209,7 +210,7 @@ class DgcGatewayConnectorUtils {
         throws DgcGatewayConnectorException {
         ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
         try {
-            downloadedCertificates = dgcGatewayConnectorRestClient.getTrustedCertificates(type);
+            downloadedCertificates = dgcGatewayConnectorRestClient.getTrustList(type);
         } catch (FeignException e) {
             log.error("Failed to Download certificates from DGC Gateway. Type: {}, status code: {}", type, e.status());
             throw new DgcGatewayConnectorException(
@@ -243,67 +244,89 @@ class DgcGatewayConnectorUtils {
         }
     }
 
-    public List<TrustedIssuer> fetchTrustedIssuersAndVerifyByTrustAnchor()
-            throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
+    public List<TrustedIssuer> fetchTrustedIssuersAndVerifyByTrustAnchor(
+        Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap
+    )
+        throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         log.info("Fetching TrustedIssuers from DGCG");
 
         ResponseEntity<List<TrustedIssuerDto>> responseEntity;
         try {
-            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedIssuers();
+            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedIssuers(
+                convertQueryParams(queryParameterMap)
+            );
         } catch (FeignException e) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                    e.status(), "Download of TrustedIssuers failed.");
+                e.status(), "Download of TrustedIssuers failed.");
         }
 
         List<TrustedIssuerDto> downloadedTrustedIssuers = responseEntity.getBody();
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedIssuers == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                    responseEntity.getStatusCodeValue(), "Download of TrustedIssuers failed.");
+                responseEntity.getStatusCodeValue(), "Download of TrustedIssuers failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded TrustedIssuers: {}",
-                    downloadedTrustedIssuers.size());
+                downloadedTrustedIssuers.size());
         }
 
         return downloadedTrustedIssuers.stream()
-                .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
-                .map(trustedIssuerMapper::map)
-                .collect(Collectors.toList());
+            .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
+            .map(trustedIssuerMapper::map)
+            .collect(Collectors.toList());
 
     }
 
-    public List<TrustedReference> fetchTrustedReferences()
-            throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
+    public List<TrustedReference> fetchTrustedReferences(
+        Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap
+    ) throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         log.info("Fetching TrustedReferences from DGCG");
 
         ResponseEntity<List<TrustedReferenceDto>> responseEntity;
         try {
-            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedReferences();
+            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedReferences(
+                convertQueryParams(queryParameterMap)
+            );
         } catch (FeignException e) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                    e.status(), "Download of TrustedReferences failed.");
+                e.status(), "Download of TrustedReferences failed.");
         }
 
         List<TrustedReferenceDto> downloadedTrustedReferences = responseEntity.getBody();
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedReferences == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                    responseEntity.getStatusCodeValue(), "Download of TrustedReferences failed.");
+                responseEntity.getStatusCodeValue(), "Download of TrustedReferences failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded TrustedReferences: {}",
-                    downloadedTrustedReferences.size());
+                downloadedTrustedReferences.size());
         }
 
         return downloadedTrustedReferences.stream()
-                .map(trustedReferenceMapper::map)
-                .collect(Collectors.toList());
+            .map(trustedReferenceMapper::map)
+            .collect(Collectors.toList());
 
+    }
+
+    private Map<String, String> convertQueryParams(
+        Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap) {
+
+        return queryParameterMap.entrySet()
+            .stream()
+            .map(mapEntry -> {
+                String queryKey = mapEntry.getKey().getQueryParamName();
+                String queryValue = mapEntry.getValue().stream()
+                    .map(Serializable::toString)
+                    .collect(Collectors.joining(","));
+                return Map.entry(queryKey, queryValue);
+            })
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private String getHashData(TrustedIssuerDto trustedIssuerDto) {
         return trustedIssuerDto.getCountry() + HASH_SEPARATOR
-                + trustedIssuerDto.getUrl() + HASH_SEPARATOR
-                + trustedIssuerDto.getType().name() + HASH_SEPARATOR;
+            + trustedIssuerDto.getUrl() + HASH_SEPARATOR
+            + trustedIssuerDto.getType().name() + HASH_SEPARATOR;
     }
 
     @RequiredArgsConstructor

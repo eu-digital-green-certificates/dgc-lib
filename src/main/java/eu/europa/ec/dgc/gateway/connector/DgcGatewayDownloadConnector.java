@@ -25,11 +25,13 @@ import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProper
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import feign.FeignException;
+import java.io.Serializable;
 import java.security.Security;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -90,9 +92,47 @@ public class DgcGatewayDownloadConnector {
 
     private List<TrustedReference> trustedReferences = new ArrayList<>();
 
+    private final Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap =
+        new HashMap<>();
+
     @PostConstruct
     void init() {
         Security.addProvider(new BouncyCastleProvider());
+    }
+
+
+    /**
+     * Set Query Params to filter requests to Gateway. If an entry for given Key already exists it will be overridden.
+     *
+     * @param queryParameter The Query Parameter
+     * @param value          Values to filter for.
+     */
+    public <T extends Serializable> void setQueryParameter(QueryParameter<T> queryParameter, T value) {
+        setQueryParameter(queryParameter, List.of(value));
+    }
+
+    /**
+     * Set Query Params to filter requests to Gateway. If an entry for given Key already exists it will be overridden.
+     *
+     * @param queryParameter The Query Parameter
+     * @param values         List of values (filtering is additive, e.g.: Providing values "CSCA" and "UPLOAD" will
+     *                       result in a list of "CSCA" and "UPLOAD" certificates with at least one matching property.
+     */
+    public <T extends Serializable> void setQueryParameter(QueryParameter<T> queryParameter, List<T> values) {
+        if (!queryParameter.getArrayValue() && values.size() > 1) {
+            throw new IllegalArgumentException("Only one value is allowed for non-array query parameters.");
+        }
+
+        // Check if Key will be added or value has changed if key already exists
+        if ((!queryParameterMap.containsKey(queryParameter))
+            || queryParameterMap.containsKey(queryParameter)
+            && queryParameterMap.get(queryParameter).hashCode() != values.hashCode()) {
+
+            // value has changed, invalidate cache
+            lastUpdated = null;
+        }
+
+        queryParameterMap.put(queryParameter, values);
     }
 
     /**
@@ -137,6 +177,10 @@ public class DgcGatewayDownloadConnector {
      * @return List of {@link TrustedIssuer}
      */
     public List<TrustedIssuer> getTrustedIssuers() {
+        if (!properties.isEnableDdccSupport()) {
+            log.error("DDCC Support needs to be enabled in order to request TrustedIssuers");
+        }
+
         updateIfRequired();
         return Collections.unmodifiableList(trustedIssuers);
     }
@@ -149,6 +193,10 @@ public class DgcGatewayDownloadConnector {
      * @return List of {@link TrustedIssuer}
      */
     public List<TrustedReference> getTrustedReferences() {
+        if (!properties.isEnableDdccSupport()) {
+            log.error("DDCC Support needs to be enabled in order to request TrustedCertificates");
+        }
+
         updateIfRequired();
         return Collections.unmodifiableList(trustedReferences);
     }
@@ -180,14 +228,15 @@ public class DgcGatewayDownloadConnector {
                 fetchTrustListAndVerifyByCscaAndUpload();
                 log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
 
-                // Fetching TrustedIssuers
-                trustedIssuers = connectorUtils.fetchTrustedIssuersAndVerifyByTrustAnchor();
-                log.info("TrustedIssuers contains {} entries", trustedIssuers.size());
+                if (properties.isEnableDdccSupport()) {
+                    // Fetching TrustedIssuers
+                    trustedIssuers = connectorUtils.fetchTrustedIssuersAndVerifyByTrustAnchor(queryParameterMap);
+                    log.info("TrustedIssuers contains {} entries", trustedIssuers.size());
 
-                // Fetching TrustedReferences
-                trustedReferences = connectorUtils.fetchTrustedReferences();
-                log.info("TrustedReferences contains {} entries", trustedReferences.size());
-
+                    // Fetching TrustedReferences
+                    trustedReferences = connectorUtils.fetchTrustedReferences(queryParameterMap);
+                    log.info("TrustedReferences contains {} entries", trustedReferences.size());
+                }
                 status = null;
             } catch (DgcGatewayConnectorUtils.DgcGatewayConnectorException e) {
                 log.error("Failed to Download Trusted Certificates: {} - {}", e.getHttpStatusCode(), e.getMessage());
@@ -203,7 +252,7 @@ public class DgcGatewayDownloadConnector {
 
         ResponseEntity<List<TrustListItemDto>> responseEntity;
         try {
-            responseEntity = dgcGatewayConnectorRestClient.getTrustedCertificates(CertificateTypeDto.DSC);
+            responseEntity = dgcGatewayConnectorRestClient.getTrustList(CertificateTypeDto.DSC);
         } catch (FeignException e) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
                 e.status(), "Download of TrustListItems failed.");

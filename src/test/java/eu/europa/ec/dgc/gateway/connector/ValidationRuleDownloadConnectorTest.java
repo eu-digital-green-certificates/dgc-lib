@@ -128,7 +128,7 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         when(restClientMock.downloadCountryList())
@@ -187,7 +187,7 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         when(restClientMock.downloadCountryList())
@@ -235,7 +235,7 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         when(restClientMock.downloadCountryList())
@@ -286,7 +286,7 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         when(restClientMock.downloadCountryList())
@@ -325,7 +325,7 @@ class ValidationRuleDownloadConnectorTest {
         when(restClientMock.downloadCountryList())
             .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.status(500).build());
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
@@ -334,7 +334,7 @@ class ValidationRuleDownloadConnectorTest {
             .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
-            .when(restClientMock).getTrustedCertificates(CertificateTypeDto.UPLOAD);
+            .when(restClientMock).getTrustList(CertificateTypeDto.UPLOAD);
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
     }
@@ -344,7 +344,7 @@ class ValidationRuleDownloadConnectorTest {
         when(restClientMock.downloadCountryList())
             .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
         when(restClientMock.downloadValidationRule("EU"))
@@ -355,11 +355,11 @@ class ValidationRuleDownloadConnectorTest {
         when(restClientMock.downloadCountryList())
             .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
-            .when(restClientMock).getTrustedCertificates(CertificateTypeDto.DSC);
+            .when(restClientMock).getTrustList(CertificateTypeDto.DSC);
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
     }
@@ -390,7 +390,7 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         when(restClientMock.downloadCountryList())
@@ -439,7 +439,7 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
             .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         when(restClientMock.downloadCountryList())
@@ -460,7 +460,7 @@ class ValidationRuleDownloadConnectorTest {
     private Request dummyRequest() {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
     }
-    
+
     private void assertEquals(ValidationRule v1, ValidationRule v2) {
         Assertions.assertEquals(v1.getIdentifier(), v2.getIdentifier());
         Assertions.assertEquals(v1.getType(), v2.getType());

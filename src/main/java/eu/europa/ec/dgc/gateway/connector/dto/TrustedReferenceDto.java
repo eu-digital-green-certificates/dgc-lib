@@ -30,10 +30,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TrustedReferenceDto {
 
-    private String uuid;
-
-    private String version;
-
     private String country;
 
     private ReferenceTypeDto type;
@@ -51,6 +47,14 @@ public class TrustedReferenceDto {
     private SignatureTypeDto signatureType;
 
     private String referenceVersion;
+
+    private String sourceGateway;
+
+    private String uuid;
+
+    private String domain;
+
+    private Long version;
 
     public enum ReferenceTypeDto {
         DCC,
