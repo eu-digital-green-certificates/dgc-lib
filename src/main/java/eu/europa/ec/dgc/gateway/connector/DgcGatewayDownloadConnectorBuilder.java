@@ -25,8 +25,6 @@ import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProper
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
-import eu.europa.ec.dgc.gateway.connector.springbootworkaroundforks.DgcFeignClientBuilder;
-import eu.europa.ec.dgc.gateway.connector.springbootworkaroundforks.DgcFeignClientFactoryBean;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
@@ -58,6 +56,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.cloud.openfeign.FeignClientBuilder;
+import org.springframework.cloud.openfeign.FeignClientFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 
@@ -302,8 +302,8 @@ public class DgcGatewayDownloadConnectorBuilder {
                 e);
         }
 
-        DgcGatewayConnectorRestClient restClient = new DgcFeignClientBuilder(springBootContext)
-            .forType(DgcGatewayConnectorRestClient.class, new DgcFeignClientFactoryBean(), UUID.randomUUID().toString())
+        DgcGatewayConnectorRestClient restClient = new FeignClientBuilder(springBootContext)
+            .forType(DgcGatewayConnectorRestClient.class, new FeignClientFactoryBean(), UUID.randomUUID().toString())
             .customize(builder -> builder.client(client))
             .url(url)
             .build();
