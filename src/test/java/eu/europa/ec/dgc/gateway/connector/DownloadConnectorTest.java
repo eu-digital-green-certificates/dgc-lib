@@ -25,6 +25,7 @@ import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
+import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
@@ -40,14 +41,17 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -71,6 +75,11 @@ class DownloadConnectorTest {
 
     @Autowired
     DgcTestKeyStore testKeyStore;
+
+    @AfterEach
+    void cleanup() {
+        connector.resetQueryParameter();
+    }
 
     @Test
     void testDownloadOfCertificates() throws Exception {
@@ -786,6 +795,104 @@ class DownloadConnectorTest {
 
         List<TrustedReference> trustedReferences = connector.getTrustedReferences();
         Assertions.assertEquals(1, trustedReferences.size());
+    }
+
+    @Test
+    void testDownloadOfTrustedReferencesWithEmptyQueryParams() {
+
+        ArgumentCaptor<HashMap<String, String>> captorReferences = ArgumentCaptor.forClass(HashMap.class);
+
+        when(restClientMock.getTrustList(CertificateTypeDto.CSCA))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.DSC))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedIssuers(any()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedReferences(captorReferences.capture()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+        connector.getTrustedReferences();
+
+        Assertions.assertEquals(0, captorReferences.getValue().size());
+    }
+
+    @Test
+    void testDownloadOfTrustedReferencesWithQueryParams() {
+
+        ArgumentCaptor<HashMap<String, String>> captorReferences = ArgumentCaptor.forClass(HashMap.class);
+
+        when(restClientMock.getTrustList(CertificateTypeDto.CSCA))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.DSC))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedIssuers(any()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedReferences(captorReferences.capture()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+
+        connector.setQueryParameter(QueryParameter.GROUP, "groupValue");
+        connector.setQueryParameter(QueryParameter.DOMAIN, Arrays.asList("domainValue1", "domainValue2", "domainValue3"));
+        connector.setQueryParameter(QueryParameter.WITH_FEDERATION, true);
+        connector.getTrustedReferences();
+
+        Assertions.assertEquals(3, captorReferences.getValue().size());
+        Assertions.assertEquals("groupValue", captorReferences.getValue().get("group"));
+        Assertions.assertEquals("domainValue1,domainValue2,domainValue3", captorReferences.getValue().get("domain"));
+        Assertions.assertEquals("true", captorReferences.getValue().get("withFederation"));
+    }
+
+    @Test
+    void testDownloadOfTrustedIssuersWithEmptyQueryParams() {
+
+        ArgumentCaptor<HashMap<String, String>> captorIssuers = ArgumentCaptor.forClass(HashMap.class);
+
+        when(restClientMock.getTrustList(CertificateTypeDto.CSCA))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.DSC))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedIssuers(captorIssuers.capture()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedReferences(any()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+        connector.getTrustedIssuers();
+
+        Assertions.assertEquals(0, captorIssuers.getValue().size());
+    }
+
+    @Test
+    void testDownloadOfTrustedIssuersWithQueryParams() {
+
+        ArgumentCaptor<HashMap<String, String>> captorIssuers = ArgumentCaptor.forClass(HashMap.class);
+
+        when(restClientMock.getTrustList(CertificateTypeDto.CSCA))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.DSC))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedIssuers(captorIssuers.capture()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        when(restClientMock.downloadTrustedReferences(any()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+
+        connector.setQueryParameter(QueryParameter.GROUP, "groupValue");
+        connector.setQueryParameter(QueryParameter.DOMAIN, Arrays.asList("domainValue1", "domainValue2", "domainValue3"));
+        connector.setQueryParameter(QueryParameter.WITH_FEDERATION, true);
+        connector.getTrustedReferences();
+
+        Assertions.assertEquals(3, captorIssuers.getValue().size());
+        Assertions.assertEquals("groupValue", captorIssuers.getValue().get("group"));
+        Assertions.assertEquals("domainValue1,domainValue2,domainValue3", captorIssuers.getValue().get("domain"));
+        Assertions.assertEquals("true", captorIssuers.getValue().get("withFederation"));
     }
 
     /**

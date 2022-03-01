@@ -136,6 +136,14 @@ public class DgcGatewayDownloadConnector {
     }
 
     /**
+     * Resets the Query Params. Cache will also be invalidated.
+     */
+    public void resetQueryParameter() {
+        queryParameterMap.clear();
+        lastUpdated = null;
+    }
+
+    /**
      * Gets the list of downloaded and validated trusted signer certificates.
      * This call will return a cached list if caching is enabled.
      * If cache is outdated a refreshed list will be returned.
