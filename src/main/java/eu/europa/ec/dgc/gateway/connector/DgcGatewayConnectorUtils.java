@@ -24,9 +24,11 @@ import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedCertificateTrustListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
@@ -48,6 +50,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -86,6 +89,8 @@ class DgcGatewayConnectorUtils {
     private final TrustedIssuerMapper trustedIssuerMapper;
 
     private final TrustedReferenceMapper trustedReferenceMapper;
+
+    private final TrustedCertificateMapper trustedCertificateMapper;
 
     @Qualifier("trustAnchor")
     private final KeyStore trustAnchorKeyStore;
@@ -206,27 +211,47 @@ class DgcGatewayConnectorUtils {
         }
     }
 
-    public List<TrustListItem> fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto type)
+    public List<TrustListItem> fetchCertificatesAndVerifyByTrustAnchor(
+        CertificateTypeDto type,
+        HashMap<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap)
         throws DgcGatewayConnectorException {
-        ResponseEntity<List<TrustListItemDto>> downloadedCertificates;
+        List<TrustListItemDto> downloadedCertificates;
+        HttpStatus responseStatus;
         try {
-            downloadedCertificates = dgcGatewayConnectorRestClient.getTrustList(type);
+            if (properties.isEnableDdccSupport()) {
+                // clone and modify parameter map to only get certs of requested type
+                HashMap<QueryParameter<? extends Serializable>, List<? extends Serializable>> clonedMap =
+                    new HashMap<>(queryParameterMap);
+                clonedMap.put(QueryParameter.GROUP, List.of(type.toString()));
+
+                ResponseEntity<List<TrustedCertificateTrustListDto>> responseEntity =
+                    dgcGatewayConnectorRestClient.downloadTrustedCertificates(convertQueryParams(clonedMap));
+
+                downloadedCertificates = trustedCertificateMapper.map(responseEntity.getBody());
+                responseStatus = responseEntity.getStatusCode();
+
+            } else {
+                ResponseEntity<List<TrustListItemDto>> responseEntity =
+                    dgcGatewayConnectorRestClient.getTrustList(type);
+                downloadedCertificates = responseEntity.getBody();
+                responseStatus = responseEntity.getStatusCode();
+            }
         } catch (FeignException e) {
             log.error("Failed to Download certificates from DGC Gateway. Type: {}, status code: {}", type, e.status());
             throw new DgcGatewayConnectorException(
                 e.status(), "Failed to Download certificates from DGC Gateway of type: " + type.toString());
         }
 
-        final List<TrustListItemDto> trustListItemDtoList = downloadedCertificates.getBody();
-        if (downloadedCertificates.getStatusCode() != HttpStatus.OK || trustListItemDtoList == null) {
+        if (responseStatus != HttpStatus.OK || downloadedCertificates == null) {
             log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
-                type, downloadedCertificates.getStatusCodeValue());
-            throw new DgcGatewayConnectorException(downloadedCertificates.getStatusCodeValue(),
+                type, responseStatus);
+            throw new DgcGatewayConnectorException(responseStatus.value(),
                 "Failed to Download certificates from DGC Gateway of type: " + type.toString());
         }
 
-        return trustListItemDtoList.stream()
-            .filter(this::checkThumbprintIntegrity)
+        return downloadedCertificates.stream()
+            // skip thumbprint check if DDCC.
+            .filter(properties.isEnableDdccSupport() ? (x) -> true : this::checkThumbprintIntegrity)
             .filter(c -> this.checkTrustAnchorSignature(c, trustAnchors))
             .map(trustListMapper::map)
             .collect(Collectors.toList());
@@ -277,7 +302,7 @@ class DgcGatewayConnectorUtils {
 
     }
 
-    public List<TrustedReference> fetchTrustedReferences(
+    public List<TrustedReference> fetchTrustedReferencesAndVerifyByUploadCertificate(
         Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap
     ) throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         log.info("Fetching TrustedReferences from DGCG");
@@ -308,7 +333,7 @@ class DgcGatewayConnectorUtils {
 
     }
 
-    private Map<String, String> convertQueryParams(
+    protected Map<String, String> convertQueryParams(
         Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap) {
 
         return queryParameterMap.entrySet()

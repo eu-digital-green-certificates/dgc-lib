@@ -21,6 +21,7 @@
 package eu.europa.ec.dgc.gateway.connector;
 
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.testdata.CertificateTestUtils;
@@ -59,6 +60,9 @@ public class DownloadConnectorBuilderTest {
 
     @Autowired
     TrustedReferenceMapper trustedReferenceMapper;
+
+    @Autowired
+    TrustedCertificateMapper trustedCertificateMapper;
 
     @Autowired
     ApplicationContext applicationContext;
@@ -111,7 +115,7 @@ public class DownloadConnectorBuilderTest {
         server.enqueue(new MockResponse().setBody(""));
 
         DgcGatewayDownloadConnector connector =
-                new DgcGatewayDownloadConnectorBuilder(applicationContext, trustListMapper, trustedIssuerMapper, trustedReferenceMapper)
+                new DgcGatewayDownloadConnectorBuilder(applicationContext, trustListMapper, trustedIssuerMapper, trustedReferenceMapper, trustedCertificateMapper)
             .withMtlsAuthCert(certificateUtils.convertCertificate(clientCertificate), clientKeyPair.getPrivate())
             .withTrustedServerCert(certificateUtils.convertCertificate(serverCertificate))
             .withUrl(server.url("/test").toString())

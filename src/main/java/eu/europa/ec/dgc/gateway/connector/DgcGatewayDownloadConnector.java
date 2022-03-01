@@ -24,7 +24,10 @@ import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedCertificateTrustListDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
 import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
@@ -73,6 +76,8 @@ public class DgcGatewayDownloadConnector {
 
     private final TrustListMapper trustListMapper;
 
+    private final TrustedCertificateMapper trustedCertificateMapper;
+
     @Getter
     private String status = null;
 
@@ -92,7 +97,7 @@ public class DgcGatewayDownloadConnector {
 
     private List<TrustedReference> trustedReferences = new ArrayList<>();
 
-    private final Map<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap =
+    private final HashMap<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap =
         new HashMap<>();
 
     @PostConstruct
@@ -216,7 +221,8 @@ public class DgcGatewayDownloadConnector {
 
             // Fetching CSCA Certs
             try {
-                trustedCscaTrustList = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
+                trustedCscaTrustList = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(
+                    CertificateTypeDto.CSCA, queryParameterMap);
                 trustedCscaCertificates = trustedCscaTrustList.stream()
                     .map(connectorUtils::getCertificateFromTrustListItem)
                     .collect(Collectors.toList());
@@ -226,8 +232,8 @@ public class DgcGatewayDownloadConnector {
                         Collectors.mapping(ca -> ca, Collectors.toList())));
 
                 // Fetching Upload Certs
-                trustedUploadCertificateTrustList =
-                    connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);
+                trustedUploadCertificateTrustList = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(
+                    CertificateTypeDto.UPLOAD, queryParameterMap);
                 trustedUploadCertificates = trustedUploadCertificateTrustList.stream()
                     .map(connectorUtils::getCertificateFromTrustListItem)
                     .collect(Collectors.toList());
@@ -242,7 +248,8 @@ public class DgcGatewayDownloadConnector {
                     log.info("TrustedIssuers contains {} entries", trustedIssuers.size());
 
                     // Fetching TrustedReferences
-                    trustedReferences = connectorUtils.fetchTrustedReferences(queryParameterMap);
+                    trustedReferences =
+                        connectorUtils.fetchTrustedReferencesAndVerifyByUploadCertificate(queryParameterMap);
                     log.info("TrustedReferences contains {} entries", trustedReferences.size());
                 }
                 status = null;
@@ -258,24 +265,41 @@ public class DgcGatewayDownloadConnector {
     private void fetchTrustListAndVerifyByCscaAndUpload() throws DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         log.info("Fetching TrustList from DGCG");
 
-        ResponseEntity<List<TrustListItemDto>> responseEntity;
+        List<TrustListItemDto> downloadedCertificates;
+        HttpStatus responseStatus;
         try {
-            responseEntity = dgcGatewayConnectorRestClient.getTrustList(CertificateTypeDto.DSC);
+            if (properties.isEnableDdccSupport()) {
+                // clone and modify parameter map to only get certs of requested type
+                HashMap<QueryParameter<? extends Serializable>, List<? extends Serializable>> clonedMap =
+                    new HashMap<>(queryParameterMap);
+                clonedMap.put(QueryParameter.GROUP, List.of("DSC"));
+
+                ResponseEntity<List<TrustedCertificateTrustListDto>> responseEntity =
+                    dgcGatewayConnectorRestClient.downloadTrustedCertificates(
+                        connectorUtils.convertQueryParams(clonedMap));
+
+                downloadedCertificates = trustedCertificateMapper.map(responseEntity.getBody());
+                responseStatus = responseEntity.getStatusCode();
+
+            } else {
+                ResponseEntity<List<TrustListItemDto>> responseEntity =
+                    dgcGatewayConnectorRestClient.getTrustList(CertificateTypeDto.DSC);
+                downloadedCertificates = responseEntity.getBody();
+                responseStatus = responseEntity.getStatusCode();
+            }
         } catch (FeignException e) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
                 e.status(), "Download of TrustListItems failed.");
         }
 
-        List<TrustListItemDto> downloadedDcs = responseEntity.getBody();
-
-        if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedDcs == null) {
+        if (responseStatus != HttpStatus.OK || downloadedCertificates == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                responseEntity.getStatusCodeValue(), "Download of TrustListItems failed.");
+                responseStatus.value(), "Download of TrustListItems failed.");
         } else {
-            log.info("Got Response from DGCG, Downloaded Certificates: {}", downloadedDcs.size());
+            log.info("Got Response from DGCG, Downloaded Certificates: {}", downloadedCertificates.size());
         }
 
-        trustedCertificates = downloadedDcs.stream()
+        trustedCertificates = downloadedCertificates.stream()
             .filter(this::checkCscaCertificate)
             .filter(this::checkUploadCertificate)
             .map(trustListMapper::map)

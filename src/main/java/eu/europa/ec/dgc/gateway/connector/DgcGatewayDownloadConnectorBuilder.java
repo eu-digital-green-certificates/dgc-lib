@@ -23,6 +23,7 @@ package eu.europa.ec.dgc.gateway.connector;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.utils.CertificateUtils;
@@ -79,6 +80,7 @@ public class DgcGatewayDownloadConnectorBuilder {
     private final TrustListMapper trustListMapper;
     private final TrustedIssuerMapper trustedIssuerMapper;
     private final TrustedReferenceMapper trustedReferenceMapper;
+    private final TrustedCertificateMapper trustedCertificateMapper;
 
     /**
      * Builder parameters.
@@ -309,11 +311,12 @@ public class DgcGatewayDownloadConnectorBuilder {
             .build();
 
         DgcGatewayConnectorUtils connectorUtils =
-            new DgcGatewayConnectorUtils(certificateUtils, restClient, null, trustListMapper, trustedIssuerMapper,
-                trustedReferenceMapper, null);
+            new DgcGatewayConnectorUtils(certificateUtils, restClient, properties, trustListMapper, trustedIssuerMapper,
+                trustedReferenceMapper, trustedCertificateMapper, null);
         connectorUtils.setTrustAnchors(trustAnchors);
 
-        return new DgcGatewayDownloadConnector(connectorUtils, restClient, properties, trustListMapper);
+        return new DgcGatewayDownloadConnector(
+            connectorUtils, restClient, properties, trustListMapper, trustedCertificateMapper);
     }
 
     private Client getClient() throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException,
