@@ -25,11 +25,11 @@ import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProper
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedCertificateTrustListDto;
-import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
 import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
+import eu.europa.ec.dgc.gateway.connector.model.TrustedCertificateTrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
@@ -85,6 +85,7 @@ public class DgcGatewayDownloadConnector {
     private LocalDateTime lastUpdated = null;
 
     private List<TrustListItem> trustedCertificates = new ArrayList<>();
+    private List<TrustedCertificateTrustListItem> ddccTrustedCertificates = new ArrayList<>();
 
     private List<TrustListItem> trustedCscaTrustList = new ArrayList<>();
     private List<X509CertificateHolder> trustedCscaCertificates = new ArrayList<>();
@@ -158,6 +159,18 @@ public class DgcGatewayDownloadConnector {
     public List<TrustListItem> getTrustedCertificates() {
         updateIfRequired();
         return Collections.unmodifiableList(trustedCertificates);
+    }
+
+    /**
+     * Gets the list of downloaded and validated DDCC TrustedCertificates.
+     * This call will return a cached list if caching is enabled.
+     * If cache is outdated a refreshed list will be returned.
+     *
+     * @return List of {@link TrustedCertificateTrustListItem}
+     */
+    public List<TrustedCertificateTrustListItem> getDdccTrustedCertificates() {
+        updateIfRequired();
+        return Collections.unmodifiableList(ddccTrustedCertificates);
     }
 
     /**
@@ -243,6 +256,9 @@ public class DgcGatewayDownloadConnector {
                 log.info("DSC TrustStore contains {} trusted certificates.", trustedCertificates.size());
 
                 if (properties.isEnableDdccSupport()) {
+                    // Fetching TrustedCertificates
+                    fetchTrustedCertificatesAndVerifyByCscaAndUpload();
+
                     // Fetching TrustedIssuers
                     trustedIssuers = connectorUtils.fetchTrustedIssuersAndVerifyByTrustAnchor(queryParameterMap);
                     log.info("TrustedIssuers contains {} entries", trustedIssuers.size());
@@ -278,7 +294,7 @@ public class DgcGatewayDownloadConnector {
                     dgcGatewayConnectorRestClient.downloadTrustedCertificates(
                         connectorUtils.convertQueryParams(clonedMap));
 
-                downloadedCertificates = trustedCertificateMapper.map(responseEntity.getBody());
+                downloadedCertificates = trustedCertificateMapper.mapToTrustList(responseEntity.getBody());
                 responseStatus = responseEntity.getStatusCode();
 
             } else {
@@ -309,14 +325,57 @@ public class DgcGatewayDownloadConnector {
         log.info("Put {} trusted certificates into TrustList", trustedCertificates.size());
     }
 
+    private void fetchTrustedCertificatesAndVerifyByCscaAndUpload() throws
+        DgcGatewayConnectorUtils.DgcGatewayConnectorException {
+        if (!properties.isEnableDdccSupport()) {
+            log.info("DDCC Support is disabled, Skipping TrustedCertificate Download.");
+            return;
+        }
+
+        log.info("Fetching Trusted Certificate from DGCG");
+
+        ResponseEntity<List<TrustedCertificateTrustListDto>> responseEntity;
+        try {
+            responseEntity = dgcGatewayConnectorRestClient.downloadTrustedCertificates(
+                connectorUtils.convertQueryParams(queryParameterMap));
+        } catch (FeignException e) {
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                e.status(), "Download of TrustListItems failed.");
+        }
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null) {
+            throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
+                responseEntity.getStatusCodeValue(), "Download of TrustedCertificates failed.");
+        } else {
+            log.info("Got Response from DGCG, Downloaded Trusted Certificates: {}", responseEntity.getBody().size());
+        }
+
+        ddccTrustedCertificates = responseEntity.getBody().stream()
+            .filter(this::checkCscaCertificate)
+            .filter(this::checkUploadCertificate)
+            .map(trustedCertificateMapper::map)
+            .collect(Collectors.toList());
+
+        lastUpdated = LocalDateTime.now();
+        log.info("Put {} DDCC TrustedCertificates into TrustList", ddccTrustedCertificates.size());
+    }
+
+    private boolean checkCscaCertificate(TrustedCertificateTrustListDto trustListItem) {
+        return checkCscaCertificate(trustedCertificateMapper.mapToTrustList(trustListItem));
+    }
+
     private boolean checkCscaCertificate(TrustListItemDto trustListItem) {
         boolean result = connectorUtils.trustListItemSignedByCa(trustListItem, trustedCscaCertificateMap);
 
         if (!result) {
-            log.info("Could not find valid CSCA for DSC {}", trustListItem.getKid());
+            log.info("Could not find valid CSCA for DSC/TrustedCertificate {}", trustListItem.getKid());
         }
 
         return result;
+    }
+
+    private boolean checkUploadCertificate(TrustedCertificateTrustListDto trustListItem) {
+        return checkUploadCertificate(trustedCertificateMapper.mapToTrustList(trustListItem));
     }
 
     private boolean checkUploadCertificate(TrustListItemDto trustListItem) {
@@ -330,12 +389,14 @@ public class DgcGatewayDownloadConnector {
         X509CertificateHolder uploadCertificate = parser.getSigningCertificate();
 
         if (uploadCertificate == null) {
-            log.error("Invalid CMS for DSC {} of {}", trustListItem.getKid(), trustListItem.getCountry());
+            log.error("Invalid CMS for DSC/TrustedCertificate {} of {}",
+                trustListItem.getKid(), trustListItem.getCountry());
             return false;
         }
 
         if (!parser.isSignatureVerified()) {
-            log.error("Invalid CMS Signature for DSC {} of {}", trustListItem.getKid(), trustListItem.getCountry());
+            log.error("Invalid CMS Signature for DSC/TrustedCertificate {} of {}",
+                trustListItem.getKid(), trustListItem.getCountry());
         }
 
         return trustedUploadCertificates

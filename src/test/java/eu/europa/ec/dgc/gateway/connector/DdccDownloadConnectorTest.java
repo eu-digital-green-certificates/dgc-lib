@@ -141,7 +141,7 @@ class DdccDownloadConnectorTest {
                     return ResponseEntity.ok(Collections.singletonList(uploadTrustListItem));
                 }
             }
-            return null;
+            return ResponseEntity.ok(Arrays.asList(cscaTrustListItem, dscTrustListItem, uploadTrustListItem));
         });
 
         when(restClientMock.downloadTrustedIssuers(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));
@@ -220,7 +220,7 @@ class DdccDownloadConnectorTest {
                     return ResponseEntity.ok(Collections.singletonList(uploadTrustListItem));
                 }
             }
-            return null;
+            return ResponseEntity.ok(Arrays.asList(cscaTrustListItem, dscTrustListItem, uploadTrustListItem));
         });
 
         when(restClientMock.downloadTrustedIssuers(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));
@@ -293,7 +293,7 @@ class DdccDownloadConnectorTest {
                     return ResponseEntity.ok(Collections.singletonList(uploadTrustListItem));
                 }
             }
-            return null;
+            return ResponseEntity.ok(Arrays.asList(cscaTrustListItem, dscTrustListItem, uploadTrustListItem));
         });
 
         when(restClientMock.downloadTrustedIssuers(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));
@@ -379,7 +379,7 @@ class DdccDownloadConnectorTest {
                     return ResponseEntity.ok(Collections.singletonList(uploadTrustListItem));
                 }
             }
-            return null;
+            return ResponseEntity.ok(Arrays.asList(cscaTrustListItem, dscTrustListItem, uploadTrustListItem));
         });
 
         when(restClientMock.downloadTrustedIssuers(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));
@@ -448,7 +448,7 @@ class DdccDownloadConnectorTest {
                     return ResponseEntity.ok(Collections.singletonList(uploadTrustListItem));
                 }
             }
-            return null;
+            return ResponseEntity.ok(Arrays.asList(cscaTrustListItem, dscTrustListItem, uploadTrustListItem));
         });
         when(restClientMock.downloadTrustedIssuers(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));
         when(restClientMock.downloadTrustedReferences(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));
@@ -512,7 +512,7 @@ class DdccDownloadConnectorTest {
                     return ResponseEntity.ok(Collections.singletonList(uploadTrustListItem));
                 }
             }
-            return null;
+            return ResponseEntity.ok(Arrays.asList(cscaTrustListItem, dscTrustListItem, uploadTrustListItem));
         });
 
         when(restClientMock.downloadTrustedIssuers(any())).thenReturn(ResponseEntity.ok(Collections.emptyList()));

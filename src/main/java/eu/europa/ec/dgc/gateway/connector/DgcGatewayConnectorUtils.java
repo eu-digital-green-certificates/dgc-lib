@@ -227,7 +227,7 @@ class DgcGatewayConnectorUtils {
                 ResponseEntity<List<TrustedCertificateTrustListDto>> responseEntity =
                     dgcGatewayConnectorRestClient.downloadTrustedCertificates(convertQueryParams(clonedMap));
 
-                downloadedCertificates = trustedCertificateMapper.map(responseEntity.getBody());
+                downloadedCertificates = trustedCertificateMapper.mapToTrustList(responseEntity.getBody());
                 responseStatus = responseEntity.getStatusCode();
 
             } else {
