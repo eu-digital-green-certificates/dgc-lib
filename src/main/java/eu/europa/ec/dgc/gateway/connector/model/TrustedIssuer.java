@@ -46,6 +46,10 @@ public class TrustedIssuer {
 
     private String name;
 
+    private String uuid;
+
+    private String domain;
+
     public enum UrlType {
         HTTP,
         DID
