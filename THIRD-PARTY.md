@@ -28,9 +28,9 @@ ThirdParty Licenses
 | commons-fileupload:commons-fileupload:1.4 | Apache License, Version 2.0 |
 | commons-io:commons-io:2.11.0 | Apache License, Version 2.0 |
 | commons-logging:commons-logging:1.2 | The Apache Software License, Version 2.0 |
-| io.github.openfeign:feign-core:11.7 | The Apache Software License, Version 2.0 |
+| io.github.openfeign:feign-core:11.8 | The Apache Software License, Version 2.0 |
 | io.github.openfeign:feign-httpclient:11.7 | The Apache Software License, Version 2.0 |
-| io.github.openfeign:feign-slf4j:11.7 | The Apache Software License, Version 2.0 |
+| io.github.openfeign:feign-slf4j:11.8 | The Apache Software License, Version 2.0 |
 | io.github.openfeign.form:feign-form:3.8.0 | The Apache Software License, Version 2.0 |
 | io.github.openfeign.form:feign-form-spring:3.8.0 | The Apache Software License, Version 2.0 |
 | jakarta.activation:jakarta.activation-api:1.2.2 | EDL 1.0 |
@@ -86,16 +86,16 @@ ThirdParty Licenses
 | org.springframework.boot:spring-boot-autoconfigure:2.6.3 | Apache License, Version 2.0 |
 | org.springframework.boot:spring-boot-configuration-processor:2.6.3 | Apache License, Version 2.0 |
 | org.springframework.boot:spring-boot-starter:2.6.3 | Apache License, Version 2.0 |
-| org.springframework.boot:spring-boot-starter-aop:2.6.1 | Apache License, Version 2.0 |
+| org.springframework.boot:spring-boot-starter-aop:2.6.3 | Apache License, Version 2.0 |
 | org.springframework.boot:spring-boot-starter-logging:2.6.3 | Apache License, Version 2.0 |
 | org.springframework.boot:spring-boot-starter-test:2.6.3 | Apache License, Version 2.0 |
 | org.springframework.boot:spring-boot-test:2.6.3 | Apache License, Version 2.0 |
 | org.springframework.boot:spring-boot-test-autoconfigure:2.6.3 | Apache License, Version 2.0 |
-| org.springframework.cloud:spring-cloud-commons:3.1.0 | Apache License, Version 2.0 |
-| org.springframework.cloud:spring-cloud-context:3.1.0 | Apache License, Version 2.0 |
-| org.springframework.cloud:spring-cloud-openfeign-core:3.1.0 | Apache License, Version 2.0 |
-| org.springframework.cloud:spring-cloud-starter:3.1.0 | Apache License, Version 2.0 |
-| org.springframework.cloud:spring-cloud-starter-openfeign:3.1.0 | Apache License, Version 2.0 |
+| org.springframework.cloud:spring-cloud-commons:3.1.1 | Apache License, Version 2.0 |
+| org.springframework.cloud:spring-cloud-context:3.1.1 | Apache License, Version 2.0 |
+| org.springframework.cloud:spring-cloud-openfeign-core:3.1.1 | Apache License, Version 2.0 |
+| org.springframework.cloud:spring-cloud-starter:3.1.1 | Apache License, Version 2.0 |
+| org.springframework.cloud:spring-cloud-starter-openfeign:3.1.1 | Apache License, Version 2.0 |
 | org.springframework.security:spring-security-crypto:5.5.1 | Apache License, Version 2.0 |
 | org.springframework.security:spring-security-rsa:1.0.10.RELEASE | Apache 2.0 |
 | org.xmlunit:xmlunit-core:2.8.4 | The Apache Software License, Version 2.0 |
