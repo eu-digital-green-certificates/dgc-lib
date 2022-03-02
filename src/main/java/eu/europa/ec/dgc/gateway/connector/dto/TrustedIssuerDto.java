@@ -54,6 +54,8 @@ public class TrustedIssuerDto {
 
     private Long version;
 
+    private String name;
+
     public enum UrlTypeDto {
         HTTP,
         DID

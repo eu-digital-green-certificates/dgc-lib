@@ -44,6 +44,8 @@ public class TrustedIssuer {
 
     private ZonedDateTime timestamp;
 
+    private String name;
+
     public enum UrlType {
         HTTP,
         DID
