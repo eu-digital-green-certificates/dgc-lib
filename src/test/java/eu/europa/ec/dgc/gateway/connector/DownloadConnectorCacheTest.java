@@ -27,6 +27,7 @@ import eu.europa.ec.dgc.utils.CertificateUtils;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -56,37 +57,43 @@ class DownloadConnectorCacheTest {
 
     @Test
     void testDownloadCache() throws InterruptedException {
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
+        when(restClientMock.getTrustList(CertificateTypeDto.CSCA))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
+        when(restClientMock.getTrustList(CertificateTypeDto.DSC))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+        when(restClientMock.getTrustList(CertificateTypeDto.UPLOAD))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+        when(restClientMock.downloadTrustedIssuers(any()))
+            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+
+        when(restClientMock.downloadTrustedReferences(any()))
             .thenReturn(ResponseEntity.ok(Collections.emptyList()));
 
         connector.getTrustedCertificates();
 
-        verify(restClientMock).getTrustedCertificates(CertificateTypeDto.CSCA);
-        verify(restClientMock).getTrustedCertificates(CertificateTypeDto.DSC);
-        verify(restClientMock).getTrustedCertificates(CertificateTypeDto.UPLOAD);
+        verify(restClientMock).getTrustList(CertificateTypeDto.CSCA);
+        verify(restClientMock).getTrustList(CertificateTypeDto.DSC);
+        verify(restClientMock).getTrustList(CertificateTypeDto.UPLOAD);
 
         clearInvocations(restClientMock);
 
         connector.getTrustedCertificates();
 
-        verify(restClientMock, never()).getTrustedCertificates(CertificateTypeDto.CSCA);
-        verify(restClientMock, never()).getTrustedCertificates(CertificateTypeDto.DSC);
-        verify(restClientMock, never()).getTrustedCertificates(CertificateTypeDto.UPLOAD);
+        verify(restClientMock, never()).getTrustList(CertificateTypeDto.CSCA);
+        verify(restClientMock, never()).getTrustList(CertificateTypeDto.DSC);
+        verify(restClientMock, never()).getTrustList(CertificateTypeDto.UPLOAD);
 
         // Wait 2 seconds to invalidate cache
         Thread.sleep(2500);
 
         connector.getTrustedCertificates();
 
-        verify(restClientMock).getTrustedCertificates(CertificateTypeDto.CSCA);
-        verify(restClientMock).getTrustedCertificates(CertificateTypeDto.DSC);
-        verify(restClientMock).getTrustedCertificates(CertificateTypeDto.UPLOAD);
+        verify(restClientMock).getTrustList(CertificateTypeDto.CSCA);
+        verify(restClientMock).getTrustList(CertificateTypeDto.DSC);
+        verify(restClientMock).getTrustList(CertificateTypeDto.UPLOAD);
 
         clearInvocations(restClientMock);
     }

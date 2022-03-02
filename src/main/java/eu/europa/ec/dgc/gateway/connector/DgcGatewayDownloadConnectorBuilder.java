@@ -23,8 +23,9 @@ package eu.europa.ec.dgc.gateway.connector;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
-import eu.europa.ec.dgc.gateway.connector.springbootworkaroundforks.DgcFeignClientBuilder;
-import eu.europa.ec.dgc.gateway.connector.springbootworkaroundforks.DgcFeignClientFactoryBean;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
@@ -56,6 +57,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.cloud.openfeign.FeignClientBuilder;
+import org.springframework.cloud.openfeign.FeignClientFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 
@@ -75,6 +78,9 @@ public class DgcGatewayDownloadConnectorBuilder {
     private static final CertificateUtils certificateUtils = new CertificateUtils();
     private final ApplicationContext springBootContext;
     private final TrustListMapper trustListMapper;
+    private final TrustedIssuerMapper trustedIssuerMapper;
+    private final TrustedReferenceMapper trustedReferenceMapper;
+    private final TrustedCertificateMapper trustedCertificateMapper;
 
     /**
      * Builder parameters.
@@ -86,6 +92,7 @@ public class DgcGatewayDownloadConnectorBuilder {
     private HttpHost proxy;
     private int cacheMagAge = -1;
     private boolean enableSslHostnameValidation = true;
+    private boolean enableDdccSupport = false;
     private HttpClient customApacheHttpClient;
 
     /**
@@ -228,6 +235,17 @@ public class DgcGatewayDownloadConnectorBuilder {
     }
 
     /**
+     * Enable Support for DDCCG specific endpoints.
+     * Default: Disabled.
+     *
+     * @param enable whether Support for DDCCG is enabled.
+     */
+    public DgcGatewayDownloadConnectorBuilder withDdccSupport(boolean enable) {
+        this.enableDdccSupport = enable;
+        return this;
+    }
+
+    /**
      * Define HTTP-Proxy for outbound requests.D
      *
      * @param host Hostname of http Proxy.
@@ -274,6 +292,7 @@ public class DgcGatewayDownloadConnectorBuilder {
 
         DgcGatewayConnectorConfigProperties properties = new DgcGatewayConnectorConfigProperties();
         properties.setMaxCacheAge(cacheMagAge);
+        properties.setEnableDdccSupport(enableDdccSupport);
 
         Client client;
         try {
@@ -285,17 +304,19 @@ public class DgcGatewayDownloadConnectorBuilder {
                 e);
         }
 
-        DgcGatewayConnectorRestClient restClient = new DgcFeignClientBuilder(springBootContext)
-            .forType(DgcGatewayConnectorRestClient.class, new DgcFeignClientFactoryBean(), UUID.randomUUID().toString())
+        DgcGatewayConnectorRestClient restClient = new FeignClientBuilder(springBootContext)
+            .forType(DgcGatewayConnectorRestClient.class, new FeignClientFactoryBean(), UUID.randomUUID().toString())
             .customize(builder -> builder.client(client))
             .url(url)
             .build();
 
         DgcGatewayConnectorUtils connectorUtils =
-            new DgcGatewayConnectorUtils(certificateUtils, restClient, null, trustListMapper, null);
+            new DgcGatewayConnectorUtils(certificateUtils, restClient, properties, trustListMapper, trustedIssuerMapper,
+                trustedReferenceMapper, trustedCertificateMapper, null);
         connectorUtils.setTrustAnchors(trustAnchors);
 
-        return new DgcGatewayDownloadConnector(connectorUtils, restClient, properties, trustListMapper);
+        return new DgcGatewayDownloadConnector(
+            connectorUtils, restClient, properties, trustListMapper, trustedCertificateMapper);
     }
 
     private Client getClient() throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException,

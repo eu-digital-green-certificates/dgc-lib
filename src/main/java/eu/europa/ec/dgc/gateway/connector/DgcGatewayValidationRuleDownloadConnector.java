@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -102,7 +103,8 @@ public class DgcGatewayValidationRuleDownloadConnector {
                 validationRules = new ValidationRulesByCountry();
 
                 trustedUploadCertificates =
-                    connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD).stream()
+                    connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD, new HashMap<>())
+                        .stream()
                         .map(connectorUtils::getCertificateFromTrustListItem)
                         .collect(Collectors.toList());
                 log.info("Upload TrustStore contains {} trusted certificates.", trustedUploadCertificates.size());

@@ -40,6 +40,11 @@ public class DgcGatewayConnectorConfigProperties {
     private boolean disableUploadCertificateCheck = false;
 
     /**
+     * Enabled Usage of DDCC specific endpoints.
+     */
+    private boolean enableDdccSupport = false;
+
+    /**
      * Endpoint of DGCG Service (without any path segments, e.g. https://example-dgcg.ec.europa.eu)
      */
     String endpoint;
