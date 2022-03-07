@@ -349,7 +349,9 @@ class DgcGatewayConnectorUtils {
     }
 
     private String getHashData(TrustedIssuerDto trustedIssuerDto) {
-        return trustedIssuerDto.getCountry() + HASH_SEPARATOR
+        return trustedIssuerDto.getUuid() + HASH_SEPARATOR
+            + trustedIssuerDto.getCountry() + HASH_SEPARATOR
+            + trustedIssuerDto.getName() + HASH_SEPARATOR
             + trustedIssuerDto.getUrl() + HASH_SEPARATOR
             + trustedIssuerDto.getType().name() + HASH_SEPARATOR;
     }
