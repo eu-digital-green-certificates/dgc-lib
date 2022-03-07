@@ -22,7 +22,9 @@ package eu.europa.ec.dgc.gateway.connector.model;
 
 public enum CertificateType {
     AUTHENTICATION,
+    AUTHENTICATION_FEDERATION,
     UPLOAD,
     CSCA,
-    DSC
+    DSC,
+    TRUSTANCHOR
 }

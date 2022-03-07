@@ -22,6 +22,7 @@ package eu.europa.ec.dgc.gateway.connector.dto;
 
 public enum CertificateTypeDto {
     AUTHENTICATION,
+    AUTHENTICATION_FEDERATION,
     UPLOAD,
     CSCA,
     DSC,
