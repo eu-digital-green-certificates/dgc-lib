@@ -658,7 +658,9 @@ class DdccDownloadConnectorTest {
     }
 
     private String getHashData(TrustedIssuerDto trustedIssuerDto) {
-        return trustedIssuerDto.getCountry() + ";"
+        return trustedIssuerDto.getUuid() + ";"
+            + trustedIssuerDto.getCountry() + ";"
+            + trustedIssuerDto.getName() + ";"
             + trustedIssuerDto.getUrl() + ";"
             + trustedIssuerDto.getType().name() + ";";
     }
