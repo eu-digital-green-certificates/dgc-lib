@@ -199,6 +199,10 @@ class DgcGatewayConnectorUtils {
         return trustAnchors.stream().anyMatch(trustAnchor -> parser.getSigningCertificate().equals(trustAnchor));
     }
 
+    boolean checkTrustAnchorSignature(TrustedCertificateTrustListDto trustedCertificate) {
+        return checkTrustAnchorSignature(trustedCertificateMapper.mapToTrustList(trustedCertificate), trustAnchors);
+    }
+
     X509CertificateHolder getCertificateFromTrustListItem(TrustListItem trustListItem) {
         byte[] decodedBytes = Base64.getDecoder().decode(trustListItem.getRawData());
 

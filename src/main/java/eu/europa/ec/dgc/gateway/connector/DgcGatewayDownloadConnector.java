@@ -257,7 +257,7 @@ public class DgcGatewayDownloadConnector {
 
                 if (properties.isEnableDdccSupport()) {
                     // Fetching TrustedCertificates
-                    fetchTrustedCertificatesAndVerifyByCscaAndUpload();
+                    fetchTrustedCertificatesAndVerifyByTrustAnchorOrCscaAndUpload();
 
                     // Fetching TrustedIssuers
                     trustedIssuers = connectorUtils.fetchTrustedIssuersAndVerifyByTrustAnchor(queryParameterMap);
@@ -325,7 +325,7 @@ public class DgcGatewayDownloadConnector {
         log.info("Put {} trusted certificates into TrustList", trustedCertificates.size());
     }
 
-    private void fetchTrustedCertificatesAndVerifyByCscaAndUpload() throws
+    private void fetchTrustedCertificatesAndVerifyByTrustAnchorOrCscaAndUpload() throws
         DgcGatewayConnectorUtils.DgcGatewayConnectorException {
         if (!properties.isEnableDdccSupport()) {
             log.info("DDCC Support is disabled, Skipping TrustedCertificate Download.");
@@ -351,8 +351,8 @@ public class DgcGatewayDownloadConnector {
         }
 
         ddccTrustedCertificates = responseEntity.getBody().stream()
-            .filter(this::checkCscaCertificate)
-            .filter(this::checkUploadCertificate)
+            .filter(cert -> (connectorUtils.checkTrustAnchorSignature(cert)
+                || (checkCscaCertificate(cert) && checkUploadCertificate(cert))))
             .map(trustedCertificateMapper::map)
             .collect(Collectors.toList());
 
