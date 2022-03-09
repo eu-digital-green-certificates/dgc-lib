@@ -30,6 +30,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TrustedReferenceDto {
 
+    private String url;
+
     private String country;
 
     private ReferenceTypeDto type;
