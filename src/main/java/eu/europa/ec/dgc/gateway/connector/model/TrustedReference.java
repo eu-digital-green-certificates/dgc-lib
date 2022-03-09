@@ -29,6 +29,8 @@ public class TrustedReference {
 
     private String uuid;
 
+    private String url;
+
     private String version;
 
     private String country;
