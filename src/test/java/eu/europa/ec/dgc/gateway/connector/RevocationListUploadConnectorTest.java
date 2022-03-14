@@ -25,7 +25,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDeleteRequestDto;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDto;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationHashTypeDto;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.testdata.DgcTestKeyStore;
 import eu.europa.ec.dgc.utils.CertificateUtils;
@@ -36,7 +42,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -66,20 +75,18 @@ class RevocationListUploadConnectorTest {
 
     @Test
     void testUploadOfRevocationList() throws Exception {
-        String dummyRevocationList = "dummyRevocationList";
-
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(restClientMock.uploadBatch(argumentCaptor.capture()))
           .thenReturn(ResponseEntity.status(HttpStatus.CREATED).build());
 
-        connector.uploadRevocationBatch(dummyRevocationList);
+        connector.uploadRevocationBatch(getRevocation());
 
         verify(restClientMock).uploadBatch(any());
 
         SignedStringMessageParser parser = new SignedStringMessageParser(argumentCaptor.getValue());
 
-        Assertions.assertEquals(dummyRevocationList, parser.getPayload());
+        Assertions.assertEquals(getRevocationJSON(), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()),
           parser.getSigningCertificate());
     }
@@ -99,7 +106,7 @@ class RevocationListUploadConnectorTest {
 
         SignedStringMessageParser parser = new SignedStringMessageParser(argumentCaptor.getValue());
 
-        Assertions.assertEquals(dummyRevocationListId, parser.getPayload());
+        Assertions.assertEquals(getDeleteJSON(dummyRevocationListId), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()),
           parser.getSigningCertificate());
     }
@@ -140,10 +147,11 @@ class RevocationListUploadConnectorTest {
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
           Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(dummyRevocationList));
+            () -> connector.uploadRevocationBatch(getRevocation()));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH, e.getReason());
+          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
+          e.getReason());
     }
 
     @Test
@@ -163,10 +171,11 @@ class RevocationListUploadConnectorTest {
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
           Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(dummyRevocationList));
+            () -> connector.uploadRevocationBatch(getRevocation()));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR, e.getReason());
+          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR,
+          e.getReason());
     }
 
     @Test
@@ -178,7 +187,7 @@ class RevocationListUploadConnectorTest {
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
           Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(dummyRevocationList));
+            () -> connector.uploadRevocationBatch(getRevocation()));
         Assertions.assertEquals(
           DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.SERVER_ERROR, e.getReason());
     }
@@ -192,7 +201,7 @@ class RevocationListUploadConnectorTest {
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
           Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(dummyRevocationList));
+            () -> connector.uploadRevocationBatch(getRevocation()));
         Assertions.assertEquals(
           DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
           e.getReason());
@@ -207,7 +216,7 @@ class RevocationListUploadConnectorTest {
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
           Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(dummyRevocationList));
+            () -> connector.uploadRevocationBatch(getRevocation()));
         Assertions.assertEquals(
           DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
           e.getReason());
@@ -233,7 +242,8 @@ class RevocationListUploadConnectorTest {
             () -> connector.deleteRevocationBatch(dummyRevocationList));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH, e.getReason());
+          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
+          e.getReason());
     }
 
     @Test
@@ -256,7 +266,8 @@ class RevocationListUploadConnectorTest {
             () -> connector.deleteRevocationBatch(dummyRevocationList));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR, e.getReason());
+          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR,
+          e.getReason());
     }
 
     @Test
@@ -318,5 +329,32 @@ class RevocationListUploadConnectorTest {
      */
     private Request dummyRequest() {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    }
+
+    private RevocationBatchDto getRevocation() {
+        RevocationBatchDto revocation = new RevocationBatchDto();
+        revocation.setCountry("SE");
+        revocation.setExpires(ZonedDateTime.parse("2022-03-14T10:43:08.828Z"));
+        revocation.setKid("123456789012");
+        revocation.setHashType(RevocationHashTypeDto.UCI);
+        RevocationBatchDto.BatchEntryDto entry = new RevocationBatchDto.BatchEntryDto("123456789123456789123456");
+        List<RevocationBatchDto.BatchEntryDto> list = new ArrayList<>();
+        list.add(entry);
+        revocation.setEntries(list);
+        return revocation;
+    }
+
+    private String getRevocationJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper.writeValueAsString(getRevocation());
+    }
+
+    private String getDeleteJSON(String batchId) throws JsonProcessingException {
+        RevocationBatchDeleteRequestDto deleteRequest = new RevocationBatchDeleteRequestDto();
+        deleteRequest.setBatchId(batchId);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper.writeValueAsString(deleteRequest);
     }
 }

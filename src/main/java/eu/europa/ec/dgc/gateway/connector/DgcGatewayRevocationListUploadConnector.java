@@ -22,9 +22,12 @@ package eu.europa.ec.dgc.gateway.connector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProperties;
 import eu.europa.ec.dgc.gateway.connector.dto.ProblemReportDto;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDeleteRequestDto;
+import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDto;
 import eu.europa.ec.dgc.signing.SignedStringMessageBuilder;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
@@ -102,18 +105,23 @@ public class DgcGatewayRevocationListUploadConnector {
     /**
      * Uploads a JSON-File as RevocationBatch to DGC Gateway.
      *
-     * @param json the JSON containing the ValidationRUle to upload.
+     * @param revocationBatchDto the RevocationBatchDto to upload.
      * @throws DgcRevocationBatchUploadException with detailed information why the upload has failed.
      */
-    public void uploadRevocationBatch(String json) throws DgcRevocationBatchUploadException {
+    public String uploadRevocationBatch(RevocationBatchDto revocationBatchDto)
+      throws DgcRevocationBatchUploadException, JsonProcessingException {
 
-        String payload = new SignedStringMessageBuilder().withPayload(json)
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        String jsonString = mapper.writeValueAsString(revocationBatchDto);
+        String payload = new SignedStringMessageBuilder().withPayload(jsonString)
           .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
 
         try {
             ResponseEntity<Void> response = dgcGatewayConnectorRestClient.uploadBatch(payload);
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 log.info("Successfully uploaded RevocationBatch");
+                return response.getHeaders().getETag();
             }
         } catch (FeignException e) {
             if (e.status() == HttpStatus.BAD_REQUEST.value()) {
@@ -126,17 +134,24 @@ public class DgcGatewayRevocationListUploadConnector {
                   DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION);
             }
         }
+        return null;
     }
 
     /**
      * Deletes a RevocationBatch with given ID from DGC Gateway.
      *
-     * @param ruleId The ID of the Rules to be deleted.
+     * @param batchId The ID of the batch to be deleted.
      * @throws DgcRevocationBatchUploadException with detailed information why the delete has failed.
      */
-    public void deleteRevocationBatch(String ruleId) throws DgcRevocationBatchUploadException {
+    public void deleteRevocationBatch(String batchId) throws DgcRevocationBatchUploadException,
+      JsonProcessingException {
 
-        String payload = new SignedStringMessageBuilder().withPayload(ruleId)
+        RevocationBatchDeleteRequestDto deleteRequest = new RevocationBatchDeleteRequestDto();
+        deleteRequest.setBatchId(batchId);
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = mapper.writeValueAsString(deleteRequest);
+
+        String payload = new SignedStringMessageBuilder().withPayload(jsonString)
           .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
 
         try {
@@ -155,7 +170,7 @@ public class DgcGatewayRevocationListUploadConnector {
                   DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION);
 
             } else if (e.status() == HttpStatus.NOT_FOUND.value()) {
-                log.info("ValidationRules with ID {} does not exists on DGCG", ruleId);
+                log.info("ValidationRules with ID {} does not exists on DGCG", batchId);
             }
         }
     }
