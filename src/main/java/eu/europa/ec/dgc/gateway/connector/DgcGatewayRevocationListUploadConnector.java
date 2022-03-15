@@ -177,7 +177,6 @@ public class DgcGatewayRevocationListUploadConnector {
 
     private void handleBadRequest(FeignException e) throws DgcRevocationBatchUploadException {
         if (e.responseBody().isPresent()) {
-            ObjectMapper objectMapper = new ObjectMapper();
             try {
                 ProblemReportDto problemReport = objectMapper.readValue(e.contentUTF8(), ProblemReportDto.class);
 
