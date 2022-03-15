@@ -67,6 +67,8 @@ public class DgcGatewayRevocationListUploadConnector {
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
 
     private final DgcGatewayConnectorConfigProperties properties;
+    
+    private final ObjectMapper objectMapper;
 
     private final CertificateUtils certificateUtils;
 
