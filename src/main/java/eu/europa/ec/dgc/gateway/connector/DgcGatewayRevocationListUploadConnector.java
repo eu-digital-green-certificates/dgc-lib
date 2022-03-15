@@ -111,7 +111,6 @@ public class DgcGatewayRevocationListUploadConnector {
     public String uploadRevocationBatch(RevocationBatchDto revocationBatchDto)
       throws DgcRevocationBatchUploadException, JsonProcessingException {
 
-        ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         String jsonString = mapper.writeValueAsString(revocationBatchDto);
         String payload = new SignedStringMessageBuilder().withPayload(jsonString)
