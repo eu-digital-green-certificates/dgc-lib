@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchDeleteRequestDto;
@@ -72,6 +73,7 @@ class RevocationListUploadConnectorTest {
     @Autowired
     DgcTestKeyStore testKeyStore;
 
+    ObjectMapper mapper = new ObjectMapper();
 
     @Test
     void testUploadOfRevocationList() throws Exception {
@@ -344,15 +346,15 @@ class RevocationListUploadConnectorTest {
     }
 
     private String getRevocationJSON() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
         return mapper.writeValueAsString(getRevocation());
     }
 
     private String getDeleteJSON(String batchId) throws JsonProcessingException {
         RevocationBatchDeleteRequestDto deleteRequest = new RevocationBatchDeleteRequestDto();
         deleteRequest.setBatchId(batchId);
-        ObjectMapper mapper = new ObjectMapper();
+
         mapper.registerModule(new JavaTimeModule());
         return mapper.writeValueAsString(deleteRequest);
     }
