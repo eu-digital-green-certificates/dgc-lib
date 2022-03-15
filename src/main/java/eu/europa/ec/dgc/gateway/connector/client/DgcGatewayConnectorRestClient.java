@@ -40,9 +40,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
 @FeignClient(
-    name = "dgc-gateway-connector",
-    url = "${dgc.gateway.connector.endpoint}",
-    configuration = DgcGatewayConnectorRestClientConfig.class
+  name = "dgc-gateway-connector",
+  url = "${dgc.gateway.connector.endpoint}",
+  configuration = DgcGatewayConnectorRestClientConfig.class
 )
 public interface DgcGatewayConnectorRestClient {
 
@@ -124,12 +124,11 @@ public interface DgcGatewayConnectorRestClient {
 
 
     /**
-     *  Downloads a batch list from the revocation list.
-     *
+     * Downloads a batch list from the revocation list.
      */
     @GetMapping(value = "/revocation-list", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RevocationBatchListDto> downloadRevocationList(
-        @RequestHeader(HttpHeaders.IF_MODIFIED_SINCE) String lastUpdate);
+      @RequestHeader(HttpHeaders.IF_MODIFIED_SINCE) String lastUpdate);
 
     /**
      * Downloads a batch of the revocation list.
@@ -140,4 +139,19 @@ public interface DgcGatewayConnectorRestClient {
     @GetMapping(value = "/revocation-list/{batchId}", produces = {"application/cms-text"})
     ResponseEntity<String> downloadBatch(@PathVariable("batchId") String batchId);
 
+    /**
+     * Uploads a batch to the revocation list.
+     *
+     * @param batch the CMS signed Batch JSON.
+     */
+    @PostMapping(value = "/revocation-list", consumes = "application/cms-text")
+    ResponseEntity<Void> uploadBatch(@RequestBody String batch);
+
+    /**
+     * Deletes a batch from the revocation list.
+     *
+     * @param batch the CMS signed Batch Identifier.
+     */
+    @DeleteMapping(value = "/revocation-list", consumes = "application/cms-text")
+    ResponseEntity<Void> deleteBatch(@RequestBody String batch);
 }

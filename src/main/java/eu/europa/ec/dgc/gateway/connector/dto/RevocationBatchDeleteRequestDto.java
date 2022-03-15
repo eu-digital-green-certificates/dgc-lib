@@ -1,8 +1,8 @@
 /*-
  * ---license-start
- * EU Digital Green Certificate Gateway Service / dgc-lib
+ * eu-digital-green-certificates / dgc-lib
  * ---
- * Copyright (C) 2021 - 2022 T-Systems International GmbH and all other contributors
+ * Copyright (C) 2022 T-Systems International GmbH and all other contributors
  * ---
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,18 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc.gateway.connector.exception;
+package eu.europa.ec.dgc.gateway.connector.dto;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-public class RevocationBatchGoneException extends RuntimeException {
 
-    private final String batchId;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RevocationBatchDeleteRequestDto {
 
-    public RevocationBatchGoneException(String message, String batchId) {
-        super(message);
-        this.batchId = batchId;
-    }
+    private String batchId;
 
 }
