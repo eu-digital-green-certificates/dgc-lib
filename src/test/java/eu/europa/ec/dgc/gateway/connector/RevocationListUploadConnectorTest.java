@@ -85,7 +85,6 @@ class RevocationListUploadConnectorTest {
         verify(restClientMock).uploadBatch(any());
 
         SignedStringMessageParser parser = new SignedStringMessageParser(argumentCaptor.getValue());
-
         Assertions.assertEquals(getRevocationJSON(), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()),
           parser.getSigningCertificate());

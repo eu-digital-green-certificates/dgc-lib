@@ -113,8 +113,8 @@ public class DgcGatewayRevocationListUploadConnector {
     public String uploadRevocationBatch(RevocationBatchDto revocationBatchDto)
       throws DgcRevocationBatchUploadException, JsonProcessingException {
 
-        mapper.registerModule(new JavaTimeModule());
-        String jsonString = mapper.writeValueAsString(revocationBatchDto);
+        objectMapper.registerModule(new JavaTimeModule());
+        String jsonString = objectMapper.writeValueAsString(revocationBatchDto);
         String payload = new SignedStringMessageBuilder().withPayload(jsonString)
           .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
 
@@ -149,7 +149,7 @@ public class DgcGatewayRevocationListUploadConnector {
 
         RevocationBatchDeleteRequestDto deleteRequest = new RevocationBatchDeleteRequestDto();
         deleteRequest.setBatchId(batchId);
-        String jsonString = mapper.writeValueAsString(deleteRequest);
+        String jsonString = objectMapper.writeValueAsString(deleteRequest);
 
         String payload = new SignedStringMessageBuilder().withPayload(jsonString)
           .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();

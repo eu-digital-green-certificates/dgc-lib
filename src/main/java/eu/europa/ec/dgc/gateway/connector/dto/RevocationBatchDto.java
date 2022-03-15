@@ -20,6 +20,7 @@
 
 package eu.europa.ec.dgc.gateway.connector.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class RevocationBatchDto {
 
     private String country;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private ZonedDateTime expires;
 
     private String kid;
