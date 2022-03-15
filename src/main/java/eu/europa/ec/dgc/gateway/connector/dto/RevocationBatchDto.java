@@ -20,7 +20,6 @@
 
 package eu.europa.ec.dgc.gateway.connector.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
