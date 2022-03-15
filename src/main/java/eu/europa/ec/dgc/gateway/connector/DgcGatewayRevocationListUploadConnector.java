@@ -147,7 +147,6 @@ public class DgcGatewayRevocationListUploadConnector {
 
         RevocationBatchDeleteRequestDto deleteRequest = new RevocationBatchDeleteRequestDto();
         deleteRequest.setBatchId(batchId);
-        ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(deleteRequest);
 
         String payload = new SignedStringMessageBuilder().withPayload(jsonString)
