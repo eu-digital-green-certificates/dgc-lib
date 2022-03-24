@@ -21,6 +21,7 @@
 package eu.europa.ec.dgc.gateway.connector;
 
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
+import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.testdata.TrustedIssuerTestHelper;
 import feign.FeignException;
@@ -37,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -89,6 +91,32 @@ class TrustedIssuerDownloadConnectorTest {
      */
     private Request dummyRequest() {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    }
+
+    @Test
+    void setQueryParameters() throws Exception {
+        Map<String,String> param = new HashMap<>();
+        param.put("country","DE");
+
+        when(restClientMock.downloadTrustedIssuers(param))
+            .thenReturn(ResponseEntity.ok(
+                List.of(trustedIssuerTestHelper.createTrustedIssuer("DE"))));
+
+        connector.setQueryParameter(QueryParameter.COUNTRY_CODE, "DE");
+        List<TrustedIssuer> result = connector.getTrustedIssuers();
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("DE", result.get(0).getCountry());
+
+        connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true,false));
+
+    }
+
+    @Test
+    public void setWrongQueryFormat() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true,false));
+        });
     }
 
 }

@@ -29,6 +29,7 @@ import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
 import eu.europa.ec.dgc.gateway.connector.model.QueryParameter;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
+import eu.europa.ec.dgc.signing.SignedMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
@@ -158,7 +159,7 @@ class DgcGatewayConnectorUtils {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
             trustListItem.getSignature(), trustListItem.getRawData());
 
-        if (parser.getParserState() != SignedCertificateMessageParser.ParserState.SUCCESS) {
+        if (parser.getParserState() != SignedMessageParser.ParserState.SUCCESS) {
             log.error("Could not parse trustListItem CMS. ParserState: {}", parser.getParserState());
             return false;
         } else if (!parser.isSignatureVerified()) {

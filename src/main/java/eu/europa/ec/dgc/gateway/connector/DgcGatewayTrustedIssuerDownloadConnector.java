@@ -92,7 +92,7 @@ public class DgcGatewayTrustedIssuerDownloadConnector {
      *                       result in a list of "CSCA" and "UPLOAD" certificates with at least one matching property.
      */
     public <T extends Serializable> void setQueryParameter(QueryParameter<T> queryParameter, List<T> values) {
-        if (!queryParameter.getArrayValue() && values.size() > 1) {
+        if (Boolean.FALSE.equals(queryParameter.getArrayValue()) && values.size() > 1) {
             throw new IllegalArgumentException("Only one value is allowed for non-array query parameters.");
         }
 
