@@ -18,14 +18,46 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.dto;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import java.time.ZonedDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Configuration
-@ComponentScan("eu.europa.ec.dgc")
-@EnableConfigurationProperties
-public class DgcLibAutoConfiguration {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrustedIssuerDto {
+
+    private String url;
+
+    private UrlTypeDto type;
+
+    private String country;
+
+    private String thumbprint;
+
+    private String sslPublicKey;
+
+    private String keyStorageType;
+
+    private String signature;
+
+    private ZonedDateTime timestamp;
+
+    private String sourceGateway;
+
+    private String uuid;
+
+    private String domain;
+
+    private Long version;
+
+    private String name;
+
+    public enum UrlTypeDto {
+        HTTP,
+        DID
+    }
 }

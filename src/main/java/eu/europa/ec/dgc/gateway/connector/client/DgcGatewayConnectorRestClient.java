@@ -2,7 +2,7 @@
  * ---license-start
  * EU Digital Green Certificate Gateway Service / dgc-lib
  * ---
- * Copyright (C) 2021 T-Systems International GmbH and all other contributors
+ * Copyright (C) 2021 - 2022 T-Systems International GmbH and all other contributors
  * ---
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ package eu.europa.ec.dgc.gateway.connector.client;
 import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.RevocationBatchListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustListItemDto;
+import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.dto.ValidationRuleDto;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
 @FeignClient(
@@ -154,4 +156,12 @@ public interface DgcGatewayConnectorRestClient {
      */
     @DeleteMapping(value = "/revocation-list", consumes = "application/cms-text")
     ResponseEntity<Void> deleteBatch(@RequestBody String batch);
+
+    /**
+     * Download all trusted issuers.
+     *
+     * @return List of Trusted Issuers
+     */
+    @GetMapping(value = "/trustList/issuers", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<TrustedIssuerDto>> downloadTrustedIssuers(@RequestParam Map<String, String> queryParams);
 }

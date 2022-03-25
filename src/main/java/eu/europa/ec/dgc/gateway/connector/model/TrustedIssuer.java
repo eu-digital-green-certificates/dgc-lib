@@ -18,14 +18,40 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.model;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import java.time.ZonedDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
-@Configuration
-@ComponentScan("eu.europa.ec.dgc")
-@EnableConfigurationProperties
-public class DgcLibAutoConfiguration {
+@Getter
+@Setter
+public class TrustedIssuer {
+
+    private String url;
+
+    private UrlType type;
+
+    private String country;
+
+    private String thumbprint;
+
+    private String sslPublicKey;
+
+    private String keyStorageType;
+
+    private String signature;
+
+    private ZonedDateTime timestamp;
+
+    private String name;
+
+    private String uuid;
+
+    private String domain;
+
+    public enum UrlType {
+        HTTP,
+        DID
+    }
 }
