@@ -75,7 +75,9 @@ class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayload().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        checkSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getDetachedSignature());
+        checkEmbeddedSignatureFromParser(parser.getEmbeddedSignature());
     }
 
     @Test
@@ -105,7 +107,9 @@ class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayload().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        checkSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getDetachedSignature());
+        checkEmbeddedSignatureFromParser(parser.getEmbeddedSignature());
     }
 
     @Test
@@ -117,7 +121,9 @@ class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayload().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        checkSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getDetachedSignature());
+        checkEmbeddedSignatureFromParser(parser.getEmbeddedSignature());
     }
 
     @Test
@@ -130,7 +136,9 @@ class SignedCertificateMessageParserTest {
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), parser.getPayload().getEncoded());
         Assertions.assertArrayEquals(signingCertificate.getEncoded(), parser.getSigningCertificate().getEncoded());
         Assertions.assertTrue(parser.isSignatureVerified());
-        checkSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getSignature());
+        checkDetachedSignatureFromParser(parser.getDetachedSignature());
+        checkEmbeddedSignatureFromParser(parser.getEmbeddedSignature());
     }
 
     @Test
@@ -275,7 +283,7 @@ class SignedCertificateMessageParserTest {
         Assertions.assertFalse(parser.isSignatureVerified());
     }
 
-    private void checkSignatureFromParser(String signature) throws CertificateEncodingException, IOException {
+    private void checkDetachedSignatureFromParser(String signature) throws CertificateEncodingException, IOException {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
             signature, Base64.getEncoder().encodeToString(payloadCertificate.getEncoded()));
 
@@ -284,6 +292,16 @@ class SignedCertificateMessageParserTest {
         Assertions.assertEquals(new X509CertificateHolder(signingCertificate.getEncoded()), parser.getSigningCertificate());
         Assertions.assertTrue(parser.isSignatureVerified());
         Assertions.assertEquals(signature, parser.getSignature());
+    }
+
+    private void checkEmbeddedSignatureFromParser(String signature) throws CertificateEncodingException, IOException {
+        SignedCertificateMessageParser parser = new SignedCertificateMessageParser(signature);
+
+        Assertions.assertEquals(SignedStringMessageParser.ParserState.SUCCESS, parser.getParserState());
+        Assertions.assertEquals(new X509CertificateHolder(payloadCertificate.getEncoded()), parser.getPayload());
+        Assertions.assertEquals(new X509CertificateHolder(signingCertificate.getEncoded()), parser.getSigningCertificate());
+        Assertions.assertTrue(parser.isSignatureVerified());
+        Assertions.assertEquals(signature, parser.getEmbeddedSignature());
     }
 }
 
