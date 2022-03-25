@@ -81,12 +81,30 @@ public abstract class SignedMessageParser<T> {
     private boolean signatureVerified = false;
 
     /**
-     * <p>Base64 encoded signature of the cms message.</p>
+     * <p>Base64 encoded signature of the cms message.
+     * Deprecated: Use getDetachedSignature() or getEmbeddedSignature() instead.</p>
      *
      * <p>This string contains only the signature which signs the message.</p>
      */
     @Getter
+    @Deprecated
     private String signature;
+
+    /**
+     * <p>Base64 encoded detached signature of the cms message.</p>
+     *
+     * <p>This string contains only the signature which signs the message and not the payload.</p>
+     */
+    @Getter
+    private String detachedSignature;
+
+    /**
+     * <p>Base64 encoded embedded signature of the cms message.</p>
+     *
+     * <p>This string contains both the signature which signs the message and the corresponding payload.</p>
+     */
+    @Getter
+    private String embeddedSignature;
 
     /**
      * Method to convert the encoded bytes to the actual Class instance.
@@ -229,12 +247,14 @@ public abstract class SignedMessageParser<T> {
         }
         signingCertificate = certificateHolderCollection.iterator().next();
 
-        // Try to extract detached CMS Signature
+        // Try to repack CMS
         try {
-            signature = Base64.getEncoder().encodeToString(repackToDetachedCms(cmsSignedData).getEncoded());
+            detachedSignature = Base64.getEncoder().encodeToString(repack(cmsSignedData, true).getEncoded());
+            embeddedSignature = Base64.getEncoder().encodeToString(repack(cmsSignedData, false).getEncoded());
+            signature = detachedSignature; // for compatibility reasons
         } catch (IOException | CMSException e) {
             signature = null;
-            log.error("Failed to repack CMS to get detached signature.");
+            log.error("Failed to repack CMS.");
         }
 
         // Get signer information and verify signature
@@ -256,20 +276,21 @@ public abstract class SignedMessageParser<T> {
     }
 
     /**
-     * Recreates a CMS without encapsulated Data.
+     * Recreates a CMS w/o encapsulated Data.
      *
-     * @param input input CMS Message
-     * @return CMS message without encapsulated data.
+     * @param input    input CMS Message
+     * @param detached whether it should be a detached signature or not
+     * @return CMS message.
      * @throws CMSException if repacking fails.
      */
-    private CMSSignedData repackToDetachedCms(CMSSignedData input) throws CMSException {
+    private CMSSignedData repack(CMSSignedData input, boolean detached) throws CMSException {
         CMSSignedDataGenerator cmsGenerator = new CMSSignedDataGenerator();
         cmsGenerator.addCertificates(input.getCertificates());
         cmsGenerator.addSigners(input.getSignerInfos());
         cmsGenerator.addAttributeCertificates(input.getAttributeCertificates());
         cmsGenerator.addCRLs(input.getCRLs());
 
-        return cmsGenerator.generate(input.getSignedContent(), false);
+        return cmsGenerator.generate(input.getSignedContent(), !detached);
     }
 
     public enum ParserState {
