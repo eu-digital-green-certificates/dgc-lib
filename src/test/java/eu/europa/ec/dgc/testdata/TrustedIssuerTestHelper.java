@@ -1,6 +1,6 @@
 /*-
  * ---license-start
- * EU Digital Green Certificate Gateway Service / dgc-gateway
+ * EU Digital Green Certificate Gateway Service / dgc-lib
  * ---
  * Copyright (C) 2021 - 2022 T-Systems International GmbH and all other contributors
  * ---
