@@ -120,7 +120,10 @@ class DgcGatewayConnectorUtils {
             log.error("Could not parse certificate. KID: {}, Country: {}",
                 certificate.getKid(), certificate.getCountry());
             return false;
+        } catch (NullPointerException e) {
+            return false;
         }
+
 
         try {
             return dcs.isSignatureValid(verifier);
@@ -140,6 +143,8 @@ class DgcGatewayConnectorUtils {
         } catch (IOException e) {
             log.error("Could not parse certificate. KID: {}, Country: {}",
                     certificate.getKid(), certificate.getCountry());
+            return false;
+        } catch (NullPointerException e) {
             return false;
         }
 
@@ -283,8 +288,7 @@ class DgcGatewayConnectorUtils {
     }
 
     private String getHashData(TrustedIssuerDto trustedIssuerDto) {
-        return trustedIssuerDto.getUuid() + HASH_SEPARATOR
-            + trustedIssuerDto.getCountry() + HASH_SEPARATOR
+        return trustedIssuerDto.getCountry() + HASH_SEPARATOR
             + trustedIssuerDto.getName() + HASH_SEPARATOR
             + trustedIssuerDto.getUrl() + HASH_SEPARATOR
             + trustedIssuerDto.getType().name() + HASH_SEPARATOR;
