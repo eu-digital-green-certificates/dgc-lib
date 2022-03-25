@@ -81,10 +81,10 @@ public abstract class SignedMessageParser<T> {
     private boolean signatureVerified = false;
 
     /**
-     * <p>Base64 encoded signature of the cms message.
-     * Deprecated: Use getDetachedSignature() or getEmbeddedSignature() instead.</p>
+     * <p>Base64 encoded signature of the cms message.</p>
      *
      * <p>This string contains only the signature which signs the message.</p>
+     * @deprecated Use getDetachedSignature() or getEmbeddedSignature() instead.
      */
     @Getter
     @Deprecated
