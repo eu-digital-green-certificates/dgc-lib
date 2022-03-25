@@ -107,9 +107,7 @@ class TrustedIssuerDownloadConnectorTest {
 
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("DE", result.get(0).getCountry());
-
-        connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true,false));
-
+        
     }
 
     @Test
