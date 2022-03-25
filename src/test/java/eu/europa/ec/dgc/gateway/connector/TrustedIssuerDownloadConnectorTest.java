@@ -107,14 +107,13 @@ class TrustedIssuerDownloadConnectorTest {
 
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("DE", result.get(0).getCountry());
-        
+
     }
 
     @Test
-    public void setWrongQueryFormat() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true,false));
-        });
+    void setWrongQueryFormat() {
+        assertThrows(IllegalArgumentException.class, () ->
+            connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true,false)));
     }
 
 }
