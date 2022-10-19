@@ -33,7 +33,7 @@
         <commonsio.version>2.11.0</commonsio.version>
         <cbor.version>4.5.1</cbor.version>
         <jackson.version>2.13.2</jackson.version>
-        <jackson.databind.version>2.13.2.1</jackson.databind.version>
+        <jackson.databind.version>2.13.4.1</jackson.databind.version>
         <mockwebserver.version>4.9.3</mockwebserver.version>
         <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
