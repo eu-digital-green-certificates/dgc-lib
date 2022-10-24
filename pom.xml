@@ -235,7 +235,6 @@
                 <configuration>
                     <configLocation>codestyle/checkstyle.xml</configLocation>
                     <excludes>target/**/*</excludes>
-                    <excludes>**/springbootworkaroundforks/*</excludes>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <violationSeverity>warning</violationSeverity>
