@@ -460,7 +460,7 @@ class ValidationRuleDownloadConnectorTest {
     private Request dummyRequest() {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
     }
-    
+
     private void assertEquals(ValidationRule v1, ValidationRule v2) {
         Assertions.assertEquals(v1.getIdentifier(), v2.getIdentifier());
         Assertions.assertEquals(v1.getType(), v2.getType());

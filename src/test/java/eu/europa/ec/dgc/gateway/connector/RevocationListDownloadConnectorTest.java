@@ -40,18 +40,17 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Slf4j
@@ -71,7 +70,6 @@ class RevocationListDownloadConnectorTest {
 
     @Autowired
     ObjectMapper objectMapper;
-
 
 
     @Test
@@ -138,7 +136,7 @@ class RevocationListDownloadConnectorTest {
 
         assertNotNull(downloadedData);
         assertFalse(downloadedData.isEmpty());
-        Assertions.assertEquals(2 , downloadedData.size());
+        Assertions.assertEquals(2, downloadedData.size());
         assertEquals(batchItem1, downloadedData.get(0));
         assertEquals(batchItem2, downloadedData.get(1));
 
@@ -147,7 +145,7 @@ class RevocationListDownloadConnectorTest {
 
         assertNotNull(downloadedData);
         assertFalse(downloadedData.isEmpty());
-        Assertions.assertEquals(2 , downloadedData.size());
+        Assertions.assertEquals(2, downloadedData.size());
         assertEquals(batchItem3, downloadedData.get(0));
         assertEquals(batchItem4, downloadedData.get(1));
 
@@ -219,7 +217,7 @@ class RevocationListDownloadConnectorTest {
 
         assertNotNull(downloadedData);
         assertFalse(downloadedData.isEmpty());
-        Assertions.assertEquals(2 , downloadedData.size());
+        Assertions.assertEquals(2, downloadedData.size());
         assertEquals(batchItem3, downloadedData.get(0));
         assertEquals(batchItem4, downloadedData.get(1));
 
@@ -325,7 +323,7 @@ class RevocationListDownloadConnectorTest {
         Assertions.assertEquals(b1.getHashType(), b2.getHashType());
         Assertions.assertEquals(b1.getKid(), b2.getKid());
         Assertions.assertEquals(b1.getEntries().size(), b2.getEntries().size());
-        for (int i = 0; i < b1.getEntries().size(); i++){
+        for (int i = 0; i < b1.getEntries().size(); i++) {
             Assertions.assertEquals(b1.getEntries().get(i).getHash(), b2.getEntries().get(i).getHash());
         }
     }

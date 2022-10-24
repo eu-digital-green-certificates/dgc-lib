@@ -59,10 +59,11 @@ public class DgcCryptedFinalizer {
 
     /**
      * finalize dcc.
+     *
      * @param encodedDccData dcc data
-     * @param dek encoded key
-     * @param privateKey private key
-     * @param partialDcc cose with signature and key
+     * @param dek            encoded key
+     * @param privateKey     private key
+     * @param partialDcc     cose with signature and key
      * @return qr code of final dcc
      */
     public String finalizePartialDcc(byte[] encodedDccData, byte[] dek, PrivateKey privateKey, byte[] partialDcc) {

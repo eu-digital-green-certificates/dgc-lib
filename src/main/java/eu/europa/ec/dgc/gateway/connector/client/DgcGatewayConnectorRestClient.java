@@ -42,9 +42,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @ConditionalOnProperty("dgc.gateway.connector.enabled")
 @FeignClient(
-  name = "dgc-gateway-connector",
-  url = "${dgc.gateway.connector.endpoint}",
-  configuration = DgcGatewayConnectorRestClientConfig.class
+    name = "dgc-gateway-connector",
+    url = "${dgc.gateway.connector.endpoint}",
+    configuration = DgcGatewayConnectorRestClientConfig.class
 )
 public interface DgcGatewayConnectorRestClient {
 
@@ -130,7 +130,7 @@ public interface DgcGatewayConnectorRestClient {
      */
     @GetMapping(value = "/revocation-list", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RevocationBatchListDto> downloadRevocationList(
-      @RequestHeader(HttpHeaders.IF_MODIFIED_SINCE) String lastUpdate);
+        @RequestHeader(HttpHeaders.IF_MODIFIED_SINCE) String lastUpdate);
 
     /**
      * Downloads a batch of the revocation list.

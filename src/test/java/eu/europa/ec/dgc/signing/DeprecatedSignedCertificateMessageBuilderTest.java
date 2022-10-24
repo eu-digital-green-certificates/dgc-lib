@@ -79,7 +79,7 @@ class DeprecatedSignedCertificateMessageBuilderTest {
     @Test
     void testSignedMessage() throws Exception {
         CMSSignedData cmsSignedData = new CMSSignedData(builder.build());
-        
+
         Assertions.assertEquals(CMSObjectIdentifiers.data, cmsSignedData.getSignedContent().getContentType());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), (byte[]) cmsSignedData.getSignedContent().getContent());
 

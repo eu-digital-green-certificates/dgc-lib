@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 
 class DgcLibAutoConfigurationTest {
 
-  @Test
-  void testDefineConstructor() {
-    assertNotNull(new DgcLibAutoConfiguration());
-  }
+    @Test
+    void testDefineConstructor() {
+        assertNotNull(new DgcLibAutoConfiguration());
+    }
 }

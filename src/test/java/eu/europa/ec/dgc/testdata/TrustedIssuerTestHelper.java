@@ -49,10 +49,10 @@ public class TrustedIssuerTestHelper {
     }
 
     private String getHashData(TrustedIssuerDto entity) {
-        return  entity.getCountry() + ";"
-                + entity.getName() + ";"
-                + entity.getUrl() + ";"
-                + entity.getType().name() + ";";
+        return entity.getCountry() + ";"
+            + entity.getName() + ";"
+            + entity.getUrl() + ";"
+            + entity.getType().name() + ";";
     }
 
     public String signString(final String hashdata) throws Exception {

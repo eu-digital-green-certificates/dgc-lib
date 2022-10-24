@@ -23,22 +23,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
-        <owasp.version>6.5.3</owasp.version>
-        <spring.boot.version>2.6.3</spring.boot.version>
-        <spring.cloud.version>3.1.0</spring.cloud.version>
-        <feign.version>11.7</feign.version>
+        <owasp.version>7.3.0</owasp.version>
+        <spring.boot.version>2.7.5</spring.boot.version>
+        <spring.cloud.version>3.1.4</spring.cloud.version>
+        <feign.version>11.10</feign.version>
         <bcpkix.version>1.70</bcpkix.version>
-        <lombok.version>1.18.22</lombok.version>
-        <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <lombok.version>1.18.24</lombok.version>
+        <mapstruct.version>1.5.3.Final</mapstruct.version>
         <commonsio.version>2.11.0</commonsio.version>
-        <cbor.version>4.5.1</cbor.version>
-        <jackson.version>2.13.2</jackson.version>
-        <jackson.databind.version>2.13.2.1</jackson.databind.version>
-        <mockwebserver.version>4.9.3</mockwebserver.version>
-        <plugin.checkstyle.version>3.1.2</plugin.checkstyle.version>
-        <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
-        <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
-        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
+        <cbor.version>4.5.2</cbor.version>
+        <jackson.version>2.13.4</jackson.version>
+        <jackson.databind.version>2.13.4.2</jackson.databind.version>
+        <mockwebserver.version>4.10.0</mockwebserver.version>
+        <plugin.checkstyle.version>3.2.0</plugin.checkstyle.version>
+        <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
+        <plugin.jacoco.version>0.8.8</plugin.jacoco.version>
 
         <!-- license -->
         <license.projectName>EU Digital Green Certificate Gateway Service / dgc-lib</license.projectName>
@@ -74,9 +73,21 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
             <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Explicit inclusion of SnakeYaml because of CVE -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -149,24 +160,6 @@
             <version>${mockwebserver.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Explicit inclusion because of https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.4.7</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Explicit inclusion because of https://nvd.nist.gov/vuln/detail/CVE-2021-22119 -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
-            <version>5.5.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.3.15</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -185,7 +178,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.10.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -242,8 +235,6 @@
                 <configuration>
                     <configLocation>codestyle/checkstyle.xml</configLocation>
                     <excludes>target/**/*</excludes>
-                    <excludes>**/springbootworkaroundforks/*</excludes>
-                    <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <violationSeverity>warning</violationSeverity>

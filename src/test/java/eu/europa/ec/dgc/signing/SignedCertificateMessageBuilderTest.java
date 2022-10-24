@@ -58,7 +58,7 @@ class SignedCertificateMessageBuilderTest {
             .withPayload(new X509CertificateHolder(payloadCertificate.getEncoded()))
             .withSigningCertificate(new X509CertificateHolder(signingCertificate.getEncoded()), signingKeyPair.getPrivate());
     }
-    
+
     @Test
     void testUnreadyBuilder() {
         builder = new SignedCertificateMessageBuilder();
@@ -78,7 +78,7 @@ class SignedCertificateMessageBuilderTest {
     @Test
     void testSignedMessage() throws Exception {
         CMSSignedData cmsSignedData = new CMSSignedData(builder.build());
-        
+
         Assertions.assertEquals(CMSObjectIdentifiers.data, cmsSignedData.getSignedContent().getContentType());
         Assertions.assertArrayEquals(payloadCertificate.getEncoded(), (byte[]) cmsSignedData.getSignedContent().getContent());
 

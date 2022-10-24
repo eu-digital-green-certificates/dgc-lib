@@ -44,7 +44,7 @@ public class DgcCryptedPublisher {
     public static final String KEY_CIPHER = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding";
     public static final String DATA_CIPHER = "AES/CBC/PKCS5Padding";
     public static final OAEPParameterSpec OAEP_PARAMETER_SPEC = new OAEPParameterSpec(
-            "SHA-256","MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT
+        "SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT
     );
 
     private final DgcGenerator dgcGenerator = new DgcGenerator();
@@ -71,8 +71,8 @@ public class DgcCryptedPublisher {
         try {
             encryptData(dgcData, dgcInitData.isEncryptCose() ? edgcCoseUnsigned : edgcCbor, publicKey);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException
-            | InvalidKeyException | InvalidAlgorithmParameterException
-            | IllegalBlockSizeException | BadPaddingException e) {
+                 | InvalidKeyException | InvalidAlgorithmParameterException
+                 | IllegalBlockSizeException | BadPaddingException e) {
             throw new IllegalArgumentException(e);
         }
 

@@ -32,15 +32,14 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Slf4j
@@ -57,7 +56,7 @@ class TrustedIssuerDownloadConnectorTest {
 
     @Test
     void testDownloadOfTrustedIssuerList() throws Exception {
-        Map<String,String> param = new HashMap<>();
+        Map<String, String> param = new HashMap<>();
 
         when(restClientMock.downloadTrustedIssuers(param))
             .thenReturn(ResponseEntity.ok(
@@ -73,7 +72,7 @@ class TrustedIssuerDownloadConnectorTest {
 
     @Test
     void shouldReturnEmptyListWhenDownloadFails() {
-        Map<String,String> param = new HashMap<>();
+        Map<String, String> param = new HashMap<>();
 
         when(restClientMock.downloadTrustedIssuers(param))
             .thenReturn(ResponseEntity.status(500).build());
@@ -95,8 +94,8 @@ class TrustedIssuerDownloadConnectorTest {
 
     @Test
     void setQueryParameters() throws Exception {
-        Map<String,String> param = new HashMap<>();
-        param.put("country","DE");
+        Map<String, String> param = new HashMap<>();
+        param.put("country", "DE");
 
         when(restClientMock.downloadTrustedIssuers(param))
             .thenReturn(ResponseEntity.ok(
@@ -113,7 +112,7 @@ class TrustedIssuerDownloadConnectorTest {
     @Test
     void setWrongQueryFormat() {
         assertThrows(IllegalArgumentException.class, () ->
-            connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true,false)));
+            connector.setQueryParameter(QueryParameter.WITH_FEDERATION, List.of(true, false)));
     }
 
 }
