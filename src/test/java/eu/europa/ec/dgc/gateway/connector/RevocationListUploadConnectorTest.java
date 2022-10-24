@@ -20,11 +20,6 @@
 
 package eu.europa.ec.dgc.gateway.connector;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -51,6 +46,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -80,7 +79,7 @@ class RevocationListUploadConnectorTest {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(restClientMock.uploadBatch(argumentCaptor.capture()))
-          .thenReturn(ResponseEntity.status(HttpStatus.CREATED).build());
+            .thenReturn(ResponseEntity.status(HttpStatus.CREATED).build());
 
         connector.uploadRevocationBatch(getRevocation());
 
@@ -89,7 +88,7 @@ class RevocationListUploadConnectorTest {
         SignedStringMessageParser parser = new SignedStringMessageParser(argumentCaptor.getValue());
         Assertions.assertEquals(getRevocationJSON(), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()),
-          parser.getSigningCertificate());
+            parser.getSigningCertificate());
     }
 
     @Test
@@ -99,7 +98,7 @@ class RevocationListUploadConnectorTest {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(restClientMock.deleteBatch(argumentCaptor.capture()))
-          .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+            .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
 
         connector.deleteRevocationBatch(dummyRevocationListId);
 
@@ -109,7 +108,7 @@ class RevocationListUploadConnectorTest {
 
         Assertions.assertEquals(getDeleteJSON(dummyRevocationListId), parser.getPayload());
         Assertions.assertEquals(certificateUtils.convertCertificate(testKeyStore.getUpload()),
-          parser.getSigningCertificate());
+            parser.getSigningCertificate());
     }
 
     @Test
@@ -136,23 +135,23 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         String problemReport = "{" +
-          "\"code\": \"0x500\"," +
-          "\"problem\": \"problem\"," +
-          "\"sendValue\": \"val\"," +
-          "\"details\": \"details\"" +
-          "}";
+            "\"code\": \"0x500\"," +
+            "\"problem\": \"problem\"," +
+            "\"sendValue\": \"val\"," +
+            "\"details\": \"details\"" +
+            "}";
 
 
         doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
-          .when(restClientMock).uploadBatch(any());
+            .when(restClientMock).uploadBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(getRevocation()));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.uploadRevocationBatch(getRevocation()));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
+            e.getReason());
     }
 
     @Test
@@ -160,23 +159,23 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         String problemReport = "{" +
-          "code: \"0x500\"," +
-          "problem: \"problem\"," +
-          "sendValue: \"val\"," +
-          "details: \"details\"" +
-          "}";
+            "code: \"0x500\"," +
+            "problem: \"problem\"," +
+            "sendValue: \"val\"," +
+            "details: \"details\"" +
+            "}";
 
 
         doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
-          .when(restClientMock).uploadBatch(any());
+            .when(restClientMock).uploadBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(getRevocation()));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.uploadRevocationBatch(getRevocation()));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR,
+            e.getReason());
     }
 
     @Test
@@ -184,13 +183,13 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
-          .when(restClientMock).uploadBatch(any());
+            .when(restClientMock).uploadBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(getRevocation()));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.uploadRevocationBatch(getRevocation()));
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.SERVER_ERROR, e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.SERVER_ERROR, e.getReason());
     }
 
     @Test
@@ -198,14 +197,14 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.Unauthorized("", dummyRequest(), null, null))
-          .when(restClientMock).uploadBatch(any());
+            .when(restClientMock).uploadBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(getRevocation()));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.uploadRevocationBatch(getRevocation()));
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
+            e.getReason());
     }
 
     @Test
@@ -213,14 +212,14 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.Forbidden("", dummyRequest(), null, null))
-          .when(restClientMock).uploadBatch(any());
+            .when(restClientMock).uploadBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.uploadRevocationBatch(getRevocation()));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.uploadRevocationBatch(getRevocation()));
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
+            e.getReason());
     }
 
     @Test
@@ -228,23 +227,23 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         String problemReport = "{" +
-          "\"code\": \"0x500\"," +
-          "\"problem\": \"problem\"," +
-          "\"sendValue\": \"val\"," +
-          "\"details\": \"details\"" +
-          "}";
+            "\"code\": \"0x500\"," +
+            "\"problem\": \"problem\"," +
+            "\"sendValue\": \"val\"," +
+            "\"details\": \"details\"" +
+            "}";
 
 
         doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
-          .when(restClientMock).deleteBatch(any());
+            .when(restClientMock).deleteBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.deleteRevocationBatch(dummyRevocationList));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.deleteRevocationBatch(dummyRevocationList));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
+            e.getReason());
     }
 
     @Test
@@ -252,23 +251,23 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         String problemReport = "{" +
-          "code: \"0x500\"," +
-          "problem: \"problem\"," +
-          "sendValue: \"val\"," +
-          "details: \"details\"" +
-          "}";
+            "code: \"0x500\"," +
+            "problem: \"problem\"," +
+            "sendValue: \"val\"," +
+            "details: \"details\"" +
+            "}";
 
 
         doThrow(new FeignException.BadRequest("", dummyRequest(), problemReport.getBytes(StandardCharsets.UTF_8), null))
-          .when(restClientMock).deleteBatch(any());
+            .when(restClientMock).deleteBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.deleteRevocationBatch(dummyRevocationList));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.deleteRevocationBatch(dummyRevocationList));
 
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR,
+            e.getReason());
     }
 
     @Test
@@ -276,13 +275,13 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
-          .when(restClientMock).deleteBatch(any());
+            .when(restClientMock).deleteBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.deleteRevocationBatch(dummyRevocationList));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.deleteRevocationBatch(dummyRevocationList));
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.SERVER_ERROR, e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.SERVER_ERROR, e.getReason());
     }
 
     @Test
@@ -290,14 +289,14 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.Unauthorized("", dummyRequest(), null, null))
-          .when(restClientMock).deleteBatch(any());
+            .when(restClientMock).deleteBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.deleteRevocationBatch(dummyRevocationList));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.deleteRevocationBatch(dummyRevocationList));
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
+            e.getReason());
     }
 
     @Test
@@ -305,14 +304,14 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.Forbidden("", dummyRequest(), null, null))
-          .when(restClientMock).deleteBatch(any());
+            .when(restClientMock).deleteBatch(any());
 
         DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException e =
-          Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
-            () -> connector.deleteRevocationBatch(dummyRevocationList));
+            Assertions.assertThrows(DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.class,
+                () -> connector.deleteRevocationBatch(dummyRevocationList));
         Assertions.assertEquals(
-          DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
-          e.getReason());
+            DgcGatewayRevocationListUploadConnector.DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION,
+            e.getReason());
     }
 
     @Test
@@ -320,7 +319,7 @@ class RevocationListUploadConnectorTest {
         String dummyRevocationList = "dummyRevocationList";
 
         doThrow(new FeignException.NotFound("", dummyRequest(), null, null))
-          .when(restClientMock).deleteBatch(any());
+            .when(restClientMock).deleteBatch(any());
 
         Assertions.assertDoesNotThrow(() -> connector.deleteRevocationBatch(dummyRevocationList));
     }

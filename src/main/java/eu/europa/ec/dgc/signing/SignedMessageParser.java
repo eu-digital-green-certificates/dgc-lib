@@ -84,6 +84,7 @@ public abstract class SignedMessageParser<T> {
      * <p>Base64 encoded signature of the cms message.</p>
      *
      * <p>This string contains only the signature which signs the message.</p>
+     *
      * @deprecated Use getDetachedSignature() or getEmbeddedSignature() instead.
      */
     @Getter

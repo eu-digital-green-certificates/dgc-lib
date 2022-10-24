@@ -135,14 +135,14 @@ class DgcGatewayConnectorUtils {
     }
 
     public boolean trustListItemSignedByCa(TrustListItemDto certificate, Map<String,
-            List<X509CertificateHolder>> caMap) {
+        List<X509CertificateHolder>> caMap) {
 
         X509CertificateHolder dcs;
         try {
             dcs = new X509CertificateHolder(Base64.getDecoder().decode(certificate.getRawData()));
         } catch (IOException e) {
             log.error("Could not parse certificate. KID: {}, Country: {}",
-                    certificate.getKid(), certificate.getCountry());
+                certificate.getKid(), certificate.getCountry());
             return false;
         } catch (NullPointerException e) {
             return false;
@@ -151,13 +151,13 @@ class DgcGatewayConnectorUtils {
         List<X509CertificateHolder> caList = caMap.get(dcs.getIssuer().toString());
         if (caList == null) {
             log.error("Failed to find issuer certificate from cert. KID: {}, Country: {}",
-                    certificate.getKid(), certificate.getCountry());
+                certificate.getKid(), certificate.getCountry());
             return false;
         }
 
         return caList
-                .stream()
-                .anyMatch(ca -> trustListItemSignedByCa(certificate, ca));
+            .stream()
+            .anyMatch(ca -> trustListItemSignedByCa(certificate, ca));
     }
 
     boolean checkTrustAnchorSignature(TrustListItemDto trustListItem, List<X509CertificateHolder> trustAnchors) {

@@ -56,6 +56,7 @@ public class DgcGatewayRevocationListDownloadConnector {
     /**
      * Gets a revocation list iterator, for partly downloading the revocation list.
      * The if-modified-since header is set to the default value to start at the beginning of the list.
+     *
      * @return revocation list iterator
      */
     public DgcGatewayRevocationListDownloadIterator getRevocationListDownloadIterator() {
@@ -65,6 +66,7 @@ public class DgcGatewayRevocationListDownloadConnector {
     /**
      * Gets a revocation list iterator, for partly downloading the revocation list.
      * The if-modified-since header is set to the value of the parameter. Only newer part of the list are downloaded.
+     *
      * @param ifModifiedSinceDate The value for the if-modified-since header
      * @return revocation list iterator
      */
@@ -76,6 +78,7 @@ public class DgcGatewayRevocationListDownloadConnector {
 
     /**
      * Gets the revocation list batch data for a given batchId.
+     *
      * @param batchId the id of the batch to download.
      * @return the batch data.
      */
@@ -90,7 +93,7 @@ public class DgcGatewayRevocationListDownloadConnector {
             log.error("Download of revocation list batch failed. DGCG responded with status code: {}", e.status());
 
             if (e.status() == HttpStatus.GONE.value()) {
-                throw new RevocationBatchGoneException(String.format("Batch already gone: %s", batchId),batchId);
+                throw new RevocationBatchGoneException(String.format("Batch already gone: %s", batchId), batchId);
             }
 
             throw new RevocationBatchDownloadException("Batch download failed with exception.", e);
@@ -102,7 +105,7 @@ public class DgcGatewayRevocationListDownloadConnector {
 
             throw new RevocationBatchDownloadException(
                 String.format("Batch download failed with unexpected response. Response status code: %d", statusCode),
-                    statusCode);
+                statusCode);
         }
 
         String cms = responseEntity.getBody();

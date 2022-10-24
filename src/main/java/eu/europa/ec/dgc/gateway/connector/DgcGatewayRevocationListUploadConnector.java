@@ -67,7 +67,7 @@ public class DgcGatewayRevocationListUploadConnector {
     private final DgcGatewayConnectorRestClient dgcGatewayConnectorRestClient;
 
     private final DgcGatewayConnectorConfigProperties properties;
-    
+
     private final ObjectMapper objectMapper;
 
     private final CertificateUtils certificateUtils;
@@ -111,12 +111,12 @@ public class DgcGatewayRevocationListUploadConnector {
      * @throws DgcRevocationBatchUploadException with detailed information why the upload has failed.
      */
     public String uploadRevocationBatch(RevocationBatchDto revocationBatchDto)
-      throws DgcRevocationBatchUploadException, JsonProcessingException {
+        throws DgcRevocationBatchUploadException, JsonProcessingException {
 
         objectMapper.registerModule(new JavaTimeModule());
         String jsonString = objectMapper.writeValueAsString(revocationBatchDto);
         String payload = new SignedStringMessageBuilder().withPayload(jsonString)
-          .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
+            .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
 
         try {
             ResponseEntity<Void> response = dgcGatewayConnectorRestClient.uploadBatch(payload);
@@ -132,7 +132,7 @@ public class DgcGatewayRevocationListUploadConnector {
             } else if (e.status() == HttpStatus.UNAUTHORIZED.value() || e.status() == HttpStatus.FORBIDDEN.value()) {
                 log.error("Client is not authorized. (Invalid Client Certificate)");
                 throw new DgcRevocationBatchUploadException(
-                  DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION);
+                    DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION);
             }
         }
         return null;
@@ -145,14 +145,14 @@ public class DgcGatewayRevocationListUploadConnector {
      * @throws DgcRevocationBatchUploadException with detailed information why the delete has failed.
      */
     public void deleteRevocationBatch(String batchId) throws DgcRevocationBatchUploadException,
-      JsonProcessingException {
+        JsonProcessingException {
 
         RevocationBatchDeleteRequestDto deleteRequest = new RevocationBatchDeleteRequestDto();
         deleteRequest.setBatchId(batchId);
         String jsonString = objectMapper.writeValueAsString(deleteRequest);
 
         String payload = new SignedStringMessageBuilder().withPayload(jsonString)
-          .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
+            .withSigningCertificate(uploadCertificateHolder, uploadCertificatePrivateKey).buildAsString();
 
         try {
             ResponseEntity<Void> response = dgcGatewayConnectorRestClient.deleteBatch(payload);
@@ -167,7 +167,7 @@ public class DgcGatewayRevocationListUploadConnector {
             } else if (e.status() == HttpStatus.UNAUTHORIZED.value() || e.status() == HttpStatus.FORBIDDEN.value()) {
                 log.error("Client is not authorized. (Invalid Client Certificate)");
                 throw new DgcRevocationBatchUploadException(
-                  DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION);
+                    DgcRevocationBatchUploadException.Reason.INVALID_AUTHORIZATION);
 
             } else if (e.status() == HttpStatus.NOT_FOUND.value()) {
                 log.info("ValidationRules with ID {} does not exists on DGCG", batchId);
@@ -181,8 +181,8 @@ public class DgcGatewayRevocationListUploadConnector {
                 ProblemReportDto problemReport = objectMapper.readValue(e.contentUTF8(), ProblemReportDto.class);
 
                 throw new DgcRevocationBatchUploadException(DgcRevocationBatchUploadException.Reason.INVALID_BATCH,
-                  String.format("%s: %s, %s", problemReport.getCode(), problemReport.getProblem(),
-                    problemReport.getDetails()));
+                    String.format("%s: %s, %s", problemReport.getCode(), problemReport.getProblem(),
+                        problemReport.getDetails()));
             } catch (JsonProcessingException jsonException) {
                 throw new DgcRevocationBatchUploadException(DgcRevocationBatchUploadException.Reason.UNKNOWN_ERROR);
             }

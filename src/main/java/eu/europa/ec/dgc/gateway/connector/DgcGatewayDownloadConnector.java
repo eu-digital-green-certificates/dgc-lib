@@ -103,8 +103,8 @@ public class DgcGatewayDownloadConnector {
             trustedCscaCertificates = connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.CSCA);
             log.info("CSCA TrustStore contains {} trusted certificates.", trustedCscaCertificates.size());
             trustedCscaCertificateMap = trustedCscaCertificates.stream()
-                    .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
-                            Collectors.mapping((ca) -> ca, Collectors.toList())));
+                .collect(Collectors.groupingBy((ca) -> ca.getSubject().toString(),
+                    Collectors.mapping((ca) -> ca, Collectors.toList())));
 
             trustedUploadCertificates =
                 connectorUtils.fetchCertificatesAndVerifyByTrustAnchor(CertificateTypeDto.UPLOAD);

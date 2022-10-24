@@ -38,8 +38,8 @@ public class SignedCertificateMessageParser extends SignedMessageParser<X509Cert
     /**
      * The extracted payload certificate.
      *
-     * @deprecated use .getPayload() instead.
      * @return certificate.
+     * @deprecated use .getPayload() instead.
      */
     @Deprecated
     public X509CertificateHolder getPayloadCertificate() {
