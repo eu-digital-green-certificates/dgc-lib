@@ -106,7 +106,9 @@ class DgcGatewayConnectorUtils {
     public boolean trustListItemSignedByCa(TrustListItemDto certificate, X509CertificateHolder ca) {
         ContentVerifierProvider verifier;
         try {
-            verifier = new JcaContentVerifierProviderBuilder().build(ca);
+            verifier = new JcaContentVerifierProviderBuilder()
+                .setProvider(new BouncyCastleProvider())
+                .build(ca);
         } catch (OperatorCreationException | CertificateException e) {
             log.error("Failed to instantiate JcaContentVerifierProvider from cert. KID: {}, Country: {}",
                 certificate.getKid(), certificate.getCountry());
