@@ -18,15 +18,18 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.dto;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-class DgcLibAutoConfigurationTest {
 
-    @Test
-    void testDefineConstructor() {
-        assertNotNull(new DgcLibAutoConfiguration());
-    }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RevocationBatchDeleteRequestDto {
+
+    private String batchId;
+
 }

@@ -22,91 +22,79 @@ package eu.europa.ec.dgc.signing;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.cert.X509CertificateHolder;
 
 /**
- * Utility to parse a CMS signed message containing a DER encoded X509 Certificate.
+ * Utility to parse a CMS signed message containing a Byte Array (e.g. a File).
  */
 @Slf4j
-public class SignedCertificateMessageParser extends SignedMessageParser<X509CertificateHolder> {
+public class SignedByteArrayMessageParser extends SignedMessageParser<byte[]> {
 
     @Override
-    X509CertificateHolder convertFromBytes(byte[] bytes) throws Exception {
-        return new X509CertificateHolder(bytes);
+    byte[] convertFromBytes(byte[] bytes) {
+        return bytes;
     }
 
     /**
-     * The extracted payload certificate.
-     *
-     * @return certificate.
-     * @deprecated use .getPayload() instead.
-     */
-    @Deprecated
-    public X509CertificateHolder getPayloadCertificate() {
-        return getPayload();
-    }
-
-    /**
-     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * Create a new instance of {@link SignedByteArrayMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
      * @param cmsMessage base64 encoded CMS message bytes.
      */
-    public SignedCertificateMessageParser(@NonNull byte[] cmsMessage) {
+    public SignedByteArrayMessageParser(@NonNull byte[] cmsMessage) {
         super(cmsMessage);
     }
 
     /**
-     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * Create a new instance of {@link SignedByteArrayMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature bytes.
      * @param cmsPayload   base64 encoded CMS message payload.
      */
-    public SignedCertificateMessageParser(@NonNull byte[] cmsSignature, @NonNull byte[] cmsPayload) {
+    public SignedByteArrayMessageParser(@NonNull byte[] cmsSignature, @NonNull byte[] cmsPayload) {
         super(cmsSignature, cmsPayload);
     }
 
     /**
-     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * Create a new instance of {@link SignedByteArrayMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
      * @param cmsMessage base64 encoded CMS message string.
      */
-    public SignedCertificateMessageParser(@NonNull String cmsMessage) {
+    public SignedByteArrayMessageParser(@NonNull String cmsMessage) {
         super(cmsMessage);
     }
 
     /**
-     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * Create a new instance of {@link SignedByteArrayMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature string.
      * @param cmsPayload   base64 encoded CMS message payload string.
      */
-    public SignedCertificateMessageParser(@NonNull String cmsSignature, @NonNull String cmsPayload) {
+    public SignedByteArrayMessageParser(@NonNull String cmsSignature, @NonNull String cmsPayload) {
         super(cmsSignature, cmsPayload);
     }
 
     /**
-     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * Create a new instance of {@link SignedByteArrayMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature bytes.
      * @param cmsPayload   base64 encoded CMS message payload string.
      */
-    public SignedCertificateMessageParser(@NonNull byte[] cmsSignature, @NonNull String cmsPayload) {
+    public SignedByteArrayMessageParser(@NonNull byte[] cmsSignature, @NonNull String cmsPayload) {
         super(cmsSignature, cmsPayload);
     }
 
     /**
-     * Create a new instance of {@link SignedCertificateMessageParser} and starts the parsing process.
+     * Create a new instance of {@link SignedByteArrayMessageParser} and starts the parsing process.
      * The result of parsing process will be immediately available.
      *
      * @param cmsSignature base64 encoded detached CMS signature string.
      * @param cmsPayload   base64 encoded CMS message payload bytes.
      */
-    public SignedCertificateMessageParser(@NonNull String cmsSignature, @NonNull byte[] cmsPayload) {
+    public SignedByteArrayMessageParser(@NonNull String cmsSignature, @NonNull byte[] cmsPayload) {
         super(cmsSignature, cmsPayload);
     }
 }

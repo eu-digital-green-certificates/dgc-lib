@@ -18,15 +18,26 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.signing;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-class DgcLibAutoConfigurationTest {
+/**
+ * Utility to build a CMS signed message containing a Byte Array (e.g. a File).
+ */
+@Slf4j
+@NoArgsConstructor
+public class SignedByteArrayMessageBuilder extends SignedMessageBuilder<byte[], SignedByteArrayMessageBuilder> {
 
-    @Test
-    void testDefineConstructor() {
-        assertNotNull(new DgcLibAutoConfiguration());
+    @Override
+    byte[] convertToBytes(byte[] payload) {
+        return payload;
     }
+
+    @Override
+    SignedByteArrayMessageBuilder getThis() {
+        return this;
+    }
+
 }

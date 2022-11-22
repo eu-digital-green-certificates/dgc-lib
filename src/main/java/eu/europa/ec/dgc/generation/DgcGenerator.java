@@ -112,7 +112,7 @@ public class DgcGenerator {
     /**
      * Set signature and unprotected header from partialDcc into unsigned cose dcc.
      *
-     * @param cwtData  cwt paylaod data (cbor)
+     * @param cwtData    cwt paylaod data (cbor)
      * @param partialDcc cose with signature and unprotected header
      * @return signed cose dcc
      */
@@ -121,7 +121,7 @@ public class DgcGenerator {
         if (partialCose.getType() != CBORType.Array || partialCose.getValues().size() < 3) {
             throw new IllegalArgumentException("partial dcc is not cbor array");
         }
-        partialCose.set(2,CBORObject.FromObject(cwtData));
+        partialCose.set(2, CBORObject.FromObject(cwtData));
         return partialCose.EncodeToBytes();
     }
 

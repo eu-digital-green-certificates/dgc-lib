@@ -21,12 +21,12 @@
 package eu.europa.ec.dgc.signing;
 
 import eu.europa.ec.dgc.testdata.CertificateTestUtils;
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Random;
 import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSProcessableByteArray;
@@ -36,44 +36,32 @@ import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@SuppressWarnings("deprecation")
-class DeprecatedSignedCertificateMessageBuilderTest {
+class SignedByteArrayMessageBuilderTest {
 
-    KeyPair payloadKeyPair, signingKeyPair;
-    X509Certificate payloadCertificate, signingCertificate;
+    KeyPair signingKeyPair;
+    X509Certificate signingCertificate;
+    byte[] payload;
 
-    SignedCertificateMessageBuilder builder;
+    SignedByteArrayMessageBuilder builder;
 
     @BeforeEach
     void setupTestData() throws Exception {
-        payloadKeyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
-        payloadCertificate = CertificateTestUtils.generateCertificate(payloadKeyPair, "DE", "PayloadCertificate");
+        payload = new byte[100];
+        new Random().nextBytes(payload);
 
         signingKeyPair = KeyPairGenerator.getInstance("ec").generateKeyPair();
         signingCertificate = CertificateTestUtils.generateCertificate(signingKeyPair, "DE", "SigningCertificate");
 
-        builder = new SignedCertificateMessageBuilder()
-            .withPayloadCertificate(new X509CertificateHolder(payloadCertificate.getEncoded()))
+        builder = new SignedByteArrayMessageBuilder()
+            .withPayload(payload)
             .withSigningCertificate(new X509CertificateHolder(signingCertificate.getEncoded()), signingKeyPair.getPrivate());
     }
 
     @Test
     void testUnreadyBuilder() {
-        builder = new SignedCertificateMessageBuilder();
+        builder = new SignedByteArrayMessageBuilder();
         Assertions.assertThrows(RuntimeException.class, builder::buildAsString);
-    }
-
-    @Test
-    void testCatchExceptionDuringBuild() throws IOException {
-        X509CertificateHolder certMock = mock(X509CertificateHolder.class);
-        when(certMock.getEncoded()).thenThrow(new IOException());
-
-        builder.withPayloadCertificate(certMock);
-
-        Assertions.assertThrows(RuntimeException.class, builder::build);
     }
 
     @Test
@@ -81,10 +69,7 @@ class DeprecatedSignedCertificateMessageBuilderTest {
         CMSSignedData cmsSignedData = new CMSSignedData(builder.build());
 
         Assertions.assertEquals(CMSObjectIdentifiers.data, cmsSignedData.getSignedContent().getContentType());
-        Assertions.assertArrayEquals(payloadCertificate.getEncoded(), (byte[]) cmsSignedData.getSignedContent().getContent());
-
-        X509CertificateHolder readPayloadCertificate = new X509CertificateHolder((byte[]) cmsSignedData.getSignedContent().getContent());
-        Assertions.assertNotNull(readPayloadCertificate);
+        Assertions.assertArrayEquals(payload, (byte[]) cmsSignedData.getSignedContent().getContent());
 
         Collection<X509CertificateHolder> certificateHolderCollection = cmsSignedData.getCertificates().getMatches(null);
         Assertions.assertEquals(1, certificateHolderCollection.size());
@@ -109,7 +94,7 @@ class DeprecatedSignedCertificateMessageBuilderTest {
         X509CertificateHolder readSigningCertificate = certificateHolderCollection.iterator().next();
         Assertions.assertNotNull(readSigningCertificate);
 
-        cmsSignedData = new CMSSignedData(new CMSProcessableByteArray(payloadCertificate.getEncoded()), builder.build(true));
+        cmsSignedData = new CMSSignedData(new CMSProcessableByteArray(payload), builder.build(true));
 
         Assertions.assertEquals(1, cmsSignedData.getSignerInfos().size());
         SignerInformation signerInformation = cmsSignedData.getSignerInfos().iterator().next();
@@ -123,10 +108,7 @@ class DeprecatedSignedCertificateMessageBuilderTest {
         CMSSignedData cmsSignedData = new CMSSignedData(Base64.getDecoder().decode(builder.buildAsString()));
 
         Assertions.assertEquals(CMSObjectIdentifiers.data, cmsSignedData.getSignedContent().getContentType());
-        Assertions.assertArrayEquals(payloadCertificate.getEncoded(), (byte[]) cmsSignedData.getSignedContent().getContent());
-
-        X509CertificateHolder readPayloadCertificate = new X509CertificateHolder((byte[]) cmsSignedData.getSignedContent().getContent());
-        Assertions.assertNotNull(readPayloadCertificate);
+        Assertions.assertArrayEquals(payload, (byte[]) cmsSignedData.getSignedContent().getContent());
 
         Collection<X509CertificateHolder> certificateHolderCollection = cmsSignedData.getCertificates().getMatches(null);
         Assertions.assertEquals(1, certificateHolderCollection.size());
@@ -151,7 +133,7 @@ class DeprecatedSignedCertificateMessageBuilderTest {
         X509CertificateHolder readSigningCertificate = certificateHolderCollection.iterator().next();
         Assertions.assertNotNull(readSigningCertificate);
 
-        cmsSignedData = new CMSSignedData(new CMSProcessableByteArray(payloadCertificate.getEncoded()), Base64.getDecoder().decode(builder.buildAsString(true)));
+        cmsSignedData = new CMSSignedData(new CMSProcessableByteArray(payload), Base64.getDecoder().decode(builder.buildAsString(true)));
 
         Assertions.assertEquals(1, cmsSignedData.getSignerInfos().size());
         SignerInformation signerInformation = cmsSignedData.getSignerInfos().iterator().next();

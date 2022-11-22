@@ -1,6 +1,6 @@
 /*-
  * ---license-start
- * WHO Digital Documentation Covid Certificate Gateway Service / ddcc-gateway
+ * WHO Digital Documentation Covid Certificate Gateway Service / ddcc-gateway-lib
  * ---
  * Copyright (C) 2022 T-Systems International GmbH and all other contributors
  * ---
