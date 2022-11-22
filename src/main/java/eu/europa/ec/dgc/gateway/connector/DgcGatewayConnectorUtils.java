@@ -36,6 +36,7 @@ import eu.europa.ec.dgc.gateway.connector.model.TrustListItem;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
+import eu.europa.ec.dgc.signing.SignedMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
@@ -118,7 +119,9 @@ class DgcGatewayConnectorUtils {
     public boolean trustListItemSignedByCa(TrustListItemDto certificate, X509CertificateHolder ca) {
         ContentVerifierProvider verifier;
         try {
-            verifier = new JcaContentVerifierProviderBuilder().build(ca);
+            verifier = new JcaContentVerifierProviderBuilder()
+                .setProvider(new BouncyCastleProvider())
+                .build(ca);
         } catch (OperatorCreationException | CertificateException e) {
             log.error("Failed to instantiate JcaContentVerifierProvider from cert. KID: {}, Country: {}",
                 certificate.getKid(), certificate.getCountry());
@@ -131,6 +134,8 @@ class DgcGatewayConnectorUtils {
         } catch (IOException e) {
             log.error("Could not parse certificate. KID: {}, Country: {}",
                 certificate.getKid(), certificate.getCountry());
+            return false;
+        } catch (NullPointerException e) {
             return false;
         }
 
@@ -153,6 +158,8 @@ class DgcGatewayConnectorUtils {
             log.error("Could not parse certificate. KID: {}, Country: {}",
                 certificate.getKid(), certificate.getCountry());
             return false;
+        } catch (NullPointerException e) {
+            return false;
         }
 
         List<X509CertificateHolder> caList = caMap.get(dcs.getIssuer().toString());
@@ -171,7 +178,7 @@ class DgcGatewayConnectorUtils {
         SignedCertificateMessageParser parser = new SignedCertificateMessageParser(
             trustListItem.getSignature(), trustListItem.getRawData());
 
-        if (parser.getParserState() != SignedCertificateMessageParser.ParserState.SUCCESS) {
+        if (parser.getParserState() != SignedMessageParser.ParserState.SUCCESS) {
             log.error("Could not parse trustListItem CMS. ParserState: {}", parser.getParserState());
             return false;
         } else if (!parser.isSignatureVerified()) {

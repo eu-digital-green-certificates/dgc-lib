@@ -30,15 +30,15 @@ class Base45EncoderTest {
 
     @Test
     void encodeTest() {
-        assertEquals("7WE QE",Base45Encoder.encodeToString("test".getBytes(StandardCharsets.UTF_8)));
+        assertEquals("7WE QE", Base45Encoder.encodeToString("test".getBytes(StandardCharsets.UTF_8)));
 
-        byte[] bytes = new byte[] { 0, 2, -2, 30, -12, 23, -23, -40};
-        assertEquals("200T5WR%UEPT",Base45Encoder.encodeToString(bytes));
+        byte[] bytes = new byte[]{0, 2, -2, 30, -12, 23, -23, -40};
+        assertEquals("200T5WR%UEPT", Base45Encoder.encodeToString(bytes));
     }
 
     @Test
     void encodingDecoding() {
-        for (int i = 16; i<20; i++) {
+        for (int i = 16; i < 20; i++) {
             byte[] in = new byte[i];
             Random rnd = new Random();
             rnd.nextBytes(in);

@@ -21,7 +21,6 @@
 package eu.europa.ec.dgc.gateway.connector;
 
 import eu.europa.ec.dgc.gateway.connector.client.DgcGatewayConnectorRestClient;
-import eu.europa.ec.dgc.gateway.connector.dto.CertificateTypeDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedCertificateTrustListDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedIssuerDto;
 import eu.europa.ec.dgc.gateway.connector.dto.TrustedReferenceDto;

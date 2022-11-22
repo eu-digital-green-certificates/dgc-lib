@@ -1,8 +1,8 @@
 /*-
  * ---license-start
- * WHO Digital Documentation Covid Certificate Gateway Service / ddcc-gateway-lib
+ * EU Digital Green Certificate Gateway Service / dgc-lib
  * ---
- * Copyright (C) 2022 T-Systems International GmbH and all other contributors
+ * Copyright (C) 2021 - 2022 T-Systems International GmbH and all other contributors
  * ---
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,18 @@
  * ---license-end
  */
 
-package eu.europa.ec.dgc;
+package eu.europa.ec.dgc.gateway.connector.dto;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-class DgcLibAutoConfigurationTest {
 
-    @Test
-    void testDefineConstructor() {
-        assertNotNull(new DgcLibAutoConfiguration());
-    }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RevocationBatchDeleteRequestDto {
+
+    private String batchId;
+
 }

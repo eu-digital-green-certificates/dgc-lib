@@ -67,6 +67,7 @@ public class DccRecoveryBuilder extends DccBuilderBase<DccRecoveryBuilder> {
 
     /**
      * first Day Positive Test.
+     *
      * @param fr first Day Positive Test.
      * @return builder
      */
@@ -78,6 +79,7 @@ public class DccRecoveryBuilder extends DccBuilderBase<DccRecoveryBuilder> {
 
     /**
      * certificate valid from.
+     *
      * @param df valid from.
      * @return builder
      */
@@ -89,6 +91,7 @@ public class DccRecoveryBuilder extends DccBuilderBase<DccRecoveryBuilder> {
 
     /**
      * certificate valid until.
+     *
      * @param du valid until.
      * @return builder
      */

@@ -191,4 +191,21 @@ public interface DgcGatewayConnectorRestClient {
     @GetMapping(value = "/trustList/certificate", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<List<TrustedCertificateTrustListDto>> downloadTrustedCertificates(
         @RequestParam Map<String, String> queryParams);
+
+    /**
+     * Uploads a batch to the revocation list.
+     *
+     * @param batch the CMS signed Batch JSON.
+     */
+    @PostMapping(value = "/revocation-list", consumes = "application/cms-text")
+    ResponseEntity<Void> uploadBatch(@RequestBody String batch);
+
+    /**
+     * Deletes a batch from the revocation list.
+     *
+     * @param batch the CMS signed Batch Identifier.
+     */
+    @DeleteMapping(value = "/revocation-list", consumes = "application/cms-text")
+    ResponseEntity<Void> deleteBatch(@RequestBody String batch);
+
 }

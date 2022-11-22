@@ -67,6 +67,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
 
     /**
      * vaccine Or Prophylaxis.
+     *
      * @param vp vaccineOrProphylaxis
      * @return builder
      */
@@ -79,6 +80,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
 
     /**
      * medical product.
+     *
      * @param mp medical product
      * @return builder
      */
@@ -91,6 +93,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
 
     /**
      * marketing Authorization.
+     *
      * @param ma marketingAuthorization
      * @return builder
      */
@@ -103,6 +106,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
 
     /**
      * dose number.
+     *
      * @param dn dose number
      * @return builder
      */
@@ -117,6 +121,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
 
     /**
      * total series of doses.
+     *
      * @param sd total series of doses
      * @return builder
      */
@@ -131,6 +136,7 @@ public class DccVaccinationBuilder extends DccBuilderBase<DccVaccinationBuilder>
 
     /**
      * date time of vaccination.
+     *
      * @param dateTime sc
      * @return builder
      */

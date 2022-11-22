@@ -115,7 +115,7 @@ public class DownloadConnectorBuilderTest {
         server.enqueue(new MockResponse().setBody(""));
 
         DgcGatewayDownloadConnector connector =
-                new DgcGatewayDownloadConnectorBuilder(applicationContext, trustListMapper, trustedIssuerMapper, trustedReferenceMapper, trustedCertificateMapper)
+                new DgcGatewayDownloadConnectorBuilder(applicationContext, trustListMapper, trustedReferenceMapper, trustedCertificateMapper)
             .withMtlsAuthCert(certificateUtils.convertCertificate(clientCertificate), clientKeyPair.getPrivate())
             .withTrustedServerCert(certificateUtils.convertCertificate(serverCertificate))
             .withUrl(server.url("/test").toString())

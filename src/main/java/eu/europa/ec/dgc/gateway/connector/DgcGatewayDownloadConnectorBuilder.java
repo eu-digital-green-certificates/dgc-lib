@@ -25,6 +25,7 @@ import eu.europa.ec.dgc.gateway.connector.config.DgcGatewayConnectorConfigProper
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustListMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedCertificateMapper;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapper;
+import eu.europa.ec.dgc.gateway.connector.mapper.TrustedIssuerMapperImpl;
 import eu.europa.ec.dgc.gateway.connector.mapper.TrustedReferenceMapper;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.Client;
@@ -78,9 +79,9 @@ public class DgcGatewayDownloadConnectorBuilder {
     private static final CertificateUtils certificateUtils = new CertificateUtils();
     private final ApplicationContext springBootContext;
     private final TrustListMapper trustListMapper;
-    private final TrustedIssuerMapper trustedIssuerMapper;
     private final TrustedReferenceMapper trustedReferenceMapper;
     private final TrustedCertificateMapper trustedCertificateMapper;
+    private final TrustedIssuerMapper trustedIssuerMapper = new TrustedIssuerMapperImpl();
 
     /**
      * Builder parameters.

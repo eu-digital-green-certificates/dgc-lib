@@ -46,18 +46,18 @@ class DccTestBuilderTest {
     }
 
     @Test
-    void genTestJson()  {
+    void genTestJson() {
         DccTestBuilder dccTestBuilder = new DccTestBuilder();
         dccTestBuilder.gn("Artur").fn("Trzewik").gnt("ARTUR").fnt("TRZEWIK").dob(LocalDate.parse("1973-01-01"));
         dccTestBuilder.detected(false)
-                .dgci("URN:UVCI:01:OS:B5921A35D6A0D696421B3E2462178297I")
-                .country("DE")
-                .testTypeRapid(true)
-                .testingCentre("Hochdahl")
-                .testIdentifier("1833")
-                .testName("Example name")
-                .certificateIssuer("Dr Who")
-                .sampleCollection(LocalDateTime.now());
+            .dgci("URN:UVCI:01:OS:B5921A35D6A0D696421B3E2462178297I")
+            .country("DE")
+            .testTypeRapid(true)
+            .testingCentre("Hochdahl")
+            .testIdentifier("1833")
+            .testName("Example name")
+            .certificateIssuer("Dr Who")
+            .sampleCollection(LocalDateTime.now());
         String jsonString = dccTestBuilder.toJsonString();
         assertNotNull(jsonString);
         System.out.println(jsonString);
