@@ -13,7 +13,7 @@
 
     <groupId>eu.europa.ec.dgc</groupId>
     <artifactId>ddcc-gateway-lib</artifactId>
-    <version>latest</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>ddcc-gateway-lib</name>
@@ -31,7 +31,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
         <owasp.version>8.0.2</owasp.version>
-        <bcpkix.version>1.70</bcpkix.version>
+        <bcpkix.version>1.72</bcpkix.version>
         <lombok.version>1.18.24</lombok.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <commonsio.version>2.11.0</commonsio.version>
@@ -104,7 +104,7 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
             <version>${bcpkix.version}</version>
         </dependency>
         <dependency>
