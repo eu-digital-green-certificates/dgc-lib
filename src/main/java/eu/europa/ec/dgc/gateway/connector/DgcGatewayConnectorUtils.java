@@ -40,6 +40,7 @@ import eu.europa.ec.dgc.signing.SignedMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -70,6 +70,7 @@ import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -227,7 +228,7 @@ class DgcGatewayConnectorUtils {
         HashMap<QueryParameter<? extends Serializable>, List<? extends Serializable>> queryParameterMap)
         throws DgcGatewayConnectorException {
         List<TrustListItemDto> downloadedCertificates;
-        HttpStatus responseStatus;
+        HttpStatusCode responseStatus;
         try {
             if (properties.isEnableDdccSupport()) {
                 // clone and modify parameter map to only get certs of requested type
@@ -300,7 +301,7 @@ class DgcGatewayConnectorUtils {
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedIssuers == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                responseEntity.getStatusCodeValue(), "Download of TrustedIssuers failed.");
+                responseEntity.getStatusCode().value(), "Download of TrustedIssuers failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded TrustedIssuers: {}",
                 downloadedTrustedIssuers.size());
@@ -332,7 +333,7 @@ class DgcGatewayConnectorUtils {
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedReferences == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                responseEntity.getStatusCodeValue(), "Download of TrustedReferences failed.");
+                responseEntity.getStatusCode().value(), "Download of TrustedReferences failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded TrustedReferences: {}",
                 downloadedTrustedReferences.size());

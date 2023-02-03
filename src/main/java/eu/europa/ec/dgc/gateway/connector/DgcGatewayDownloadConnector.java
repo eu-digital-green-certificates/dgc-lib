@@ -34,6 +34,7 @@ import eu.europa.ec.dgc.gateway.connector.model.TrustedIssuer;
 import eu.europa.ec.dgc.gateway.connector.model.TrustedReference;
 import eu.europa.ec.dgc.signing.SignedCertificateMessageParser;
 import feign.FeignException;
+import jakarta.annotation.PostConstruct;
 import java.io.Serializable;
 import java.security.Security;
 import java.time.LocalDateTime;
@@ -44,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +55,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
@@ -282,7 +283,7 @@ public class DgcGatewayDownloadConnector {
         log.info("Fetching TrustList from DGCG");
 
         List<TrustListItemDto> downloadedCertificates;
-        HttpStatus responseStatus;
+        HttpStatusCode responseStatus;
         try {
             if (properties.isEnableDdccSupport()) {
                 // clone and modify parameter map to only get certs of requested type
@@ -345,7 +346,7 @@ public class DgcGatewayDownloadConnector {
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                responseEntity.getStatusCodeValue(), "Download of TrustedCertificates failed.");
+                responseEntity.getStatusCode().value(), "Download of TrustedCertificates failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded Trusted Certificates: {}", responseEntity.getBody().size());
         }
