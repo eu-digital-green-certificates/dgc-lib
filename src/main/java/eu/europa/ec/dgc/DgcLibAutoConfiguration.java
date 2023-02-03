@@ -20,11 +20,11 @@
 
 package eu.europa.ec.dgc;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@AutoConfiguration
 @ComponentScan("eu.europa.ec.dgc")
 @EnableConfigurationProperties
 public class DgcLibAutoConfiguration {

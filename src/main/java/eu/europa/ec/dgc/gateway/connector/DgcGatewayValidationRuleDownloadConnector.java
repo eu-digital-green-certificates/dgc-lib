@@ -141,7 +141,7 @@ public class DgcGatewayValidationRuleDownloadConnector {
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedValidationRules == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                responseEntity.getStatusCodeValue(), "Download of TrustListItems failed.");
+                responseEntity.getStatusCode().value(), "Download of TrustListItems failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded ValidationRules: {}", downloadedValidationRules.size());
         }
