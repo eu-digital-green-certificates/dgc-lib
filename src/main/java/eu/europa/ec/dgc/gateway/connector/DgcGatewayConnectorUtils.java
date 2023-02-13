@@ -33,6 +33,7 @@ import eu.europa.ec.dgc.signing.SignedMessageParser;
 import eu.europa.ec.dgc.signing.SignedStringMessageParser;
 import eu.europa.ec.dgc.utils.CertificateUtils;
 import feign.FeignException;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -217,7 +217,7 @@ class DgcGatewayConnectorUtils {
 
         if (downloadedCertificates.getStatusCode() != HttpStatus.OK || downloadedCertificates.getBody() == null) {
             log.error("Failed to Download certificates from DGC Gateway, Type: {}, Status Code: {}",
-                type, downloadedCertificates.getStatusCodeValue());
+                type, downloadedCertificates.getStatusCode());
             return Collections.emptyList();
         }
 
@@ -249,7 +249,7 @@ class DgcGatewayConnectorUtils {
 
         if (responseEntity.getStatusCode() != HttpStatus.OK || downloadedTrustedIssuers == null) {
             throw new DgcGatewayConnectorUtils.DgcGatewayConnectorException(
-                responseEntity.getStatusCodeValue(), "Download of TrustedIssuers failed.");
+                responseEntity.getStatusCode().value(), "Download of TrustedIssuers failed.");
         } else {
             log.info("Got Response from DGCG, Downloaded TrustedIssuers: {}",
                 downloadedTrustedIssuers.size());
