@@ -41,3 +41,4 @@ build/
 /tools/*
 !/tools/*.bat
 !/tools/*.sh
+pom.xml.versionsBackup
