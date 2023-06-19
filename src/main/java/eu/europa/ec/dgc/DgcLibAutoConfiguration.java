@@ -23,7 +23,6 @@ package eu.europa.ec.dgc;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
 @AutoConfiguration
 @ComponentScan("eu.europa.ec.dgc")

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>2022.0.1</version>
+        <version>2022.0.3</version>
         <relativePath/>
     </parent>
 
@@ -30,17 +29,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
+
         <owasp.version>8.0.2</owasp.version>
-        <bcpkix.version>1.72</bcpkix.version>
-        <lombok.version>1.18.24</lombok.version>
-        <mapstruct.version>1.5.3.Final</mapstruct.version>
-        <commonsio.version>2.11.0</commonsio.version>
+        <bcpkix.version>1.74</bcpkix.version>
+        <lombok.version>1.18.28</lombok.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <commonsio.version>2.13.0</commonsio.version>
         <cbor.version>4.5.2</cbor.version>
-        <mockwebserver.version>4.10.0</mockwebserver.version>
-        <plugin.checkstyle.version>3.2.1</plugin.checkstyle.version>
+        <mockwebserver.version>5.0.0-alpha.11</mockwebserver.version>
+        <plugin.checkstyle.version>3.3.0</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
-        <plugin.surefire.version>3.0.0-M8</plugin.surefire.version>
-        <plugin.jacoco.version>0.8.8</plugin.jacoco.version>
+        <plugin.surefire.version>3.1.2</plugin.surefire.version>
+        <plugin.jacoco.version>0.8.10</plugin.jacoco.version>
 
         <!-- license -->
         <license.projectName>EU Digital Green Certificate Gateway Service / dgc-lib</license.projectName>
@@ -87,6 +87,17 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-fileupload</groupId>
+                    <artifactId>commons-fileupload</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.5</version>
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>
@@ -120,10 +131,22 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.15.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
