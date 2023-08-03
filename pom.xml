@@ -204,7 +204,6 @@
                 <configuration>
                     <suppressionFile>./owasp/suppressions.xml</suppressionFile>
                     <failBuildOnCVSS>8</failBuildOnCVSS>
-                    <!--failBuildOnAnyVulnerability>false</failBuildOnAnyVulnerability-->
                 </configuration>
             </plugin>
             <plugin>
