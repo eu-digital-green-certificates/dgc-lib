@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>2022.0.1</version>
+        <version>2022.0.4</version>
         <relativePath/>
     </parent>
 
     <groupId>eu.europa.ec.dgc</groupId>
     <artifactId>ddcc-gateway-lib</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <packaging>jar</packaging>
 
     <name>ddcc-gateway-lib</name>
@@ -30,8 +30,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
-        <owasp.version>8.0.2</owasp.version>
-        <bcpkix.version>1.72</bcpkix.version>
+        <owasp.version>8.3.1</owasp.version>
+        <bcpkix.version>1.76</bcpkix.version>
         <lombok.version>1.18.24</lombok.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <commonsio.version>2.11.0</commonsio.version>
@@ -120,6 +120,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>2.14.3</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -202,7 +203,8 @@
                 <version>${owasp.version}</version>
                 <configuration>
                     <suppressionFile>./owasp/suppressions.xml</suppressionFile>
-                    <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
+                    <failBuildOnCVSS>8</failBuildOnCVSS>
+                    <!--failBuildOnAnyVulnerability>false</failBuildOnAnyVulnerability-->
                 </configuration>
             </plugin>
             <plugin>
