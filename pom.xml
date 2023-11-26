@@ -4,16 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>2022.0.4</version>
-        <relativePath/>
-    </parent>
-
     <groupId>eu.europa.ec.dgc</groupId>
     <artifactId>ddcc-gateway-lib</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <packaging>jar</packaging>
 
     <name>ddcc-gateway-lib</name>
@@ -30,17 +23,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- dependencies -->
-        <owasp.version>8.3.1</owasp.version>
+        <owasp.version>9.0.0</owasp.version>
         <bcpkix.version>1.76</bcpkix.version>
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <commonsio.version>2.11.0</commonsio.version>
         <cbor.version>4.5.2</cbor.version>
-        <mockwebserver.version>4.10.0</mockwebserver.version>
+        <mockwebserver.version>4.12.0</mockwebserver.version>
         <plugin.checkstyle.version>3.2.1</plugin.checkstyle.version>
         <plugin.sonar.version>3.9.1.2184</plugin.sonar.version>
-        <plugin.surefire.version>3.0.0-M8</plugin.surefire.version>
-        <plugin.jacoco.version>0.8.8</plugin.jacoco.version>
+        <plugin.surefire.version>3.2.2</plugin.surefire.version>
+        <plugin.jacoco.version>0.8.11</plugin.jacoco.version>
+        <spring.boot.version>3.0.13</spring.boot.version>
 
         <!-- license -->
         <license.projectName>WHO Digital Documentation Covid Certificate Gateway Service / ddcc-gateway-lib</license.projectName>
@@ -77,20 +71,30 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <optional>true</optional>
+            <version>${spring.boot.version}</version>
+<!--            <optional>true</optional>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <version>${spring.boot.version}</version>
+<!--            <optional>true</optional>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-httpclient</artifactId>
+            <version>13.1</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -100,6 +104,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -125,11 +130,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <version>2.14.3</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -155,12 +156,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.10.1</version>
+                    <version>3.11.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.0.0</version>
+                    <version>2.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -204,6 +205,9 @@
                 <configuration>
                     <suppressionFile>./owasp/suppressions.xml</suppressionFile>
                     <failBuildOnCVSS>8</failBuildOnCVSS>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+                    <nvdApiDelay>16000</nvdApiDelay>
                 </configuration>
             </plugin>
             <plugin>
@@ -248,6 +252,14 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessorPaths>
@@ -264,7 +276,7 @@
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${project.parent.parent.version}</version>
+                            <version>${spring.boot.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
