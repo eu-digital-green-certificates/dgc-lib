@@ -31,7 +31,7 @@
         <!-- dependencies -->
 
         <owasp.version>8.0.2</owasp.version>
-        <bcpkix.version>1.74</bcpkix.version>
+        <bcpkix.version>1.78</bcpkix.version>
         <lombok.version>1.18.28</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <commonsio.version>2.13.0</commonsio.version>
