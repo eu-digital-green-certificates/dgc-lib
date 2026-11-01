@@ -128,16 +128,9 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)), ResponseEntity.ok(response));
 
         ValidationRulesByCountry result = connector.getValidationRules();
         Assertions.assertEquals(1, result.size());
@@ -187,16 +180,9 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)), ResponseEntity.ok(response));
 
         ValidationRulesByCountry result = connector.getValidationRules();
         Assertions.assertEquals(0, result.size());
@@ -235,16 +221,9 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)), ResponseEntity.ok(response));
 
 
         ValidationRulesByCountry result = connector.getValidationRules();
@@ -286,16 +265,9 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)), ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -319,14 +291,7 @@ class ValidationRuleDownloadConnectorTest {
 
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.status(500).build());
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.status(500).build(), ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
 
@@ -341,22 +306,11 @@ class ValidationRuleDownloadConnectorTest {
 
     @Test
     void shouldReturnEmptyListWhenDscDownloadFails() {
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
-
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.status(500).build());
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.emptyList()), ResponseEntity.status(500).build());
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
 
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd1MoreStubs(ResponseEntity.ok(Collections.emptyList()));
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.DSC);
@@ -390,16 +344,9 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)), ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -439,16 +386,9 @@ class ValidationRuleDownloadConnectorTest {
         validationRuleDto.setVersion(validationRule.getVersion());
         validationRuleDto.setCms(ruleSignature);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
-
-        when(restClientMock.downloadCountryList())
-            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
-
         Map<String, List<ValidationRuleDto>> response = Map.of(validationRule.getIdentifier(), List.of(validationRuleDto));
 
-        when(restClientMock.downloadValidationRule("EU"))
-            .thenReturn(ResponseEntity.ok(response));
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)), ResponseEntity.ok(response));
 
         Assertions.assertEquals(0, connector.getValidationRules().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -476,6 +416,19 @@ class ValidationRuleDownloadConnectorTest {
         Assertions.assertEquals(v1.getValidTo().toEpochSecond(), v2.getValidTo().toEpochSecond());
         Assertions.assertEquals(v1.getAffectedFields(), v2.getAffectedFields());
         Assertions.assertEquals(v1.getLogic(), v2.getLogic());
+    }
+
+    private void setupDgcGatewayConnectorRestClientDownloadCountryListAnd1MoreStubs(ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue) {
+        when(restClientMock.downloadCountryList())
+            .thenReturn(ResponseEntity.ok(Collections.singletonList("EU")));
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+            .thenReturn(getTrustedCertificatesReturnValue);
+    }
+
+    private void setupDgcGatewayConnectorRestClientDownloadCountryListAnd2MoreStubs(ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue, ResponseEntity<Map<String, List<ValidationRuleDto>>> downloadValidationRuleReturnValue) {
+        setupDgcGatewayConnectorRestClientDownloadCountryListAnd1MoreStubs(getTrustedCertificatesReturnValue);
+        when(restClientMock.downloadValidationRule("EU"))
+            .thenReturn(downloadValidationRuleReturnValue);
     }
 
 }
