@@ -119,14 +119,7 @@ class RevocationListDownloadConnectorTest {
         responseBody2.getBatches().add(batchItem4);
 
 
-        when(restClientMock.downloadRevocationList("2021-06-01T00:00:00Z"))
-            .thenReturn(ResponseEntity.ok(responseBody1));
-
-        when(restClientMock.downloadRevocationList("2021-08-01T00:00:00Z"))
-            .thenReturn(ResponseEntity.ok(responseBody2));
-
-        when(restClientMock.downloadRevocationList("2021-08-10T00:00:00Z"))
-            .thenReturn(ResponseEntity.noContent().build());
+        setupDgcGatewayConnectorRestClientDownloadRevocationListStubs(responseBody1, responseBody2);
 
         DgcGatewayRevocationListDownloadIterator downloadIterator =
             downloadConnector.getRevocationListDownloadIterator();
@@ -200,14 +193,7 @@ class RevocationListDownloadConnectorTest {
         responseBody2.getBatches().add(batchItem4);
 
 
-        when(restClientMock.downloadRevocationList("2021-06-01T00:00:00Z"))
-            .thenReturn(ResponseEntity.ok(responseBody1));
-
-        when(restClientMock.downloadRevocationList("2021-08-01T00:00:00Z"))
-            .thenReturn(ResponseEntity.ok(responseBody2));
-
-        when(restClientMock.downloadRevocationList("2021-08-10T00:00:00Z"))
-            .thenReturn(ResponseEntity.noContent().build());
+        setupDgcGatewayConnectorRestClientDownloadRevocationListStubs(responseBody1, responseBody2);
 
         DgcGatewayRevocationListDownloadIterator downloadIterator =
             downloadConnector.getRevocationListDownloadIterator(ZonedDateTime.parse("2021-08-01T00:00:00Z"));
@@ -326,5 +312,11 @@ class RevocationListDownloadConnectorTest {
         for (int i = 0; i < b1.getEntries().size(); i++) {
             Assertions.assertEquals(b1.getEntries().get(i).getHash(), b2.getEntries().get(i).getHash());
         }
+    }
+
+    private void setupDgcGatewayConnectorRestClientDownloadRevocationListStubs(RevocationBatchListDto responseBody1, RevocationBatchListDto responseBody2) {
+        when(restClientMock.downloadRevocationList("2021-06-01T00:00:00Z")).thenReturn(ResponseEntity.ok(responseBody1));
+        when(restClientMock.downloadRevocationList("2021-08-01T00:00:00Z")).thenReturn(ResponseEntity.ok(responseBody2));
+        when(restClientMock.downloadRevocationList("2021-08-10T00:00:00Z")).thenReturn(ResponseEntity.noContent().build());
     }
 }
