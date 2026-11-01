@@ -50,14 +50,7 @@ class ValueSetDownloadConnectorTest {
     @Test
     void testDownloadOfValueSets() {
 
-        when(restClientMock.downloadValueSetIds())
-            .thenReturn(ResponseEntity.ok(List.of("VS1", "VS2")));
-
-        when(restClientMock.downloadValueSet("VS1"))
-            .thenReturn(ResponseEntity.ok("VS1CONTENT"));
-
-        when(restClientMock.downloadValueSet("VS2"))
-            .thenReturn(ResponseEntity.ok("VS2CONTENT"));
+        setupDgcGatewayConnectorRestClientDownloadValueSetAnd1MoreStubs(ResponseEntity.ok("VS1CONTENT"));
 
         Map<String, String> result = connector.getValueSets();
         Assertions.assertEquals(2, result.size());
@@ -81,14 +74,7 @@ class ValueSetDownloadConnectorTest {
 
     @Test
     void shouldReturnPartialListWhenDownloadOfOneValueSetFails() {
-        when(restClientMock.downloadValueSetIds())
-            .thenReturn(ResponseEntity.ok(List.of("VS1", "VS2")));
-
-        when(restClientMock.downloadValueSet("VS1"))
-            .thenReturn(ResponseEntity.status(500).build());
-
-        when(restClientMock.downloadValueSet("VS2"))
-            .thenReturn(ResponseEntity.ok("VS2CONTENT"));
+        setupDgcGatewayConnectorRestClientDownloadValueSetAnd1MoreStubs(ResponseEntity.status(500).build());
 
         Map<String, String> valueSets = connector.getValueSets();
         Assertions.assertEquals(1, valueSets.size());
@@ -109,4 +95,9 @@ class ValueSetDownloadConnectorTest {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
     }
 
+    private void setupDgcGatewayConnectorRestClientDownloadValueSetAnd1MoreStubs(ResponseEntity<String> downloadValueSetReturnValue) {
+        when(restClientMock.downloadValueSetIds()).thenReturn(ResponseEntity.ok(List.of("VS1", "VS2")));
+        when(restClientMock.downloadValueSet("VS1")).thenReturn(downloadValueSetReturnValue);
+        when(restClientMock.downloadValueSet("VS2")).thenReturn(ResponseEntity.ok("VS2CONTENT"));
+    }
 }
