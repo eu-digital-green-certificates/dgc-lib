@@ -119,14 +119,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
 
         List<TrustListItem> result = connector.getTrustedCertificates();
@@ -194,14 +187,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
 
         List<TrustListItem> result = connector.getTrustedCertificates();
@@ -266,14 +252,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
 
         List<TrustListItem> result = connector.getTrustedCertificates();
@@ -340,14 +319,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -410,14 +382,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -425,39 +390,21 @@ class DownloadConnectorTest {
 
     @Test
     void shouldReturnEmptyListWhenCscaDownloadFails() {
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.status(500).build());
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.status(500).build(), ResponseEntity.ok(Collections.emptyList()), ResponseEntity.ok(Collections.emptyList()));
 
         Assertions.assertTrue(connector.getTrustedCertificates().isEmpty());
 
         doThrow(new FeignException.InternalServerError("", dummyRequest(), null, null))
             .when(restClientMock).getTrustedCertificates(CertificateTypeDto.CSCA);
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs(ResponseEntity.ok(Collections.emptyList()), ResponseEntity.ok(Collections.emptyList()));
 
         Assertions.assertTrue(connector.getTrustedCertificates().isEmpty());
     }
 
     @Test
     void shouldReturnEmptyListWhenUploadCertDownloadFails() {
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.status(500).build());
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.emptyList()), ResponseEntity.ok(Collections.emptyList()), ResponseEntity.status(500).build());
 
         Assertions.assertTrue(connector.getTrustedCertificates().isEmpty());
 
@@ -475,14 +422,7 @@ class DownloadConnectorTest {
 
     @Test
     void shouldReturnEmptyListWhenDscDownloadFails() {
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.status(500).build());
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.emptyList()), ResponseEntity.status(500).build(), ResponseEntity.ok(Collections.emptyList()));
 
         Assertions.assertTrue(connector.getTrustedCertificates().isEmpty());
 
@@ -552,14 +492,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(new byte[]{}));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
 
         List<TrustListItem> result = connector.getTrustedCertificates();
@@ -618,14 +551,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -680,14 +606,7 @@ class DownloadConnectorTest {
         dscTrustListItem.setThumbprint(certificateUtils.getCertThumbprint(dsc));
         dscTrustListItem.setRawData(Base64.getEncoder().encodeToString(dsc.getEncoded()));
 
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(dscTrustListItem)));
-
-        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
-            .thenReturn(ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity.ok(Collections.singletonList(cscaTrustListItem)), ResponseEntity.ok(Collections.singletonList(dscTrustListItem)), ResponseEntity.ok(Collections.singletonList(uploadTrustListItem)));
 
         Assertions.assertEquals(0, connector.getTrustedCertificates().size());
         Assertions.assertNotNull(connector.getLastUpdated());
@@ -699,6 +618,19 @@ class DownloadConnectorTest {
      */
     private Request dummyRequest() {
         return Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    }
+
+    private void setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs(ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue, ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue2) {
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.DSC))
+            .thenReturn(getTrustedCertificatesReturnValue);
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.UPLOAD))
+            .thenReturn(getTrustedCertificatesReturnValue2);
+    }
+
+    private void setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs2(ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue, ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue2, ResponseEntity<List<TrustListItemDto>> getTrustedCertificatesReturnValue3) {
+        when(restClientMock.getTrustedCertificates(CertificateTypeDto.CSCA))
+            .thenReturn(getTrustedCertificatesReturnValue);
+        setupDgcGatewayConnectorRestClientGetTrustedCertificatesStubs(getTrustedCertificatesReturnValue2, getTrustedCertificatesReturnValue3);
     }
 
 }
